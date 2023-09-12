@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Tuple
+from enum import Enum
 
 import numpy as np
+import math
 
 from minigrid.core.constants import (
     COLOR_TO_IDX,
@@ -16,6 +18,7 @@ from minigrid.utils.rendering import (
     point_in_circle,
     point_in_line,
     point_in_rect,
+    rotate_fn,
 )
 
 if TYPE_CHECKING:
@@ -97,6 +100,16 @@ class WorldObj:
             v = Goal()
         elif obj_type == "lava":
             v = Lava()
+        elif obj_type == "slippery":
+            v = Slippery(color)
+        elif obj_type == "slipperyeast":
+            v = SlipperyEast(color)
+        elif obj_type == "slipperysouth":
+            v = SlipperySouth(color)
+        elif obj_type == "slipperywest":
+            v = SlipperyWest(color)
+        elif obj_type == "slipperynorth":
+            v = SlipperyNorth(color)
         else:
             assert False, "unknown object type in decode '%s'" % obj_type
 
@@ -106,6 +119,107 @@ class WorldObj:
         """Draw this object with the given renderer"""
         raise NotImplementedError
 
+
+class Slippery(WorldObj):
+    def __init__(self, color: str = "blue"):
+        super().__init__("slippery", color)
+
+    def can_overlap(self):
+        return True
+
+    def render(self, img):
+        c = (100, 100, 200)
+        fill_coords(img, point_in_rect(0, 1, 0, 1), c)
+        for i in range(6):
+            ylo = 0.1  + 0.15 * i
+            yhi = 0.20 + 0.15 * i
+            fill_coords(img, point_in_line(0.1, ylo, 0.3, yhi, r=0.03), (0, 0, 0))
+            fill_coords(img, point_in_line(0.3, yhi, 0.5, ylo, r=0.03), (0, 0, 0))
+            fill_coords(img, point_in_line(0.5, ylo, 0.7, yhi, r=0.03), (0, 0, 0))
+            fill_coords(img, point_in_line(0.7, yhi, 0.9, ylo, r=0.03), (0, 0, 0))
+
+class SlipperyNorth(WorldObj):
+    def __init__(self, color: str = "blue"):
+        super().__init__("slipperynorth", color)
+        self.probabilities_forward = [0.0, 1./9, 2./9, 0.0, -50, -50, 0.0, 1./9, 2./9]
+        self.probabilities_turn = [0.0, 0.0, 1./9, 0.0, -50, 1./9, 0.0, 0.0, 1./9]
+        self.offset = (0,1)
+
+    def can_overlap(self):
+        return True
+
+    def render(self, img):
+        c = (100, 100, 200)
+        fill_coords(img, point_in_rect(0, 1, 0, 1), c)
+        for i in range(6):
+            ylo = 0.1  + 0.15 * i
+            yhi = 0.20 + 0.15 * i
+            fill_coords(img, point_in_line(0.1, ylo, 0.3, yhi, r=0.03), (0, 0, 0))
+            fill_coords(img, point_in_line(0.3, yhi, 0.5, ylo, r=0.03), (0, 0, 0))
+            fill_coords(img, point_in_line(0.5, ylo, 0.7, yhi, r=0.03), (0, 0, 0))
+            fill_coords(img, point_in_line(0.7, yhi, 0.9, ylo, r=0.03), (0, 0, 0))
+
+
+class SlipperySouth(WorldObj):
+    def __init__(self, color: str = "blue"):
+        super().__init__("slipperysouth", color)
+        self.probabilities_forward = [2./9, 1./9, 0.0, -50, -50, 0.0, 2./9, 1./9, 0.0]
+        self.probabilities_turn = [1./9, 0.0, 0.0, 1./9, -50, 0.0, 1./9, 0.0, 0.0]
+        self.offset = (0,-1)
+    def can_overlap(self):
+        return True
+
+    def render(self, img):
+        c = (100, 100, 200)
+        fill_coords(img, point_in_rect(0, 1, 0, 1), c)
+        for i in range(6):
+            ylo = 0.1  + 0.15 * i
+            yhi = 0.20 + 0.15 * i
+            fill_coords(img, rotate_fn(point_in_line(0.1, ylo, 0.3, yhi, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
+            fill_coords(img, rotate_fn(point_in_line(0.3, yhi, 0.5, ylo, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
+            fill_coords(img, rotate_fn(point_in_line(0.5, ylo, 0.7, yhi, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
+            fill_coords(img, rotate_fn(point_in_line(0.7, yhi, 0.9, ylo, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
+
+class SlipperyEast(WorldObj):
+    def __init__(self, color: str = "blue"):
+        super().__init__("slipperyeast", color)
+        self.probabilities_forward = [2./9, -50, 2./9, 1./9., -50, 1./9, 0.0, 0.0, 0.0]
+        self.probabilities_turn = [1./9, 1./9, 1./9, 0.0, -50, 0.0, 0.0, 0.0, 0.0]
+        self.offset = (-1,0)
+
+    def can_overlap(self):
+        return True
+
+    def render(self, img):
+        c = (100, 100, 200)
+        fill_coords(img, point_in_rect(0, 1, 0, 1), c)
+        for i in range(6):
+            ylo = 0.1  + 0.15 * i
+            yhi = 0.20 + 0.15 * i
+            fill_coords(img, rotate_fn(point_in_line(0.1, ylo, 0.3, yhi, r=0.03), cx=0.5, cy=0.5, theta=0.5 * math.pi), (0, 0, 0))
+            fill_coords(img, rotate_fn(point_in_line(0.3, yhi, 0.5, ylo, r=0.03), cx=0.5, cy=0.5, theta=0.5 * math.pi), (0, 0, 0))
+            fill_coords(img, rotate_fn(point_in_line(0.5, ylo, 0.7, yhi, r=0.03), cx=0.5, cy=0.5, theta=0.5 * math.pi), (0, 0, 0))
+            fill_coords(img, rotate_fn(point_in_line(0.7, yhi, 0.9, ylo, r=0.03), cx=0.5, cy=0.5, theta=0.5 * math.pi), (0, 0, 0))
+
+class SlipperyWest(WorldObj):
+    def __init__(self, color: str = "blue"):
+        super().__init__("slipperywest", color)
+        self.probabilities_forward = [0.0, 0.0, 0.0, 1./9., -50, 1./9, 2./9, -50, 2./9]
+        self.probabilities_turn = [0.0, 0.0, 0.0, 0.0, -50, 0.0, 1./9, 1./9, 1./9]
+        self.offset = (1,0)
+    def can_overlap(self):
+        return True
+
+    def render(self, img):
+        c = (100, 100, 200)
+        fill_coords(img, point_in_rect(0, 1, 0, 1), c)
+        for i in range(6):
+            ylo = 0.1  + 0.15 * i
+            yhi = 0.20 + 0.15 * i
+            fill_coords(img, rotate_fn(point_in_line(0.1, ylo, 0.3, yhi, r=0.03), cx=0.5, cy=0.5, theta=-0.5 * math.pi), (0, 0, 0))
+            fill_coords(img, rotate_fn(point_in_line(0.3, yhi, 0.5, ylo, r=0.03), cx=0.5, cy=0.5, theta=-0.5 * math.pi), (0, 0, 0))
+            fill_coords(img, rotate_fn(point_in_line(0.5, ylo, 0.7, yhi, r=0.03), cx=0.5, cy=0.5, theta=-0.5 * math.pi), (0, 0, 0))
+            fill_coords(img, rotate_fn(point_in_line(0.7, yhi, 0.9, ylo, r=0.03), cx=0.5, cy=0.5, theta=-0.5 * math.pi), (0, 0, 0))
 
 class Goal(WorldObj):
     def __init__(self):
