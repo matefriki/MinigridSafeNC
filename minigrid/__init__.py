@@ -55,6 +55,32 @@ def register_minigrid_envs():
         kwargs={"size": 11, "num_crossings": 5},
     )
 
+    # LavaSlippery
+    # ----------------------------------------
+
+
+    register(
+        id="MiniGrid-LavaSlipperyS12-v0",
+        entry_point="minigrid.envs:LavaSlipperyEnv",
+        kwargs={"size": 12, "version": 0},
+    )
+    register(
+        id="MiniGrid-LavaSlipperyS12-v1",
+        entry_point="minigrid.envs:LavaSlipperyEnv",
+        kwargs={"size": 12, "version": 1},
+    )
+    register(
+        id="MiniGrid-LavaSlipperyS12-v2",
+        entry_point="minigrid.envs:LavaSlipperyEnv",
+        kwargs={"size": 12, "version": 2},
+    )
+    register(
+        id="MiniGrid-LavaSlipperyS12-v3",
+        entry_point="minigrid.envs:LavaSlipperyEnv",
+        kwargs={"size": 12, "version": 3},
+    )
+    
+    
     # SimpleCrossing
     # ----------------------------------------
 
