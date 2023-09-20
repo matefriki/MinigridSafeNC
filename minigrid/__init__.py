@@ -80,6 +80,28 @@ def register_minigrid_envs():
         kwargs={"size": 12, "version": 3},
     )
     
+    # DoubleDoors
+    # ----------------------------------------
+    
+    register(
+        id = "MiniGrid-DoubleDoor-12x12-v0",
+        entry_point="minigrid.envs:DoubleDoorEnv",
+        kwargs={"width": 12, "height": 12}
+    )
+    register(
+        id = "MiniGrid-DoubleDoor-16x16-v0",
+        entry_point="minigrid.envs:DoubleDoorEnv",
+        kwargs={"width": 16, "height": 16}
+    )
+    
+    register(
+        id = "MiniGrid-DoubleDoor-10x8-v0",
+        entry_point="minigrid.envs:DoubleDoorEnv",
+        kwargs={"width": 10, "height": 8}
+    )
+    
+    
+    
     
     # SimpleCrossing
     # ----------------------------------------

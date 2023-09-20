@@ -232,6 +232,20 @@ class LavaSlipperyEnv(MiniGridEnv):
         self.put_obj(Lava(), w_mid - 1, 5)
         self.put_obj(Lava(), w_mid, 5) 
         self.put_obj(Lava(), w_mid + 1, 5) 
+        self.put_obj(Lava(), w_mid - 2, 5)
+        self.put_obj(Lava(), w_mid - 1, 5)
+        self.put_obj(Lava(), w_mid, 5) 
+        self.put_obj(Lava(), w_mid + 1, 6) 
+        self.put_obj(Lava(), w_mid - 2, 6)
+        self.put_obj(Lava(), w_mid - 1, 6)
+        self.put_obj(Lava(), w_mid, 6) 
+        self.put_obj(Lava(), w_mid + 1, 6) 
+        
+        self.put_obj(Lava(), w_mid + 1, 7) 
+        self.put_obj(Lava(), w_mid - 2, 7)
+        self.put_obj(Lava(), w_mid - 1, 7)
+        self.put_obj(Lava(), w_mid, 7) 
+        self.put_obj(Lava(), w_mid + 1, 7) 
         
         
         self.put_obj(SlipperySouth(), w_mid - 2, height - 2)
@@ -249,17 +263,6 @@ class LavaSlipperyEnv(MiniGridEnv):
         self.put_obj(SlipperySouth(), w_mid, height - 4)
         self.put_obj(SlipperySouth(), w_mid + 1, height - 4)
         
-        
-        self.put_obj(SlipperySouth(), w_mid - 2, height - 5)
-        self.put_obj(SlipperySouth(), w_mid - 1, height - 5)
-        self.put_obj(SlipperySouth(), w_mid, height - 5)
-        self.put_obj(SlipperySouth(), w_mid + 1, height - 5)
-        
-        
-        self.put_obj(SlipperySouth(), w_mid - 2, height - 6)
-        self.put_obj(SlipperySouth(), w_mid - 1, height - 6)
-        self.put_obj(SlipperySouth(), w_mid, height - 6)
-        self.put_obj(SlipperySouth(), w_mid + 1, height - 6)
         
         
         
