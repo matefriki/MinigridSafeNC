@@ -14,6 +14,7 @@ from minigrid.envs.keycorridor import KeyCorridorEnv
 from minigrid.envs.lavagap import LavaGapEnv
 from minigrid.envs.lavaslippery import LavaSlipperyEnv
 from minigrid.envs.doubledoor import DoubleDoorEnv
+from minigrid.envs.singledoor import SingleDoorEnv
 from minigrid.envs.lockedroom import LockedRoom, LockedRoomEnv
 from minigrid.envs.memory import MemoryEnv
 from minigrid.envs.multiroom import MultiRoom, MultiRoomEnv

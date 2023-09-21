@@ -100,7 +100,13 @@ def register_minigrid_envs():
         kwargs={"width": 10, "height": 8}
     )
     
-    
+    # SingleDoors
+    # ----------------------------------------
+    register(
+        id = "MiniGrid-SingleDoor-7x6-v0",
+        entry_point="minigrid.envs:SingleDoorEnv",
+        kwargs={"width": 7, "height": 6}
+    )
     
     
     # SimpleCrossing
