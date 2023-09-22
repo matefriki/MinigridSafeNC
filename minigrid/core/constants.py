@@ -34,7 +34,7 @@ OBJECT_TO_IDX = {
     "goal": 8,
     "lava": 9,
     "agent": 10,
-    "slippery": 11,
+    "adversary": 11,
     "slipperyeast": 12,
     "slipperysouth": 13,
     "slipperywest": 14,
@@ -48,6 +48,10 @@ STATE_TO_IDX = {
     "open": 0,
     "closed": 1,
     "locked": 2,
+    "adv_view_east": 3,
+    "adv_view_south": 4,
+    "adv_view_west": 5,
+    "adv_view_north":6
 }
 
 # Map of agent direction indices to vectors

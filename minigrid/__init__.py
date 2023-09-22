@@ -108,6 +108,13 @@ def register_minigrid_envs():
         kwargs={"width": 7, "height": 6}
     )
     
+    # AdversarySimple
+    # ----------------------------------------
+    register(
+        id = "MiniGrid-Adv-8x8-v0",
+        entry_point="minigrid.envs:AdversaryEnv",
+        kwargs={"width": 8, "height": 8}
+    )
     
     # SimpleCrossing
     # ----------------------------------------

@@ -18,31 +18,40 @@ from minigrid.utils.rendering import (
     rotate_fn,
 )
 
-class Adversary(WorldObj):
-   def __init__(self, adversary_dir=1, color="blue", tasks=[DoRandom()]):
-       super().__init__("adversary", color)
-       self.adversary_dir = adversary_dir
-       self.color = color
-       self.task_manager = TaskManager(tasks)
-       self.carrying = None
+VIEW_TO_STATE_IDX = {
+   0: 3,
+   1: 4,
+   2: 5,
+   3: 6
+}
 
-   def render(self, img):
-       tri_fn = point_in_triangle(
+
+class Adversary(WorldObj):
+    def __init__(self, adversary_dir=1, color="blue", tasks=[DoRandom()]):
+        super().__init__("adversary", color)
+        self.adversary_dir = adversary_dir
+        self.color = color
+        self.task_manager = TaskManager(tasks)
+        self.carrying = None
+        self.name = color.capitalize()
+
+    def render(self, img):
+        tri_fn = point_in_triangle(
            (0.12, 0.19),
            (0.87, 0.50),
            (0.12, 0.81),
        )
 
        # Rotate the agent based on its direction
-       tri_fn = rotate_fn(tri_fn, cx=0.5, cy=0.5, theta=0.5 * math.pi * self.adversary_dir)
-       fill_coords(img, tri_fn, COLORS[self.color])
+        tri_fn = rotate_fn(tri_fn, cx=0.5, cy=0.5, theta=0.5 * math.pi * self.adversary_dir)
+        fill_coords(img, tri_fn, COLORS[self.color])
 
-   def dir_vec(self):
-       assert self.adversary_dir >= 0 and self.adversary_dir < 4
-       return DIR_TO_VEC[self.adversary_dir]
+    def dir_vec(self):
+        assert self.adversary_dir >= 0 and self.adversary_dir < 4
+        return DIR_TO_VEC[self.adversary_dir]
 
-   def can_overlap(self):
-       return False
+    def can_overlap(self):
+        return False
 
-   def encode(self):
-       return (OBJECT_TO_IDX[self.type], COLOR_TO_IDX[self.color], self.adversary_dir)
+    def encode(self):
+        return (OBJECT_TO_IDX[self.type], COLOR_TO_IDX[self.color], VIEW_TO_STATE_IDX[self.adversary_dir])

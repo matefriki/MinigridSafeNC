@@ -19,6 +19,10 @@ from minigrid.core.constants import COLOR_NAMES, DIR_TO_VEC, TILE_PIXELS
 from minigrid.core.grid import Grid
 from minigrid.core.mission import MissionSpace
 from minigrid.core.world_object import Point, WorldObj, Slippery, SlipperyEast, SlipperyNorth, SlipperySouth, SlipperyWest
+from minigrid.core.adversary import Adversary
+from minigrid.core.tasks import DoRandom, Task, List    
+
+from collections import deque
 
 T = TypeVar("T")
 
@@ -171,6 +175,24 @@ class MiniGridEnv(gym.Env):
             sample_hash.update(str(item).encode("utf8"))
 
         return sample_hash.hexdigest()[:size]
+    
+    def add_adversary(
+       self,
+       i: int,
+       j: int,
+       color: str,
+       direction: int = 0,
+       tasks: List[Task] = [DoRandom()]
+    ):
+       """
+       Adds an adversary to the grid
+       """
+
+       adv = Adversary(direction,color, tasks=tasks)
+       self.put_obj(adv,i,j)
+       self.adversaries[color] = adv
+       return (i, j)
+
 
     @property
     def steps_remaining(self):
