@@ -88,18 +88,17 @@ class AdversaryEnv(MiniGridEnv):
             adversary.adversary_dir = (adversary.adversary_dir + 1) % 4
 
         # Move forward
-        elif action == self.actions.forward and isinstance(current_cell, SlipperyNorth):
-            print("TODO: actual slippery obs, for now: Teleporting the agent")
+        elif action == self.actions.forward and isinstance(current_cell, (SlipperyNorth, SlipperyEast, SlipperySouth, SlipperyWest)):
+            possible_fwd_pos, prob = self.get_neighbours_prob_forward(adversary.cur_pos, current_cell.probabilities_forward, current_cell.offset)
+            fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
+            fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
+            fwd_cell = self.grid.get(*fwd_pos)
             # TODO also what if blocked, see below
-            adversary.cur_pos = (3, 3)
+            adversary.cur_pos = tuple(fwd_pos)
 
         elif action == self.actions.forward and not isinstance(current_cell, SlipperyNorth):
-            if (fwd_pos == agent_pos).all():
-                self.reward -= self.collision_penalty
-                self.safety_violations_this_episode += 1
-                
 
-            elif (fwd_cell is None or fwd_cell.can_overlap()) and not tuple(fwd_pos) in blocked_positions:
+            if (fwd_cell is None or fwd_cell.can_overlap()) and not tuple(fwd_pos) in blocked_positions:
                 if isinstance(fwd_cell, Box):
                     self.grid.set_background(*fwd_pos,fwd_cell)
                     self.background_boxes[tuple(fwd_pos)] = fwd_cell  # np.array is not hashable
