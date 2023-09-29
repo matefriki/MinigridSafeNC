@@ -123,6 +123,9 @@ class MiniGridEnv(gym.Env):
         self.highlight = highlight
         self.tile_size = tile_size
         self.agent_pov = agent_pov
+        
+        # Custom
+        self.background_tiles = dict()
 
     def reset(
         self,
@@ -734,6 +737,10 @@ class MiniGridEnv(gym.Env):
                 reward = self._reward()
             if fwd_cell is not None and fwd_cell.type == "lava":
                 terminated = True
+            if fwd_cell is not None and fwd_cell.type == "adversary":
+                terminated = True
+                reward = self.collision_penalty
+                self.agent_pos = tuple(fwd_pos)
 
         # Pick up an object
         elif action == self.actions.pickup:

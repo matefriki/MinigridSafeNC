@@ -116,6 +116,33 @@ def register_minigrid_envs():
         kwargs={"width": 8, "height": 8}
     )
     
+    register(
+        id = "MiniGrid-AdvSimple-8x8-v0",
+        entry_point="minigrid.envs:AdversaryEnv",
+        kwargs={"width": 8, "height": 8, "generate_wall": False}
+    )
+    
+    register(
+        id = "MiniGrid-AdvLava-8x8-v0",
+        entry_point="minigrid.envs:AdversaryEnv",
+        kwargs={"width": 8,
+                "height": 8,
+                "generate_wall": False,
+                "generate_lava": True}
+    )
+    
+    register(
+        id = "MiniGrid-AdvSlippery-8x8-v0",
+        entry_point="minigrid.envs:AdversaryEnv",
+        kwargs={"width": 8,
+                "height": 8,
+                "generate_wall": False,
+                "generate_lava": False,
+                "generate_slippery": True}
+    )
+
+
+
     # SimpleCrossing
     # ----------------------------------------
 
