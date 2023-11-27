@@ -218,60 +218,55 @@ class LavaSlipperyEnv(MiniGridEnv):
     def _env_three(self, width, height):
         w_mid = width // 2
         h_mid = height // 2
-        
-        # self.put_obj(Lava(), w_mid - 1, h_mid - 1)
-        # self.put_obj(Lava(), w_mid, h_mid - 1)
-        # self.put_obj(Lava(), w_mid - 1, h_mid)
-        # self.put_obj(Lava(), w_mid, h_mid)
-        
-        self.put_obj(Lava(), w_mid - 2, 4)
-        self.put_obj(Lava(), w_mid - 1, 4)
-        self.put_obj(Lava(), w_mid, 4)  
-        self.put_obj(Lava(), w_mid + 1, 4)  
-        self.put_obj(Lava(), w_mid - 2, 5)
-        self.put_obj(Lava(), w_mid - 1, 5)
-        self.put_obj(Lava(), w_mid, 5) 
-        self.put_obj(Lava(), w_mid + 1, 5) 
-        self.put_obj(Lava(), w_mid - 2, 5)
-        self.put_obj(Lava(), w_mid - 1, 5)
-        self.put_obj(Lava(), w_mid, 5) 
-        self.put_obj(Lava(), w_mid + 1, 6) 
-        self.put_obj(Lava(), w_mid - 2, 6)
-        self.put_obj(Lava(), w_mid - 1, 6)
-        self.put_obj(Lava(), w_mid, 6) 
-        self.put_obj(Lava(), w_mid + 1, 6) 
-        
-        self.put_obj(Lava(), w_mid + 1, 7) 
-        self.put_obj(Lava(), w_mid - 2, 7)
-        self.put_obj(Lava(), w_mid - 1, 7)
-        self.put_obj(Lava(), w_mid, 7) 
-        self.put_obj(Lava(), w_mid + 1, 7) 
+    
+        self.put_obj(Lava(), w_mid - 2, 1)
+        self.put_obj(Lava(), w_mid - 1, 1)
+        self.put_obj(Lava(), w_mid, 1)  
+        self.put_obj(Lava(), w_mid + 1, 1)  
+        self.put_obj(Lava(), w_mid - 2, 2)
+        self.put_obj(Lava(), w_mid - 1, 2)
+        self.put_obj(Lava(), w_mid, 2) 
+        self.put_obj(Lava(), w_mid + 1, 2) 
+        self.put_obj(Lava(), w_mid - 2, 2)
+        self.put_obj(Lava(), w_mid - 1, 2)
+        self.put_obj(Lava(), w_mid, 2) 
+        self.put_obj(Lava(), w_mid + 1, 3) 
+        self.put_obj(Lava(), w_mid - 2, 3)
+        self.put_obj(Lava(), w_mid - 1, 3)
+        self.put_obj(Lava(), w_mid, 3) 
+        self.put_obj(Lava(), w_mid + 1, 3) 
         
         
-        self.put_obj(SlipperySouth(), w_mid - 2, height - 2)
-        self.put_obj(SlipperySouth(), w_mid - 1, height - 2)
-        self.put_obj(SlipperySouth(), w_mid, height - 2)
-        self.put_obj(SlipperySouth(), w_mid + 1, height - 2)
         
-        self.put_obj(SlipperySouth(), w_mid - 2, height - 3)
-        self.put_obj(SlipperySouth(), w_mid - 1, height - 3)
-        self.put_obj(SlipperySouth(), w_mid, height - 3)
-        self.put_obj(SlipperySouth(), w_mid + 1, height - 3)
+        self.put_obj(SlipperyNorth(), w_mid - 2, 4)
+        self.put_obj(SlipperyNorth(), w_mid - 1, 4)
+        self.put_obj(SlipperyNorth(), w_mid, 4)
+        self.put_obj(SlipperyNorth(), w_mid + 1, 4)
         
-        self.put_obj(SlipperySouth(), w_mid - 2, height - 4)
-        self.put_obj(SlipperySouth(), w_mid - 1, height - 4)
-        self.put_obj(SlipperySouth(), w_mid, height - 4)
-        self.put_obj(SlipperySouth(), w_mid + 1, height - 4)
+        self.put_obj(SlipperyNorth(), w_mid - 2, 5)
+        self.put_obj(SlipperyNorth(), w_mid - 1, 5)
+        self.put_obj(SlipperyNorth(), w_mid, 5)
+        self.put_obj(SlipperyNorth(), w_mid + 1, 5)
+        
+        self.put_obj(SlipperyNorth(), w_mid - 2, 6)
+        self.put_obj(SlipperyNorth(), w_mid - 1, 6)
+        self.put_obj(SlipperyNorth(), w_mid, 6)
+        self.put_obj(SlipperyNorth(), w_mid + 1, 6)
+        
+        self.put_obj(SlipperyNorth(), w_mid - 2, 7)
+        self.put_obj(SlipperyNorth(), w_mid - 1, 7)
+        self.put_obj(SlipperyNorth(), w_mid, 7)
+        self.put_obj(SlipperyNorth(), w_mid + 1, 7)
         
         
         
         
         # Place the agent
-        self.agent_pos = np.array((1, height - 2))
+        self.agent_pos = np.array((1, 1))
         self.agent_dir = 0
 
         # Place a goal square 
-        self.goal_pos = np.array((width - 2, height - 2))
+        self.goal_pos = np.array((width - 2,1))
         self.put_obj(Goal(), *self.goal_pos)
 
     def _env_four(self, width, height):
