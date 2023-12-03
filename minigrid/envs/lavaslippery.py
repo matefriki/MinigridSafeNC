@@ -80,10 +80,17 @@ class LavaSlipperyEnv(MiniGridEnv):
     - `MiniGrid-VLavaSlipperyS12-v0`
 
     """
-    def __init__(self, size, obstacle_type=Lava, version=0 , **kwargs):
+    def __init__(self, size=12, width=None, height=None,     obstacle_type=Lava, version=0 , **kwargs):
         self.obstacle_type = obstacle_type
         self.size = size
         self.version = version
+
+        if width is not None and height is not None:        
+            self.width = width
+            self.height = height
+        else:
+            self.width = size
+            self.height = size
 
         if obstacle_type == Lava:
             mission_space = MissionSpace(
@@ -96,8 +103,8 @@ class LavaSlipperyEnv(MiniGridEnv):
 
         super().__init__(
             mission_space=mission_space,
-            width=size,
-            height=size,
+            width=self.width,
+            height=self.height,
             max_steps=4 * size * size,
             # Set this to True for maximum speed
             see_through_walls=False,
@@ -238,25 +245,25 @@ class LavaSlipperyEnv(MiniGridEnv):
         
         
         
-        self.put_obj(SlipperyNorth(), w_mid - 2, 4)
-        self.put_obj(SlipperyNorth(), w_mid - 1, 4)
-        self.put_obj(SlipperyNorth(), w_mid, 4)
-        self.put_obj(SlipperyNorth(), w_mid + 1, 4)
+        self.put_obj(SlipperySouth(), w_mid - 2, 4)
+        self.put_obj(SlipperySouth(), w_mid - 1, 4)
+        self.put_obj(SlipperySouth(), w_mid, 4)
+        self.put_obj(SlipperySouth(), w_mid + 1, 4)
         
-        self.put_obj(SlipperyNorth(), w_mid - 2, 5)
-        self.put_obj(SlipperyNorth(), w_mid - 1, 5)
-        self.put_obj(SlipperyNorth(), w_mid, 5)
-        self.put_obj(SlipperyNorth(), w_mid + 1, 5)
+        self.put_obj(SlipperySouth(), w_mid - 2, 5)
+        self.put_obj(SlipperySouth(), w_mid - 1, 5)
+        self.put_obj(SlipperySouth(), w_mid, 5)
+        self.put_obj(SlipperySouth(), w_mid + 1, 5)
         
-        self.put_obj(SlipperyNorth(), w_mid - 2, 6)
-        self.put_obj(SlipperyNorth(), w_mid - 1, 6)
-        self.put_obj(SlipperyNorth(), w_mid, 6)
-        self.put_obj(SlipperyNorth(), w_mid + 1, 6)
+        self.put_obj(SlipperySouth(), w_mid - 2, 6)
+        self.put_obj(SlipperySouth(), w_mid - 1, 6)
+        self.put_obj(SlipperySouth(), w_mid, 6)
+        self.put_obj(SlipperySouth(), w_mid + 1, 6)
         
-        self.put_obj(SlipperyNorth(), w_mid - 2, 7)
-        self.put_obj(SlipperyNorth(), w_mid - 1, 7)
-        self.put_obj(SlipperyNorth(), w_mid, 7)
-        self.put_obj(SlipperyNorth(), w_mid + 1, 7)
+        self.put_obj(SlipperySouth(), w_mid - 2, 7)
+        self.put_obj(SlipperySouth(), w_mid - 1, 7)
+        self.put_obj(SlipperySouth(), w_mid, 7)
+        self.put_obj(SlipperySouth(), w_mid + 1, 7)
         
         
         
@@ -269,73 +276,39 @@ class LavaSlipperyEnv(MiniGridEnv):
         self.goal_pos = np.array((width - 2,1))
         self.put_obj(Goal(), *self.goal_pos)
 
+    def create_slippery_lava_line(self, y, x_start, x_end):
+        self.put_obj(SlipperyWest(), x_start - 1, y)
+        self.put_obj(SlipperyEast(), x_end + 1 , y)
+        self.put_obj(SlipperyNorth(), x_start - 1, y - 1)
+        self.put_obj(SlipperySouth(), x_end + 1 , y + 1)
+        self.put_obj(SlipperyNorth(), x_end + 1, y - 1)
+        self.put_obj(SlipperySouth(), x_start - 1 , y + 1)
+
+        for x in range(x_start, x_end + 1):
+            self.put_obj(SlipperyNorth(), x, y - 1)
+            self.put_obj(SlipperySouth(), x, y + 1)
+            self.put_obj(Lava(), x, y)
+
+    def create_lava_line(self, y, x_start, x_end):
+        for x in range(x_start, x_end + 1):
+            self.put_obj(Lava(), x, y)
+
+
     def _env_four(self, width, height):
         
-        self.put_obj(Lava(), 3, height - 4)
-        self.put_obj(Lava(), 4, height - 4)
-        self.put_obj(Lava(), 5, height - 4)
-        self.put_obj(Lava(), 6, height - 4)
-        self.put_obj(Lava(), 7, height - 4)
-        self.put_obj(Lava(), 8, height - 4)
-        self.put_obj(Lava(), 9, height - 4)
+        self.create_lava_line(height - 4, 1, 15)        
+        self.create_lava_line(height - 4, 20, 28)        
+        self.create_slippery_lava_line(height // 2 + 3, 4, 6)        
+        self.create_slippery_lava_line(height // 2 + 3, 9, 15)   
+        self.create_slippery_lava_line(height // 2 + 3, 18, 24)   
+
+        self.create_lava_line(height // 2 - 1, 1, 9)  
+        self.create_lava_line(height // 2 - 1, 12, 28)  
         
-        self.put_obj(SlipperyEast(), 10, height - 4)
-        self.put_obj(SlipperyWest(), 2, height - 4)
-        
-        self.put_obj(SlipperyNorth(), 2, height - 5)
-        self.put_obj(SlipperyNorth(), 3, height - 5)
-        self.put_obj(SlipperyNorth(), 4, height - 5)
-        self.put_obj(SlipperyNorth(), 5, height - 5)
-        self.put_obj(SlipperyNorth(), 6, height - 5)
-        self.put_obj(SlipperyNorth(), 7, height - 5)
-        self.put_obj(SlipperyNorth(), 8, height - 5)
-        self.put_obj(SlipperyNorth(), 9, height - 5)
-        self.put_obj(SlipperyNorth(), 10, height - 5)
-        
-        self.put_obj(SlipperySouth(), 2, height - 3)    
-        self.put_obj(SlipperySouth(), 3, height - 3)
-        self.put_obj(SlipperySouth(), 4, height - 3)
-        self.put_obj(SlipperySouth(), 5, height - 3)
-        self.put_obj(SlipperySouth(), 6, height - 3)
-        self.put_obj(SlipperySouth(), 7, height - 3)
-        self.put_obj(SlipperySouth(), 8, height - 3)
-        self.put_obj(SlipperySouth(), 9, height - 3)
-        self.put_obj(SlipperySouth(), 10, height - 3)
-        
-        self.put_obj(Lava(), 2, 3)
-        self.put_obj(Lava(), 3, 3)
-        self.put_obj(Lava(), 4, 3)
-        self.put_obj(Lava(), 5, 3)
-        self.put_obj(Lava(), 6, 3)
-        self.put_obj(Lava(), 7, 3)
-        self.put_obj(Lava(), 8, 3)
-        
-        
-        self.put_obj(SlipperyEast(), 9, 3)
-        self.put_obj(SlipperyWest(), 1, 3)
-        
-           
-        self.put_obj(SlipperyNorth(), 1, 2)
-        self.put_obj(SlipperyNorth(), 2, 2)
-        self.put_obj(SlipperyNorth(), 3, 2)
-        self.put_obj(SlipperyNorth(), 4, 2)
-        self.put_obj(SlipperyNorth(), 5, 2)
-        self.put_obj(SlipperyNorth(), 6, 2)
-        self.put_obj(SlipperyNorth(), 7, 2)
-        self.put_obj(SlipperyNorth(), 8, 2)
-        self.put_obj(SlipperyNorth(), 9, 2)
-            
-        self.put_obj(SlipperySouth(), 1, 4)
-        self.put_obj(SlipperySouth(), 2, 4)
-        self.put_obj(SlipperySouth(), 3, 4)
-        self.put_obj(SlipperySouth(), 4, 4)
-        self.put_obj(SlipperySouth(), 5, 4)
-        self.put_obj(SlipperySouth(), 6, 4)
-        self.put_obj(SlipperySouth(), 7, 4)
-        self.put_obj(SlipperySouth(), 8, 4)
-        self.put_obj(SlipperySouth(), 9, 4)
-        
-        
+        self.create_slippery_lava_line(5, 2, 6)        
+        self.create_slippery_lava_line(5, 9, 15)   
+        self.create_slippery_lava_line(5, 18, 24)   
+
         self.agent_pos = np.array((width - 2, height - 2))
         self.agent_dir = 3
         # Place a goal square 

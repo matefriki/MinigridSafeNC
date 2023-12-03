@@ -77,7 +77,7 @@ def register_minigrid_envs():
     register(
         id="MiniGrid-LavaSlipperyS12-v3",
         entry_point="minigrid.envs:LavaSlipperyEnv",
-        kwargs={"size": 12, "version": 3},
+        kwargs={"width": 30, "height": 21, "version": 3},
     )
     
     # DoubleDoors
