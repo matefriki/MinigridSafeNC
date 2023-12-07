@@ -12,6 +12,7 @@ from minigrid.envs.gotodoor import GoToDoorEnv
 from minigrid.envs.gotoobject import GoToObjectEnv
 from minigrid.envs.keycorridor import KeyCorridorEnv
 from minigrid.envs.lavagap import LavaGapEnv
+from minigrid.envs.lavafaulty import LavaFaultyEnv
 from minigrid.envs.lavaslippery import LavaSlipperyEnv
 from minigrid.envs.adversary_simple import AdversaryEnv
 from minigrid.envs.doubledoor import DoubleDoorEnv

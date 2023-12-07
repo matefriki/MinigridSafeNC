@@ -79,6 +79,15 @@ def register_minigrid_envs():
         entry_point="minigrid.envs:LavaSlipperyEnv",
         kwargs={"width": 30, "height": 21, "version": 3},
     )
+
+
+    # LavaFaulty
+
+    register(
+        id="MiniGrid-LavaFaultyS12-v0",
+        entry_point="minigrid.envs:LavaFaultyEnv",
+        kwargs={"size": 15, "version": 0, "faulty_probability": 0.3},
+    )
     
     # DoubleDoors
     # ----------------------------------------

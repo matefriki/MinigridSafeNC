@@ -294,6 +294,14 @@ class LavaSlipperyEnv(MiniGridEnv):
             self.put_obj(Lava(), x, y)
 
 
+    def _reward(self) -> float:
+        """
+        Compute the reward to be given upon success
+        """
+
+        return 1
+
+
     def _env_four(self, width, height):
         
         self.create_lava_line(height - 4, 1, 15)        
