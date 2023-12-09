@@ -159,7 +159,7 @@ class MiniGridEnv(gym.Env):
         position = (self.goal_pos[0], self.goal_pos[1])
         # position = (self.agent_pos[0], self.agent_pos[1])
         self.bfs_reward = self.run_BFS_reward(position)
-        # self.print_bfs_reward()
+        self.print_bfs_reward()
         # Check that the agent doesn't overlap with an object
         start_cell = self.grid.get(*self.agent_pos)
         assert start_cell is None or start_cell.can_overlap()
@@ -693,7 +693,7 @@ class MiniGridEnv(gym.Env):
         
         distances = [x if x else 0 for x in distances]
         # return [ (-x/1) for x in distances]
-        return [ (1/17)* (-x/max_distance) if x != 0 else 0 for x in distances]
+        return [ (1/4)* (-x/max_distance) if x != 0 else 0 for x in distances]
 
     def print_bfs_reward(self):
         rep = ""
@@ -748,9 +748,8 @@ class MiniGridEnv(gym.Env):
           
         
         self.previous_action = action
-        reward = self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
 
-        # reward = 0
+        reward = 0
         terminated = False
         truncated = False        
 
@@ -760,13 +759,18 @@ class MiniGridEnv(gym.Env):
         # Get the contents of the cell in front of the agent
         fwd_cell = self.grid.get(*fwd_pos)
         current_cell = self.grid.get(*self.agent_pos)
-        
         if action == self.actions.forward and is_slippery(current_cell):
-            direction = self.agent_dir
-            possible_fwd_pos, prob = self.get_neighbours_prob_forward(self.agent_pos, current_cell.probabilities_forward, current_cell.offset)
-            fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
-            fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
-            fwd_cell = self.grid.get(*fwd_pos)
+            apply_slippery = False
+            if current_cell.direction != self.agent_dir:
+                apply_slippery = np.random.rand() > .7
+            print(F"We are on slippery {self.agent_pos}, Agent Direction {self.agent_dir}, Cell Dir {current_cell.direction}, Slippery appied {apply_slippery}")
+            if apply_slippery:
+                direction = self.agent_dir
+                possible_fwd_pos, prob = self.get_neighbours_prob_forward(self.agent_pos,current_cell.probabilities_forward, current_cell.offset, current_cell.direction)
+                print(F"Probability {prob}")
+                fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
+                fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
+                fwd_cell = self.grid.get(*fwd_pos)
 
         # Rotate left
         if action == self.actions.left:
@@ -810,10 +814,12 @@ class MiniGridEnv(gym.Env):
         elif action == self.actions.forward:
             if fwd_cell is None or fwd_cell.can_overlap():
                 self.agent_pos = tuple(fwd_pos)
+                reward = self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
             if fwd_cell is not None and fwd_cell.type == "goal":
                 terminated = True
                 reward = self._reward()
             if fwd_cell is not None and fwd_cell.type == "lava":
+                reward = -50
                 terminated = True
             if fwd_cell is not None and fwd_cell.type == "adversary":
                 terminated = True
@@ -857,25 +863,34 @@ class MiniGridEnv(gym.Env):
 
         return obs, reward, terminated, truncated, {}
     
-    def get_neighbours_prob_forward(self, agent_pos, probabilities, offset):
+    def get_neighbours_prob_forward(self, agent_pos, probabilities, offset, cell_direction):
         neighbours = [tuple((x,y)) for x in range(agent_pos[0]-1, agent_pos[0]+2) for y in range(agent_pos[1]-1,agent_pos[1]+2)]
         probabilities_dict = dict(zip(neighbours, probabilities))
+        print(F"Prob dict {probabilities_dict}")
 
         for pos in probabilities_dict:
             cell = self.grid.get(*pos)
             if cell is not None and not cell.can_overlap():
                 probabilities_dict[pos] = 0.0
-
+        # print(F"Cell direction {cell_direction} Agent dir {self.agent_dir}")
         sum_prob = 0
         for pos in probabilities_dict:
-            if (probabilities_dict[pos]!=-50):
+            if probabilities_dict[pos]!=-50:
                 sum_prob += probabilities_dict[pos]
+            # if probabilities_dict[pos]!=-50 and self.agent_dir  == cell_direction :
+            #     sum_prob += probabilities_dict[pos]
+            # elif probabilities_dict[pos]!=-50 and self.agent_dir  != cell_direction:
+            #     probabilities_dict[pos] =  probabilities_dict[pos] /10
+            #     sum_prob += probabilities_dict[pos]
 
         if probabilities_dict[tuple((agent_pos[0] + offset[0], agent_pos[1]+offset[1]))] == 0:
+            print("Hello")
             probabilities_dict[agent_pos] = 1-sum_prob
         else:
+            print(F"World Sum probabilties {sum_prob}")
+            print(probabilities_dict)
+            probabilities_dict[tuple((agent_pos[0], agent_pos[1]))] = 0.0
             probabilities_dict[tuple((agent_pos[0] + offset[0], agent_pos[1]+offset[1]))] = 1-sum_prob
-            probabilities_dict[agent_pos] = 0.0
 
         # print(probabilities_dict)
         # print(agent_pos+offset)
