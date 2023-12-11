@@ -149,6 +149,9 @@ class SlipperyNorth(WorldObj):
     def can_overlap(self):
         return True
 
+    def get_probabilities(self, agent_dir):
+        pass
+
     def render(self, img):
         c = (100, 100, 200)
         fill_coords(img, point_in_rect(0, 1, 0, 1), c)
@@ -168,6 +171,29 @@ class SlipperySouth(WorldObj):
         self.probabilities_turn = [probability_next_neighbour, 0.0, 0.0, probability_next_neighbour, -50, 0.0, probability_next_neighbour, 0.0, 0.0]
         self.offset = (0,-1)
         self.direction = 3
+
+        # Field probabilties are stored in the order:
+        # 0: Left Above - 1: Left - 2: Left Below
+        # 3: Above - 4: Current - 5: Below
+        # 6: Right Above - 7: Right - 8: Right Below
+
+        self.probabilities_0 =   [1/10,  0   , 0 , 0 , 0 ,   0  , 0    ,  0   , 0]
+        self.probabilities_90 =  [0   ,  0   , 0 , 0 , 0 ,   0  , 2/10 , 8/10 , 0]
+        self.probabilities_180 = [0   ,  0   , 0 , 0 , 0 , 8/10 , 0    ,  0   , 0]
+        self.probabilities_270 = [2/10, 8/10 , 0 , 0 , 0 ,   0  , 0    ,  0   , 0]
+
+    def get_probabilities(self, agent_dir):
+        if agent_dir == self.direction:
+            return self.probabilities_0
+        elif agent_dir == 0: # Agent looks to east
+            return self.probabilities_90
+        elif agent_dir == 1: # Agent looks down 
+            return self.probabilities_180
+        elif agent_dir == 2:
+            return self.probabilities_270
+        else:
+            raise NotImplementedError("Agent directory not implemented")
+
     def can_overlap(self):
         return True
 

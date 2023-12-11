@@ -293,7 +293,7 @@ class LavaSlipperyEnv(MiniGridEnv):
         
         
         
-        self.randomize_start = False 
+        self.randomize_start = True 
         # Place the agent
         if self.randomize_start == True:
             while True:
@@ -336,20 +336,20 @@ class LavaSlipperyEnv(MiniGridEnv):
         Compute the reward to be given upon success
         """
         # return 1 - 0.9 * (self.step_count / self.max_steps)
-        return 100
+        return 4
         # return 100
 
 
     def _env_four(self, width, height):
         
-        self.create_lava_line(height - 4, 1, 15)        
-        self.create_lava_line(height - 4, 20, 28)        
+        self.create_lava_line(height - 5, 1, 15)        
+        self.create_lava_line(height - 5, 20, 28)        
         self.create_slippery_lava_line(height // 2 + 3, 4, 6)        
         self.create_slippery_lava_line(height // 2 + 3, 9, 15)   
         self.create_slippery_lava_line(height // 2 + 3, 18, 24)   
 
-        self.create_lava_line(height // 2 - 1, 1, 9)  
-        self.create_lava_line(height // 2 - 1, 12, 28)  
+        self.create_lava_line(height // 2 - 2, 1, 9)  
+        self.create_lava_line(height // 2 - 2, 12, 28)  
         
         self.create_slippery_lava_line(5, 2, 6)        
         self.create_slippery_lava_line(5, 9, 15)   

@@ -760,17 +760,15 @@ class MiniGridEnv(gym.Env):
         fwd_cell = self.grid.get(*fwd_pos)
         current_cell = self.grid.get(*self.agent_pos)
         if action == self.actions.forward and is_slippery(current_cell):
-            apply_slippery = False
-            if current_cell.direction != self.agent_dir:
-                apply_slippery = np.random.rand() > .7
-            print(F"We are on slippery {self.agent_pos}, Agent Direction {self.agent_dir}, Cell Dir {current_cell.direction}, Slippery appied {apply_slippery}")
-            if apply_slippery:
-                direction = self.agent_dir
-                possible_fwd_pos, prob = self.get_neighbours_prob_forward(self.agent_pos,current_cell.probabilities_forward, current_cell.offset, current_cell.direction)
-                print(F"Probability {prob}")
-                fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
-                fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
-                fwd_cell = self.grid.get(*fwd_pos)
+            print(F"We are on slippery {self.agent_pos}, Agent Direction {self.agent_dir}, Cell Dir {current_cell.direction}")
+            direction = self.agent_dir
+            probabilities = current_cell.get_probabilities(self.agent_dir)
+            possible_fwd_pos, prob = self.get_neighbours_prob_forward(self.agent_pos, probabilities, current_cell.offset, current_cell.direction)
+            print(F"Probability {prob}")
+            fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
+            fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
+            fwd_cell = self.grid.get(*fwd_pos)
+            print(F'Resulting cell is {fwd_pos}')
 
         # Rotate left
         if action == self.actions.left:
@@ -885,7 +883,7 @@ class MiniGridEnv(gym.Env):
 
         if probabilities_dict[tuple((agent_pos[0] + offset[0], agent_pos[1]+offset[1]))] == 0:
             print("Hello")
-            probabilities_dict[agent_pos] = 1-sum_prob
+            probabilities_dict[tuple((agent_pos[0], agent_pos[1]))] = 1-sum_prob
         else:
             print(F"World Sum probabilties {sum_prob}")
             print(probabilities_dict)
