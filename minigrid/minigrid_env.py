@@ -775,6 +775,8 @@ class MiniGridEnv(gym.Env):
             self.agent_dir -= 1
             if self.agent_dir < 0:
                 self.agent_dir += 4
+            reward = self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
+            
             # if is_slippery(current_cell):
             #     possible_fwd_pos, prob = self.get_neighbours_prob_turn(self.agent_pos, current_cell.probabilities_turn)
             #     fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
@@ -793,6 +795,8 @@ class MiniGridEnv(gym.Env):
         # Rotate right
         elif action == self.actions.right:
             self.agent_dir = (self.agent_dir + 1) % 4
+            reward = self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
+
             # if is_slippery(current_cell):
             #     possible_fwd_pos, prob = self.get_neighbours_prob_turn(self.agent_pos, current_cell.probabilities_turn)
             #     fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
@@ -817,7 +821,7 @@ class MiniGridEnv(gym.Env):
                 terminated = True
                 reward = self._reward()
             if fwd_cell is not None and fwd_cell.type == "lava":
-                reward = -50
+                reward = -1
                 terminated = True
             if fwd_cell is not None and fwd_cell.type == "adversary":
                 terminated = True
@@ -826,6 +830,7 @@ class MiniGridEnv(gym.Env):
 
         # Pick up an object
         elif action == self.actions.pickup:
+            reward = self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
             if fwd_cell and fwd_cell.can_pickup():
                 if self.carrying is None:
                     self.carrying = fwd_cell
@@ -834,6 +839,7 @@ class MiniGridEnv(gym.Env):
 
         # Drop an object
         elif action == self.actions.drop:
+            reward = self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
             if not fwd_cell and self.carrying:
                 self.grid.set(fwd_pos[0], fwd_pos[1], self.carrying)
                 self.carrying.cur_pos = fwd_pos
@@ -841,6 +847,7 @@ class MiniGridEnv(gym.Env):
 
         # Toggle/activate an object
         elif action == self.actions.toggle:
+            reward = self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
             if fwd_cell:
                 fwd_cell.toggle(self, fwd_pos)
 
@@ -881,14 +888,14 @@ class MiniGridEnv(gym.Env):
             #     probabilities_dict[pos] =  probabilities_dict[pos] /10
             #     sum_prob += probabilities_dict[pos]
 
-        if probabilities_dict[tuple((agent_pos[0] + offset[0], agent_pos[1]+offset[1]))] == 0:
-            print("Hello")
-            probabilities_dict[tuple((agent_pos[0], agent_pos[1]))] = 1-sum_prob
-        else:
-            print(F"World Sum probabilties {sum_prob}")
-            print(probabilities_dict)
-            probabilities_dict[tuple((agent_pos[0], agent_pos[1]))] = 0.0
-            probabilities_dict[tuple((agent_pos[0] + offset[0], agent_pos[1]+offset[1]))] = 1-sum_prob
+        # if probabilities_dict[tuple((agent_pos[0] + offset[0], agent_pos[1]+offset[1]))] == 0:
+        #     print("Hello")
+        #     probabilities_dict[tuple((agent_pos[0], agent_pos[1]))] = 1-sum_prob
+        # else:
+        #     print(F"World Sum probabilties {sum_prob}")
+        #     print(probabilities_dict)
+        #     probabilities_dict[tuple((agent_pos[0], agent_pos[1]))] = 0.0
+        #     probabilities_dict[tuple((agent_pos[0] + offset[0], agent_pos[1]+offset[1]))] = 1-sum_prob
 
         # print(probabilities_dict)
         # print(agent_pos+offset)

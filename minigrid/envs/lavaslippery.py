@@ -248,6 +248,24 @@ class LavaSlipperyEnv(MiniGridEnv):
         self.put_obj(Goal(), *self.goal_pos)
 
   
+    def get_start_position(self):
+        self.randomize_start = True 
+        # Place the agent
+        if self.randomize_start == True:
+            while True:
+                x = np.random.randint(0, self.width)
+                y = np.random.randint(0, self.height)
+
+                cell = self.grid.get(*(x,y))
+                if cell is None or (cell.can_overlap() and not isinstance(cell, Lava) and not isinstance(cell, Goal) and not isinstance(cell, SlipperyEast) and not isinstance(cell, SlipperySouth) and not isinstance(cell, SlipperyWest) and not isinstance(cell, SlipperyNorth)) :
+                    self.agent_pos = np.array((x, y))
+                    self.agent_dir = np.random.randint(0, 4)
+                    break
+        else:
+            self.agent_pos = np.array((1, 1))
+            self.agent_dir = 0
+
+
     def _env_three(self, width, height):
         w_mid = width // 2
         h_mid = height // 2
@@ -292,22 +310,8 @@ class LavaSlipperyEnv(MiniGridEnv):
         self.put_obj(self._create_slippery_south(), w_mid + 1, 7)
         
         
-        
-        self.randomize_start = True 
-        # Place the agent
-        if self.randomize_start == True:
-            while True:
-                x = np.random.randint(0, self.width)
-                y = np.random.randint(0, self.height)
+        self.get_start_position()
 
-                cell = self.grid.get(*(x,y))
-                if cell is None or (cell.can_overlap() and not isinstance(cell, Lava)):
-                    self.agent_pos = np.array((x, y))
-                    self.agent_dir = np.random.randint(0, 4)
-                    break
-        else:
-            self.agent_pos = np.array((1, 1))
-            self.agent_dir = 0
         print(F"Agent position {self.agent_pos}")
         # Place a goal square 
         self.goal_pos = np.array((width - 2,1))
@@ -316,14 +320,14 @@ class LavaSlipperyEnv(MiniGridEnv):
     def create_slippery_lava_line(self, y, x_start, x_end):
         self.put_obj(self._create_slippery_west(), x_start - 1, y)
         self.put_obj(self._create_slippery_east(), x_end + 1 , y)
-        self.put_obj(self._create_slippery_north(), x_start - 1, y - 1)
-        self.put_obj(self._create_slippery_south(), x_end + 1 , y + 1)
-        self.put_obj(self._create_slippery_north(), x_end + 1, y - 1)
-        self.put_obj(self._create_slippery_south(), x_start - 1 , y + 1)
+        # self.put_obj(self._create_slippery_north(), x_start - 1, y - 1)
+        # self.put_obj(self._create_slippery_south(), x_end + 1 , y + 1)
+        # self.put_obj(self._create_slippery_north(), x_end + 1, y - 1)
+        # self.put_obj(self._create_slippery_south(), x_start - 1 , y + 1)
 
         for x in range(x_start, x_end + 1):
-            self.put_obj(self._create_slippery_north(), x, y - 1)
-            self.put_obj(self._create_slippery_south(), x, y + 1)
+            # self.put_obj(self._create_slippery_north(), x, y - 1)
+            # self.put_obj(self._create_slippery_south(), x, y + 1)
             self.put_obj(Lava(), x, y)
 
     def create_lava_line(self, y, x_start, x_end):
@@ -336,7 +340,7 @@ class LavaSlipperyEnv(MiniGridEnv):
         Compute the reward to be given upon success
         """
         # return 1 - 0.9 * (self.step_count / self.max_steps)
-        return 4
+        return 1
         # return 100
 
 
@@ -344,19 +348,21 @@ class LavaSlipperyEnv(MiniGridEnv):
         
         self.create_lava_line(height - 5, 1, 15)        
         self.create_lava_line(height - 5, 20, 28)        
-        self.create_slippery_lava_line(height // 2 + 3, 4, 6)        
-        self.create_slippery_lava_line(height // 2 + 3, 9, 15)   
-        self.create_slippery_lava_line(height // 2 + 3, 18, 24)   
+        self.create_slippery_lava_line(height // 2 + 2, 4, 6)        
+        self.create_slippery_lava_line(height // 2 + 2, 9, 15)   
+        self.create_slippery_lava_line(height // 2 + 2, 18, 24)   
 
         self.create_lava_line(height // 2 - 2, 1, 9)  
         self.create_lava_line(height // 2 - 2, 12, 28)  
         
-        self.create_slippery_lava_line(5, 2, 6)        
-        self.create_slippery_lava_line(5, 9, 15)   
-        self.create_slippery_lava_line(5, 18, 24)   
+        self.create_slippery_lava_line(4, 2, 6)        
+        self.create_slippery_lava_line(4, 9, 15)   
+        self.create_slippery_lava_line(4, 18, 24)   
 
-        self.agent_pos = np.array((width - 2, height - 2))
-        self.agent_dir = 3
+        self.get_start_position()
+
+        # self.agent_pos = np.array((width - 2, height - 2))
+        # self.agent_dir = 3
         # Place a goal square 
         self.goal_pos = np.array((1, 1))
         self.put_obj(Goal(), *self.goal_pos)
