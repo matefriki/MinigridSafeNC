@@ -80,14 +80,15 @@ class LavaSlipperyEnv(MiniGridEnv):
     - `MiniGrid-VLavaSlipperyS12-v0`
 
     """
-    def __init__(self, size=12, width=None, height=None, probability_forward=3/9, probability_direct_neighbour=2/9, probability_next_neighbour=1/9,    obstacle_type=Lava, version=0 , **kwargs):
+    def __init__(self, randomize_start=True, size=12, width=None, height=None, probability_forward=3/9, probability_direct_neighbour=2/9, probability_next_neighbour=1/9, obstacle_type=Lava, version=0 , **kwargs):
+        
         self.obstacle_type = obstacle_type
         self.size = size
         self.version = version
         self.probability_forward = probability_forward
         self.probability_direct_neighbour = probability_direct_neighbour
         self.probability_next_neighbour = probability_next_neighbour
-
+        
         if width is not None and height is not None:        
             self.width = width
             self.height = height
@@ -103,7 +104,6 @@ class LavaSlipperyEnv(MiniGridEnv):
             mission_space = MissionSpace(
                 mission_func=lambda: "find the opening and get to the green goal square"
             )
-
         super().__init__(
             mission_space=mission_space,
             width=self.width,
@@ -113,6 +113,10 @@ class LavaSlipperyEnv(MiniGridEnv):
             see_through_walls=False,
             **kwargs
         )
+
+        self.randomize_start = randomize_start
+        print(f'Randomize start is: {randomize_start}')
+
         
     def _create_slippery_north(self):
         return SlipperyNorth(probability_forward=self.probability_forward, 
@@ -249,7 +253,6 @@ class LavaSlipperyEnv(MiniGridEnv):
 
   
     def get_start_position(self):
-        self.randomize_start = True 
         # Place the agent
         if self.randomize_start == True:
             while True:
@@ -257,7 +260,8 @@ class LavaSlipperyEnv(MiniGridEnv):
                 y = np.random.randint(0, self.height)
 
                 cell = self.grid.get(*(x,y))
-                if cell is None or (cell.can_overlap() and not isinstance(cell, Lava) and not isinstance(cell, Goal) and not isinstance(cell, SlipperyEast) and not isinstance(cell, SlipperySouth) and not isinstance(cell, SlipperyWest) and not isinstance(cell, SlipperyNorth)) :
+                if cell is None or (cell.can_overlap() and not isinstance(cell, Lava) and not isinstance(cell, Goal)):
+                #and not isinstance(cell, SlipperyEast) and not isinstance(cell, SlipperySouth) and not isinstance(cell, SlipperyWest) and not isinstance(cell, SlipperyNorth)) :
                     self.agent_pos = np.array((x, y))
                     self.agent_dir = np.random.randint(0, 4)
                     break
@@ -340,7 +344,7 @@ class LavaSlipperyEnv(MiniGridEnv):
         Compute the reward to be given upon success
         """
         # return 1 - 0.9 * (self.step_count / self.max_steps)
-        return 1
+        return 2
         # return 100
 
 
