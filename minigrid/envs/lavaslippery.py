@@ -114,7 +114,7 @@ class LavaSlipperyEnv(MiniGridEnv):
             **kwargs
         )
 
-        self.randomize_start = randomize_start
+        self.randomize_start = True
         print(f'Randomize start is: {randomize_start}')
 
         
@@ -344,7 +344,7 @@ class LavaSlipperyEnv(MiniGridEnv):
         Compute the reward to be given upon success
         """
         # return 1 - 0.9 * (self.step_count / self.max_steps)
-        return 2
+        return 8
         # return 100
 
 
