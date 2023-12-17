@@ -113,8 +113,9 @@ class LavaSlipperyEnv(MiniGridEnv):
             see_through_walls=False,
             **kwargs
         )
-
-        self.randomize_start = True
+        print(f'passed randomize start is {randomize_start}')
+        print(f'Probabilities {probability_forward}, {probability_direct_neighbour} {probability_next_neighbour}')
+        self.randomize_start = randomize_start
         print(f'Randomize start is: {randomize_start}')
 
         

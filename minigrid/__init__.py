@@ -72,7 +72,7 @@ def register_minigrid_envs():
     register(
         id="MiniGrid-LavaSlipperyS12-v2",
         entry_point="minigrid.envs:LavaSlipperyEnv",
-        kwargs={"size": 12, "version": 2, "randomize_start":True},
+        kwargs={"size": 12, "version": 2},
     )
     register(
         id="MiniGrid-LavaSlipperyS12-v3",
