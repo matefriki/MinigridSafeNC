@@ -151,16 +151,16 @@ class SlipperyNorth(WorldObj):
         # 3: Above - 4: Current - 5: Below
         # 6: Right Above - 7: Right - 8: Right Below
 
-        # self.probabilities_0 =   [0,  0   , probability_next_neighbour, 0, 0 ,   probability_forward  ,0 ,  0   , probability_next_neighbour]
-        # self.probabilities_90 =  [0   ,  probability_forward   , probability_direct_neighbour , 0 , 0 ,   0  , 0 , 0 , 0]
-        # self.probabilities_180 = [0   ,  0   , 0 , probability_forward , 0 , probability_direct_neighbour , 0    ,  0   , 0]
-        # self.probabilities_270 = [0,    0 , 0 , 0 , 0 ,   0  , 0    ,  probability_forward   , probability_direct_neighbour]
+        self.probabilities_0 =   [0,  0   , probability_next_neighbour, 0, 0 ,   probability_forward  ,0 ,  0   , probability_next_neighbour]
+        self.probabilities_90 =  [0   ,  probability_forward   , probability_direct_neighbour , 0 , 0 ,   0  , 0 , 0 , 0]
+        self.probabilities_180 = [0   ,  0   , 0 , probability_forward , 0 , probability_direct_neighbour , 0    ,  0   , 0]
+        self.probabilities_270 = [0,    0 , 0 , 0 , 0 ,   0  , 0    ,  probability_forward   , probability_direct_neighbour]
 
 
-        self.probabilities_0 =   [0,  0   , 1/8, 0, 0 ,   3/4  ,0 ,  0   , 1/8]
-        self.probabilities_90 =  [0   ,  3/4   , 1/4 , 0 , 0 ,   0  , 0 , 0 , 0]
-        self.probabilities_180 = [0   ,  0   , 0 , 3/4 , 0 , 1/4 , 0    ,  0   , 0]
-        self.probabilities_270 = [0,    0 , 0 , 0 , 0 ,   0  , 0    ,  3/4   , 1/4]
+        # self.probabilities_0 =   [0,  0   , 1/8, 0, 0 ,   3/4  ,0 ,  0   , 1/8]
+        # self.probabilities_90 =  [0   ,  3/4   , 1/4 , 0 , 0 ,   0  , 0 , 0 , 0]
+        # self.probabilities_180 = [0   ,  0   , 0 , 3/4 , 0 , 1/4 , 0    ,  0   , 0]
+        # self.probabilities_270 = [0,    0 , 0 , 0 , 0 ,   0  , 0    ,  3/4   , 1/4]
 
     def get_probabilities(self, agent_dir):
         if agent_dir == self.direction:
@@ -205,15 +205,15 @@ class SlipperySouth(WorldObj):
         # 3: Above - 4: Current - 5: Below
         # 6: Right Above - 7: Right - 8: Right Below
 
-        # self.probabilities_0 =   [probability_next_neighbour,  0   , 0 , probability_forward , 0 ,   0  , probability_next_neighbour ,  0   , 0]
-        # self.probabilities_90 =  [0   ,  0   , 0 , 0 , 0 ,   0  , probability_direct_neighbour , probability_forward , 0]
-        # self.probabilities_180 = [0   ,  0   , 0 , probability_direct_neighbour , 0 , probability_forward , 0    ,  0   , 0]
-        # self.probabilities_270 = [probability_direct_neighbour, probability_forward , 0 , 0 , 0 ,   0  , 0    ,  0   , 0]
+        self.probabilities_0 =   [probability_next_neighbour,  0   , 0 , probability_forward , 0 ,   0  , probability_next_neighbour ,  0   , 0]
+        self.probabilities_90 =  [0   ,  0   , 0 , 0 , 0 ,   0  , probability_direct_neighbour , probability_forward , 0]
+        self.probabilities_180 = [0   ,  0   , 0 , probability_direct_neighbour , 0 , probability_forward , 0    ,  0   , 0]
+        self.probabilities_270 = [probability_direct_neighbour, probability_forward , 0 , 0 , 0 ,   0  , 0    ,  0   , 0]
 
-        self.probabilities_0 =   [1/8,  0   , 0 , 3/4 , 0 ,   0  , 1/8 ,  0   , 0]
-        self.probabilities_90 =  [0   ,  0   , 0 , 0 , 0 ,   0  , 1/4 , 3/4 , 0]
-        self.probabilities_180 = [0   ,  0   , 0 , 1/4 , 0 , 3/4 , 0    ,  0   , 0]
-        self.probabilities_270 = [1/4, 3/4 , 0 , 0 , 0 ,   0  , 0    ,  0   , 0]
+        # self.probabilities_0 =   [1/8,  0   , 0 , 3/4 , 0 ,   0  , 1/8 ,  0   , 0]
+        # self.probabilities_90 =  [0   ,  0   , 0 , 0 , 0 ,   0  , 1/4 , 3/4 , 0]
+        # self.probabilities_180 = [0   ,  0   , 0 , 1/4 , 0 , 3/4 , 0    ,  0   , 0]
+        # self.probabilities_270 = [1/4, 3/4 , 0 , 0 , 0 ,   0  , 0    ,  0   , 0]
 
     def get_probabilities(self, agent_dir):
         if agent_dir == self.direction:
@@ -254,15 +254,15 @@ class SlipperyEast(WorldObj):
         # 3: Above - 4: Current - 5: Below
         # 6: Right Above - 7: Right - 8: Right Below
 
-        # self.probabilities_0 =   [probability_next_neighbour,  probability_forward  , probability_next_neighbour ,  0 , 0 ,   0  , 0 ,  0   , 0]
-        # self.probabilities_90 =  [probability_next_neighbour  ,  probability_next_neighbour  , 0 , probability_forward , 0 ,   0  , 0 , 0 , 0]
-        # self.probabilities_180 = [0   ,  probability_direct_neighbour   , 0 , 0 , 0 , 0 , 0    , probability_forward   , 0]
-        # self.probabilities_270 = [0, probability_next_neighbour , probability_next_neighbour , 0 , 0 ,   probability_forward, 0    ,  0   , 0]
+        self.probabilities_0 =   [probability_next_neighbour,  probability_forward  , probability_next_neighbour ,  0 , 0 ,   0  , 0 ,  0   , 0]
+        self.probabilities_90 =  [probability_next_neighbour  ,  probability_next_neighbour  , 0 , probability_forward , 0 ,   0  , 0 , 0 , 0]
+        self.probabilities_180 = [0   ,  probability_direct_neighbour   , 0 , 0 , 0 , 0 , 0    , probability_forward   , 0]
+        self.probabilities_270 = [0, probability_next_neighbour , probability_next_neighbour , 0 , 0 ,   probability_forward, 0    ,  0   , 0]
 
-        self.probabilities_0 =   [1/8,  3/4   , 1/8 ,  0 , 0 ,   0  , 0 ,  0   , 0]
-        self.probabilities_90 =  [1/8  ,  1/8  , 0 ,  3/4 , 0 ,   0  , 0 , 0 , 0]
-        self.probabilities_180 = [0   ,  1/4   , 0 , 0 , 0 , 0 , 0    ,  3/4   , 0]
-        self.probabilities_270 = [0, 1/8 , 1/8 , 0 , 0 ,   3/4 , 0    ,  0   , 0]
+        # self.probabilities_0 =   [1/8,  3/4   , 1/8 ,  0 , 0 ,   0  , 0 ,  0   , 0]
+        # self.probabilities_90 =  [1/8  ,  1/8  , 0 ,  3/4 , 0 ,   0  , 0 , 0 , 0]
+        # self.probabilities_180 = [0   ,  1/4   , 0 , 0 , 0 , 0 , 0    ,  3/4   , 0]
+        # self.probabilities_270 = [0, 1/8 , 1/8 , 0 , 0 ,   3/4 , 0    ,  0   , 0]
 
     def can_overlap(self):
         return True
@@ -304,16 +304,16 @@ class SlipperyWest(WorldObj):
         # 3: Above - 4: Current - 5: Below
         # 6: Right Above - 7: Right - 8: Right Below
 
-        # self.probabilities_0 =   [0   ,  0   , 0 , 0 , 0 ,   0  , probability_next_neighbour ,  probability_direct_neighbour   , probability_next_neighbour]
-        # self.probabilities_90 =  [0   ,  0   , 0 , 0 , 0 ,   probability_direct_neighbour, 0   ,  probability_next_neighbour , probability_next_neighbour]
-        # self.probabilities_180 = [0   ,  probability_direct_neighbour , 0 , 0 , 0 , 0 , 0    ,  probability_forward  , 0]
-        # self.probabilities_270 = [0   ,  0   , 0 , probability_direct_neighbour , 0 ,   0  , probability_next_neighbour    ,  probability_next_neighbour   , 0]
+        self.probabilities_0 =   [0   ,  0   , 0 , 0 , 0 ,   0  , probability_next_neighbour ,  probability_direct_neighbour   , probability_next_neighbour]
+        self.probabilities_90 =  [0   ,  0   , 0 , 0 , 0 ,   probability_direct_neighbour, 0   ,  probability_next_neighbour , probability_next_neighbour]
+        self.probabilities_180 = [0   ,  probability_direct_neighbour , 0 , 0 , 0 , 0 , 0    ,  probability_forward  , 0]
+        self.probabilities_270 = [0   ,  0   , 0 , probability_direct_neighbour , 0 ,   0  , probability_next_neighbour    ,  probability_next_neighbour   , 0]
 
 
-        self.probabilities_0 =   [0   ,  0   , 0 , 0 , 0 ,   0  , 1/8 ,  3/4   , 1/8]
-        self.probabilities_90 =  [0   ,  0   , 0 , 0 , 0 ,   3/4, 0   ,  1/8 , 1/8]
-        self.probabilities_180 = [0   ,  3/4 , 0 , 0 , 0 , 0 , 0    ,  1/4  , 0]
-        self.probabilities_270 = [0   ,  0   , 0 , 3/4 , 0 ,   0  , 1/8    ,  1/8   , 0]
+        # self.probabilities_0 =   [0   ,  0   , 0 , 0 , 0 ,   0  , 1/8 ,  3/4   , 1/8]
+        # self.probabilities_90 =  [0   ,  0   , 0 , 0 , 0 ,   3/4, 0   ,  1/8 , 1/8]
+        # self.probabilities_180 = [0   ,  3/4 , 0 , 0 , 0 , 0 , 0    ,  1/4  , 0]
+        # self.probabilities_270 = [0   ,  0   , 0 , 3/4 , 0 ,   0  , 1/8    ,  1/8   , 0]
 
     def get_probabilities(self, agent_dir):
         if agent_dir == self.direction:
