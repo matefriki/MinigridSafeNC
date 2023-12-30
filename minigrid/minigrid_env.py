@@ -20,7 +20,7 @@ from minigrid.core.grid import Grid
 from minigrid.core.mission import MissionSpace
 from minigrid.core.world_object import Point, WorldObj, Slippery, SlipperyEast, SlipperyNorth, SlipperySouth, SlipperyWest, Lava
 from minigrid.core.adversary import Adversary
-from minigrid.core.tasks import DoRandom, Task, List    
+from minigrid.core.tasks import DoRandom, Task, List
 
 from collections import deque
 
@@ -127,7 +127,7 @@ class MiniGridEnv(gym.Env):
         self.highlight = highlight
         self.tile_size = tile_size
         self.agent_pov = agent_pov
-        
+
         # Custom
         self.background_tiles = dict()
         # self.bfs_reward = run_BFS_reward(self.grid, goalPos[0]) # TODO check goal pos and get neighbour etc.
@@ -148,7 +148,7 @@ class MiniGridEnv(gym.Env):
         # Generate a new random grid at the start of each episode
         self._gen_grid(self.width, self.height)
 
-        
+
         # These fields should be defined by _gen_grid
         assert (
             self.agent_pos >= (0, 0)
@@ -159,7 +159,7 @@ class MiniGridEnv(gym.Env):
         position = (self.goal_pos[0], self.goal_pos[1])
         # position = (self.agent_pos[0], self.agent_pos[1])
         self.bfs_reward = self.run_BFS_reward(position)
-        self.print_bfs_reward()
+        #self.print_bfs_reward()
         # Check that the agent doesn't overlap with an object
         start_cell = self.grid.get(*self.agent_pos)
         assert start_cell is None or start_cell.can_overlap()
@@ -178,7 +178,7 @@ class MiniGridEnv(gym.Env):
 
         return obs, {}
 
-  
+
     def hash(self, size=16):
         """Compute a hash that uniquely identifies the current state of the environment.
         :param size: Size of the hashing
@@ -190,7 +190,7 @@ class MiniGridEnv(gym.Env):
             sample_hash.update(str(item).encode("utf8"))
 
         return sample_hash.hexdigest()[:size]
-    
+
     def add_adversary(
        self,
        i: int,
@@ -233,7 +233,7 @@ class MiniGridEnv(gym.Env):
             "ball": "A",
             "box": "B",
             "goal": "G",
-            "lava": "V",    
+            "lava": "V",
             "slippery": "S",
             "slipperyeast": "e",
             "slipperysouth": "s",
@@ -273,7 +273,7 @@ class MiniGridEnv(gym.Env):
                 output += "\n"
 
         return output
-    
+
     def printGrid(self, init=False):
         """
         Produce a pretty string of the environment's grid along with the agent.
@@ -367,12 +367,12 @@ class MiniGridEnv(gym.Env):
                 str += "\n"
                 if init:
                     background_str += "\n"
-        
+
         properties_str = ""
-        
+
         if self.faulty_behavior:
             properties_str += F"FaultProbability:{self.fault_probability}"
-        
+
         seperator = "-" * self.grid.width * 2
             #print("")
         return str + "\n" + seperator + "\n" + background_str + "\n" + seperator + "\n" + seperator + "\n" + properties_str
@@ -538,12 +538,12 @@ class MiniGridEnv(gym.Env):
             self.agent_dir = self._rand_int(0, 4)
 
         return pos
-    
+
     def add_slippery_tile(self, i: int, j: int, type: str):
             """
             Adds a slippery tile to the grid
             """
-            
+
             if type=="slipperynorth":
                 slippery_tile = SlipperyNorth()
             elif type=="slipperysouth":
@@ -690,7 +690,7 @@ class MiniGridEnv(gym.Env):
                 bfs_queue.appendleft(neighbour)
                 if distances[neighbour[0] + grid.width * neighbour[1]] is None:
                     distances[neighbour[0] + grid.width * neighbour[1]] = current_distance + 1
-        
+
         distances = [x if x else 0 for x in distances]
         # return [ (-x/1) for x in distances]
         return [ (1/4)* (-x/max_distance) if x != 0 else 0 for x in distances]
@@ -701,9 +701,9 @@ class MiniGridEnv(gym.Env):
             for i in range(self.grid.width):
                 rep += F"{self.bfs_reward[j * self.grid.height + i]:5.2f} "
 
-            
+
             rep += '\n'
-        
+
         print(rep)
 
 
@@ -745,13 +745,13 @@ class MiniGridEnv(gym.Env):
 
             if prop < self.fault_probability:
                 action = self.previous_action
-          
-        
+
+
         self.previous_action = action
 
         reward = 0
         terminated = False
-        truncated = False        
+        truncated = False
 
         # Get the position in front of the agent
         fwd_pos = self.front_pos
@@ -760,15 +760,15 @@ class MiniGridEnv(gym.Env):
         fwd_cell = self.grid.get(*fwd_pos)
         current_cell = self.grid.get(*self.agent_pos)
         if action == self.actions.forward and is_slippery(current_cell):
-            print(F"We are on slippery {self.agent_pos}, Agent Direction {self.agent_dir}, Cell Dir {current_cell.direction}")
+            #print(F"We are on slippery {self.agent_pos}, Agent Direction {self.agent_dir}, Cell Dir {current_cell.direction}")
             direction = self.agent_dir
             probabilities = current_cell.get_probabilities(self.agent_dir)
             possible_fwd_pos, prob = self.get_neighbours_prob_forward(self.agent_pos, probabilities, current_cell.offset, current_cell.direction)
-            print(F"Probability {prob}")
+            #print(F"Probability {prob}")
             fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
             fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
             fwd_cell = self.grid.get(*fwd_pos)
-            print(F'Resulting cell is {fwd_pos}')
+            #print(F'Resulting cell is {fwd_pos}')
 
         # Rotate left
         if action == self.actions.left:
@@ -776,7 +776,7 @@ class MiniGridEnv(gym.Env):
             if self.agent_dir < 0:
                 self.agent_dir += 4
             reward = self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
-            
+
             # if is_slippery(current_cell):
             #     possible_fwd_pos, prob = self.get_neighbours_prob_turn(self.agent_pos, current_cell.probabilities_turn)
             #     fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
@@ -867,11 +867,11 @@ class MiniGridEnv(gym.Env):
         obs = self.gen_obs()
 
         return obs, reward, terminated, truncated, {}
-    
+
     def get_neighbours_prob_forward(self, agent_pos, probabilities, offset, cell_direction):
         neighbours = [tuple((x,y)) for x in range(agent_pos[0]-1, agent_pos[0]+2) for y in range(agent_pos[1]-1,agent_pos[1]+2)]
         probabilities_dict = dict(zip(neighbours, probabilities))
-        print(F"Prob dict {probabilities_dict}")
+        #print(F"Prob dict {probabilities_dict}")
 
         for pos in probabilities_dict:
             cell = self.grid.get(*pos)
@@ -900,7 +900,7 @@ class MiniGridEnv(gym.Env):
         # print(probabilities_dict)
         # print(agent_pos+offset)
         return list(probabilities_dict.keys()), list(probabilities_dict.values())
-    
+
     def get_neighbours_prob_turn(self, agent_pos, probabilities):
         neighbours = [tuple((x,y)) for x in range(agent_pos[0]-1, agent_pos[0]+2) for y in range(agent_pos[1]-1,agent_pos[1]+2)]
         non_blocked_neighbours = []
