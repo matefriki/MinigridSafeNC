@@ -139,10 +139,9 @@ class Slippery(WorldObj):
             fill_coords(img, point_in_line(0.7, yhi, 0.9, ylo, r=0.03), (0, 0, 0))
 
 class SlipperyNorth(WorldObj):
-    def __init__(self, color: str = "blue", probability_forward=3/9, probability_direct_neighbour=2/9, probability_next_neighbour=1/9,):
+    def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9):
         super().__init__("slipperynorth", color)
-        self.probabilities_forward = [0.0, probability_next_neighbour, probability_direct_neighbour, 0.0, -50, -50, 0.0, probability_next_neighbour, probability_direct_neighbour]
-        self.probabilities_turn = [0.0, 0.0, probability_next_neighbour, 0.0, -50, probability_next_neighbour, 0.0, 0.0, probability_next_neighbour]
+        self.probabilities_turn = [0.0, 0.0, probability_displacement, 0.0, -50, probability_displacement, 0.0, 0.0, probability_displacement]
         self.offset = (0,1)
         self.direction = 1
 
@@ -151,10 +150,10 @@ class SlipperyNorth(WorldObj):
         # 3: Above - 4: Current - 5: Below
         # 6: Right Above - 7: Right - 8: Right Below
 
-        self.probabilities_0 =   [0,  0   , probability_next_neighbour, 0, 0 ,   probability_forward  ,0 ,  0   , probability_next_neighbour]
-        self.probabilities_90 =  [0   ,  probability_forward   , probability_direct_neighbour , 0 , 0 ,   0  , 0 , 0 , 0]
-        self.probabilities_180 = [0   ,  0   , 0 , probability_forward , 0 , probability_direct_neighbour , 0    ,  0   , 0]
-        self.probabilities_270 = [0,    0 , 0 , 0 , 0 ,   0  , 0    ,  probability_forward   , probability_direct_neighbour]
+        self.probabilities_0 =   [0,  0   , probability_displacement / 2, 0, 0 ,   probability_intended  ,0 ,  0   , probability_displacement / 2]
+        self.probabilities_90 =  [0   ,  probability_intended   , probability_displacement , 0 , 0 ,   0  , 0 , 0 , 0]
+        self.probabilities_180 = [0   ,  0   , 0 , probability_intended , 0 , probability_displacement , 0    ,  0   , 0]
+        self.probabilities_270 = [0,    0 , 0 , 0 , 0 ,   0  , 0    ,  probability_intended   , probability_displacement]
 
 
         # self.probabilities_0 =   [0,  0   , 1/8, 0, 0 ,   3/4  ,0 ,  0   , 1/8]
@@ -193,10 +192,9 @@ class SlipperyNorth(WorldObj):
 
 
 class SlipperySouth(WorldObj):
-    def __init__(self, color: str = "blue", probability_forward=3/9, probability_direct_neighbour=2/9, probability_next_neighbour=1/9):
+    def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9):
         super().__init__("slipperysouth", color)
-        self.probabilities_forward = [probability_direct_neighbour, probability_next_neighbour, 0.0, -50, -50, 0.0, probability_direct_neighbour, probability_next_neighbour, 0.0]
-        self.probabilities_turn = [probability_next_neighbour, 0.0, 0.0, probability_next_neighbour, -50, 0.0, probability_next_neighbour, 0.0, 0.0]
+        self.probabilities_turn = [probability_displacement, 0.0, 0.0, probability_displacement, -50, 0.0, probability_displacement, 0.0, 0.0]
         self.offset = (0,-1)
         self.direction = 3
 
@@ -205,10 +203,10 @@ class SlipperySouth(WorldObj):
         # 3: Above - 4: Current - 5: Below
         # 6: Right Above - 7: Right - 8: Right Below
 
-        self.probabilities_0 =   [probability_next_neighbour,  0   , 0 , probability_forward , 0 ,   0  , probability_next_neighbour ,  0   , 0]
-        self.probabilities_90 =  [0   ,  0   , 0 , 0 , 0 ,   0  , probability_direct_neighbour , probability_forward , 0]
-        self.probabilities_180 = [0   ,  0   , 0 , probability_direct_neighbour , 0 , probability_forward , 0    ,  0   , 0]
-        self.probabilities_270 = [probability_direct_neighbour, probability_forward , 0 , 0 , 0 ,   0  , 0    ,  0   , 0]
+        self.probabilities_0 =   [probability_displacement / 2,  0   , 0 , probability_intended , 0 ,   0  , probability_displacement / 2 ,  0   , 0]
+        self.probabilities_90 =  [0   ,  0   , 0 , 0 , 0 ,   0  , probability_displacement , probability_intended , 0]
+        self.probabilities_180 = [0   ,  0   , 0 , probability_displacement , 0 , probability_intended , 0    ,  0   , 0]
+        self.probabilities_270 = [probability_displacement, probability_intended , 0 , 0 , 0 ,   0  , 0    ,  0   , 0]
 
         # self.probabilities_0 =   [1/8,  0   , 0 , 3/4 , 0 ,   0  , 1/8 ,  0   , 0]
         # self.probabilities_90 =  [0   ,  0   , 0 , 0 , 0 ,   0  , 1/4 , 3/4 , 0]
@@ -242,10 +240,9 @@ class SlipperySouth(WorldObj):
             fill_coords(img, rotate_fn(point_in_line(0.7, yhi, 0.9, ylo, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
 
 class SlipperyEast(WorldObj):
-    def __init__(self, color: str = "blue", probability_forward=3/9, probability_direct_neighbour=2/9, probability_next_neighbour=1/9,):
+    def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9):
         super().__init__("slipperyeast", color)
-        self.probabilities_forward = [probability_direct_neighbour, -50, probability_direct_neighbour, probability_next_neighbour, -50, probability_next_neighbour, 0.0, 0.0, 0.0]
-        self.probabilities_turn = [probability_next_neighbour, probability_next_neighbour, probability_next_neighbour, 0.0, -50, 0.0, 0.0, 0.0, 0.0]
+        self.probabilities_turn = [probability_displacement, probability_displacement, probability_displacement, 0.0, -50, 0.0, 0.0, 0.0, 0.0]
         self.offset = (-1,0)
         self.direction = 2
 
@@ -254,10 +251,10 @@ class SlipperyEast(WorldObj):
         # 3: Above - 4: Current - 5: Below
         # 6: Right Above - 7: Right - 8: Right Below
 
-        self.probabilities_0 =   [probability_next_neighbour,  probability_forward  , probability_next_neighbour ,  0 , 0 ,   0  , 0 ,  0   , 0]
-        self.probabilities_90 =  [probability_next_neighbour  ,  probability_next_neighbour  , 0 , probability_forward , 0 ,   0  , 0 , 0 , 0]
-        self.probabilities_180 = [0   ,  probability_direct_neighbour   , 0 , 0 , 0 , 0 , 0    , probability_forward   , 0]
-        self.probabilities_270 = [0, probability_next_neighbour , probability_next_neighbour , 0 , 0 ,   probability_forward, 0    ,  0   , 0]
+        self.probabilities_0 =   [probability_displacement / 2,  probability_intended  , probability_displacement / 2 ,  0 , 0 ,   0  , 0 ,  0   , 0]
+        self.probabilities_90 =  [probability_displacement / 2  ,  probability_displacement / 2  , 0 , probability_intended , 0 ,   0  , 0 , 0 , 0]
+        self.probabilities_180 = [0   ,  probability_displacement   , 0 , 0 , 0 , 0 , 0    , probability_intended   , 0]
+        self.probabilities_270 = [0, probability_displacement / 2 , probability_displacement / 2 , 0 , 0 ,   probability_intended, 0    ,  0   , 0]
 
         # self.probabilities_0 =   [1/8,  3/4   , 1/8 ,  0 , 0 ,   0  , 0 ,  0   , 0]
         # self.probabilities_90 =  [1/8  ,  1/8  , 0 ,  3/4 , 0 ,   0  , 0 , 0 , 0]
@@ -292,10 +289,8 @@ class SlipperyEast(WorldObj):
             fill_coords(img, rotate_fn(point_in_line(0.7, yhi, 0.9, ylo, r=0.03), cx=0.5, cy=0.5, theta=0.5 * math.pi), (0, 0, 0))
 
 class SlipperyWest(WorldObj):
-    def __init__(self, color: str = "blue", probability_forward=3/9, probability_direct_neighbour=2/9, probability_next_neighbour=1/9,):
+    def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9):
         super().__init__("slipperywest", color)
-        self.probabilities_forward = [0.0, 0.0, 0.0, probability_next_neighbour, -50, probability_next_neighbour, probability_direct_neighbour, -50, probability_direct_neighbour]
-        self.probabilities_turn = [0.0, 0.0, 0.0, 0.0, -50, 0.0, probability_next_neighbour, probability_next_neighbour, probability_next_neighbour]
         self.offset = (1,0)
         self.direction = 0
 
@@ -304,10 +299,11 @@ class SlipperyWest(WorldObj):
         # 3: Above - 4: Current - 5: Below
         # 6: Right Above - 7: Right - 8: Right Below
 
-        self.probabilities_0 =   [0   ,  0   , 0 , 0 , 0 ,   0  , probability_next_neighbour ,  probability_direct_neighbour   , probability_next_neighbour]
-        self.probabilities_90 =  [0   ,  0   , 0 , 0 , 0 ,   probability_direct_neighbour, 0   ,  probability_next_neighbour , probability_next_neighbour]
-        self.probabilities_180 = [0   ,  probability_direct_neighbour , 0 , 0 , 0 , 0 , 0    ,  probability_forward  , 0]
-        self.probabilities_270 = [0   ,  0   , 0 , probability_direct_neighbour , 0 ,   0  , probability_next_neighbour    ,  probability_next_neighbour   , 0]
+        self.probabilities_turn = [0.0, 0.0, 0.0, 0.0, -50, 0.0, probability_displacement, probability_displacement, probability_displacement]
+        self.probabilities_0 =   [0, 0   , 0 , 0 , 0 ,   0  , probability_displacement / 2 ,  probability_intended   , probability_displacement / 2]
+        self.probabilities_90 =  [0, 0   , 0 , 0 , 0 ,   probability_intended, 0   ,  probability_displacement / 2 , probability_displacement / 2]
+        self.probabilities_180 = [0, probability_displacement , 0 , 0 , 0 , 0 , 0    ,  probability_intended  , 0]
+        self.probabilities_270 = [0, 0   , 0 , probability_intended , 0 ,   0  , probability_displacement / 2    ,  probability_displacement / 2   , 0]
 
 
         # self.probabilities_0 =   [0   ,  0   , 0 , 0 , 0 ,   0  , 1/8 ,  3/4   , 1/8]
