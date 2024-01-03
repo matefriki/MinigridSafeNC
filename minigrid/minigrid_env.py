@@ -815,7 +815,6 @@ class MiniGridEnv(gym.Env):
 
         # Pick up an object
         elif action == self.actions.pickup:
-            reward = self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
             if fwd_cell and fwd_cell.can_pickup():
                 if self.carrying is None:
                     self.carrying = fwd_cell
@@ -824,7 +823,6 @@ class MiniGridEnv(gym.Env):
 
         # Drop an object
         elif action == self.actions.drop:
-            reward = self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
             if not fwd_cell and self.carrying:
                 self.grid.set(fwd_pos[0], fwd_pos[1], self.carrying)
                 self.carrying.cur_pos = fwd_pos
@@ -832,7 +830,6 @@ class MiniGridEnv(gym.Env):
 
         # Toggle/activate an object
         elif action == self.actions.toggle:
-            reward = self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
             if fwd_cell:
                 fwd_cell.toggle(self, fwd_pos)
 
