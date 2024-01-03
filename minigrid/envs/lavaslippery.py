@@ -4,7 +4,7 @@ from minigrid.core.constants import COLOR_NAMES
 from minigrid.core.grid import Grid
 from minigrid.core.mission import MissionSpace
 from minigrid.core.world_object import (
-    Ball, 
+    Ball,
     Box,
     Key,
     Slippery,
@@ -22,7 +22,7 @@ from minigrid.minigrid_env import MiniGridEnv
 import numpy as np
 
 class LavaSlipperyEnv(MiniGridEnv):
-    
+
     """
     ### Description
 
@@ -30,12 +30,6 @@ class LavaSlipperyEnv(MiniGridEnv):
     room, and must pass through a narrow gap in a vertical strip of deadly lava.
     Touching the lava terminate the episode with a zero reward. This environment
     is useful for studying safety and safe exploration.
-
-    ### Mission Space
-
-    Depending on the `obstacle_type` parameter:
-    - `Lava`: "avoid the lava and get to the green goal square"
-    - otherwise: "find the opening and get to the green goal square"
 
     ### Action Space
 
@@ -72,7 +66,6 @@ class LavaSlipperyEnv(MiniGridEnv):
     ### Registered Configurations
 
     S: size of map SxS.
-    V: Version
 
     - `MiniGrid-VLavaSlipperyS12-v0`
     - `MiniGrid-VLavaSlipperyS12-v0`
@@ -83,29 +76,32 @@ class LavaSlipperyEnv(MiniGridEnv):
     def __init__(self,
                 randomize_start=True, size=12,
                 width=None,
-                height=None, 
+                height=None,
                 probability_intended=3/9,
-                probability_displacement=2/9, 
+                probability_displacement=2/9,
                 probability_turn_intended=3/9,
-                probability_turn_displacement=2/9, 
+                probability_turn_displacement=2/9,
                 obstacle_type=Lava,
-                     version=0 ,
+                goal_reward=1,
+                failure_penalty=-1,
+                bfs_rewards=False,
                      **kwargs):
-        
+
         self.obstacle_type = obstacle_type
         self.size = size
-        self.version = version
         self.probability_intended = probability_intended
         self.probability_displacement = probability_displacement
         self.probability_turn_intended = probability_turn_intended
         self.probability_turn_displacement = probability_turn_displacement
-        
-        if width is not None and height is not None:        
+
+        if width is not None and height is not None:
             self.width = width
             self.height = height
-        else:
+        elif size is not None:
             self.width = size
             self.height = size
+        else:
+            raise ValueError(f"Please define either width and height or a size for square environments. The set values are width: {width}, height: {height}, size: {size}.")
 
         if obstacle_type == Lava:
             mission_space = MissionSpace(
@@ -124,33 +120,36 @@ class LavaSlipperyEnv(MiniGridEnv):
             see_through_walls=False,
             **kwargs
         )
-        
+
         self.randomize_start = randomize_start
-        
-        
+        self.goal_reward = goal_reward
+        self.failure_penalty = failure_penalty
+        self.bfs_rewards = bfs_rewards
+
+
     def _create_slippery_north(self):
-        return SlipperyNorth(probability_intended=self.probability_intended, 
+        return SlipperyNorth(probability_intended=self.probability_intended,
                              probability_displacement=self.probability_displacement,
                              probability_turn_displacement=self.probability_turn_displacement,
                              probability_turn_intended=self.probability_turn_intended)
 
-    
+
     def _create_slippery_south(self):
-        return SlipperySouth(probability_intended=self.probability_intended, 
+        return SlipperySouth(probability_intended=self.probability_intended,
                              probability_displacement=self.probability_displacement,
                              probability_turn_displacement=self.probability_turn_displacement,
                              probability_turn_intended=self.probability_turn_intended)
 
 
     def _create_slippery_east(self):
-        return SlipperyEast(probability_intended=self.probability_intended, 
+        return SlipperyEast(probability_intended=self.probability_intended,
                              probability_displacement=self.probability_displacement,
                              probability_turn_displacement=self.probability_turn_displacement,
                              probability_turn_intended=self.probability_turn_intended)
 
-    
+
     def _create_slippery_west(self):
-        return SlipperyWest(probability_intended=self.probability_intended, 
+        return SlipperyWest(probability_intended=self.probability_intended,
                              probability_displacement=self.probability_displacement,
                              probability_turn_displacement=self.probability_turn_displacement,
                              probability_turn_intended=self.probability_turn_intended)
@@ -162,178 +161,6 @@ class LavaSlipperyEnv(MiniGridEnv):
         self.put_obj(self._create_slippery_east(), x + 1, y)
         self.put_obj(self._create_slippery_west(), x - 1, y)
 
-        
-    def _env_one(self, width, height):
-        w_mid = width // 2
-        h_mid = height // 2
-        
-        self.put_obj(Lava(), w_mid - 1, h_mid - 2)
-        self.put_obj(Lava(), w_mid - 2, h_mid - 2)
-        self.put_obj(Lava(), w_mid, h_mid - 2)
-        self.put_obj(Lava(), w_mid + 1, h_mid - 2)
-        
-        self.put_obj(Lava(), w_mid - 1, h_mid - 1)
-        self.put_obj(Lava(), w_mid - 2, h_mid - 1)
-        self.put_obj(Lava(), w_mid, h_mid - 1)
-        self.put_obj(Lava(), w_mid + 1, h_mid - 1)
-       
-        self.put_obj(Lava(), w_mid - 1, h_mid)
-        self.put_obj(Lava(), w_mid - 2, h_mid)
-        self.put_obj(Lava(), w_mid, h_mid)
-        self.put_obj(Lava(), w_mid + 1, h_mid)
-      
-        self.put_obj(Lava(), w_mid - 1, h_mid + 1)
-        self.put_obj(Lava(), w_mid - 2, h_mid + 1)
-        self.put_obj(Lava(), w_mid, h_mid + 1)
-        self.put_obj(Lava(), w_mid + 1, h_mid + 1)
-      
-       
-        # self.grid.vert_wall(split, 1, height - 2, Lava)
-        self.put_obj(self._create_slippery_north(), w_mid - 3, h_mid - 3)    
-        self.put_obj(self._create_slippery_north(), w_mid - 2, h_mid - 3)
-        self.put_obj(self._create_slippery_north(), w_mid - 1, h_mid - 3)
-        self.put_obj(self._create_slippery_north(), w_mid, h_mid - 3)
-        self.put_obj(self._create_slippery_north(), w_mid + 1, h_mid - 3)
-        self.put_obj(self._create_slippery_north(), w_mid + 2, h_mid - 3)
-        
-        self.put_obj(self._create_slippery_west(), w_mid - 3, h_mid - 2)
-        self.put_obj(self._create_slippery_west(), w_mid - 3, h_mid - 1)
-        self.put_obj(self._create_slippery_west(), w_mid - 3, h_mid)
-        self.put_obj(self._create_slippery_west(), w_mid - 3, h_mid + 1)
-        
-        self.put_obj(self._create_slippery_east(), w_mid + 2, h_mid - 2)
-        self.put_obj(self._create_slippery_east(), w_mid + 2, h_mid - 1)
-        self.put_obj(self._create_slippery_east(), w_mid + 2, h_mid)
-        self.put_obj(self._create_slippery_east(), w_mid + 2, h_mid + 1)
-        
-        self.put_obj(self._create_slippery_south(), w_mid - 3, h_mid + 2)    
-        self.put_obj(self._create_slippery_south(), w_mid - 2, h_mid + 2)
-        self.put_obj(self._create_slippery_south(), w_mid - 1, h_mid + 2)
-        self.put_obj(self._create_slippery_south(), w_mid, h_mid + 2)
-        self.put_obj(self._create_slippery_south(), w_mid + 1, h_mid + 2)
-        self.put_obj(self._create_slippery_south(), w_mid + 2, h_mid + 2)
-        
-        
-        
-        # Place the agent
-        self.agent_pos = np.array((1, 1))
-        self.agent_dir = 0
-
-        # Place a goal square 
-        self.goal_pos = np.array((width - 2, height - 2))
-        self.put_obj(Goal(), *self.goal_pos)
-
-        
-        
-    def _env_two(self, width, height):
-        w_mid = width // 2
-        h_mid = height // 2
-        
-        self.put_obj(Lava(), w_mid - 1, h_mid - 1)
-        self.put_obj(Lava(), w_mid, h_mid - 1)
-        self.put_obj(Lava(), w_mid - 1, h_mid)
-        self.put_obj(Lava(), w_mid, h_mid)
-        
-        self.put_obj(self._create_slippery_west(), w_mid - 2, h_mid - 1)
-        self.put_obj(self._create_slippery_west(), w_mid - 2, h_mid)
-        
-        self.put_obj(self._create_slippery_east(), w_mid + 1, h_mid - 1)
-        self.put_obj(self._create_slippery_east(), w_mid + 1, h_mid)
-        
-        
-        self.put_obj(Lava(), w_mid - 1, 1)
-        self.put_obj(Lava(), w_mid, 1)
-        
-        self.put_obj(self._create_slippery_south(), w_mid - 1, 2)
-        self.put_obj(self._create_slippery_south(), w_mid, 2)
-        self.put_obj(self._create_slippery_west(), w_mid - 2, 1)
-        self.put_obj(self._create_slippery_east(), w_mid + 1, 1)
-        
-        self.put_obj(Lava(), w_mid - 1, height - 2)
-        self.put_obj(Lava(), w_mid, height - 2)
-        
-        self.put_obj(self._create_slippery_north(), w_mid - 1, height - 3)
-        self.put_obj(self._create_slippery_north(), w_mid, height - 3)
-        self.put_obj(self._create_slippery_west(), w_mid - 2, height - 2)
-        self.put_obj(self._create_slippery_east(), w_mid + 1, height - 2)
-        
-        # Place the agent
-        self.agent_pos = np.array((1, 1))
-        self.agent_dir = 0
-
-        # Place a goal square 
-        self.goal_pos = np.array((width - 2, height - 2))
-        self.put_obj(Goal(), *self.goal_pos)
-
-  
-    def get_start_position(self, agent_pos=None):
-        # Place the agent
-        if self.randomize_start == True:
-            while True:
-                x = np.random.randint(0, self.width)
-                y = np.random.randint(0, self.height)
-
-                cell = self.grid.get(*(x,y))
-                if cell is None or (cell.can_overlap() and not isinstance(cell, Lava) and not isinstance(cell, Goal)):
-                #and not isinstance(cell, SlipperyEast) and not isinstance(cell, SlipperySouth) and not isinstance(cell, SlipperyWest) and not isinstance(cell, SlipperyNorth)) :
-                    self.agent_pos = np.array((x, y))
-                    self.agent_dir = np.random.randint(0, 4)
-                    break
-        else:
-            self.agent_pos = np.array((1, 1))
-            self.agent_dir = 0
-
-
-    def _env_three(self, width, height):
-        w_mid = width // 2
-        h_mid = height // 2
-    
-        self.put_obj(Lava(), w_mid - 2, 1)
-        self.put_obj(Lava(), w_mid - 1, 1)
-        self.put_obj(Lava(), w_mid, 1)  
-        self.put_obj(Lava(), w_mid + 1, 1)  
-        self.put_obj(Lava(), w_mid - 2, 2)
-        self.put_obj(Lava(), w_mid - 1, 2)
-        self.put_obj(Lava(), w_mid, 2) 
-        self.put_obj(Lava(), w_mid + 1, 2) 
-        self.put_obj(Lava(), w_mid - 2, 2)
-        self.put_obj(Lava(), w_mid - 1, 2)
-        self.put_obj(Lava(), w_mid, 2) 
-        self.put_obj(Lava(), w_mid + 1, 3) 
-        self.put_obj(Lava(), w_mid - 2, 3)
-        self.put_obj(Lava(), w_mid - 1, 3)
-        self.put_obj(Lava(), w_mid, 3) 
-        self.put_obj(Lava(), w_mid + 1, 3) 
-        
-        
-        
-        self.put_obj(self._create_slippery_south(), w_mid - 2, 4)
-        self.put_obj(self._create_slippery_south(), w_mid - 1, 4)
-        self.put_obj(self._create_slippery_south(), w_mid, 4)
-        self.put_obj(self._create_slippery_south(), w_mid + 1, 4)
-        
-        self.put_obj(self._create_slippery_south(), w_mid - 2, 5)
-        self.put_obj(self._create_slippery_south(), w_mid - 1, 5)
-        self.put_obj(self._create_slippery_south(), w_mid, 5)
-        self.put_obj(self._create_slippery_south(), w_mid + 1, 5)
-        
-        self.put_obj(self._create_slippery_south(), w_mid - 2, 6)
-        self.put_obj(self._create_slippery_south(), w_mid - 1, 6)
-        self.put_obj(self._create_slippery_south(), w_mid, 6)
-        self.put_obj(self._create_slippery_south(), w_mid + 1, 6)
-        
-        self.put_obj(self._create_slippery_south(), w_mid - 2, 7)
-        self.put_obj(self._create_slippery_south(), w_mid - 1, 7)
-        self.put_obj(self._create_slippery_south(), w_mid, 7)
-        self.put_obj(self._create_slippery_south(), w_mid + 1, 7)
-        
-        
-        self.get_start_position()
-
-        print(F"Agent position {self.agent_pos}")
-        # Place a goal square 
-        self.goal_pos = np.array((width - 2,1))
-        self.put_obj(Goal(), *self.goal_pos)
 
     def create_slippery_lava_line(self, y, x_start, x_end, no_slippery_left=False, no_slippery_right=False):
         if not no_slippery_left:
@@ -341,53 +168,13 @@ class LavaSlipperyEnv(MiniGridEnv):
 
         if not no_slippery_right:
             self.put_obj(self._create_slippery_east(), x_end + 1 , y)
-        # self.put_obj(self._create_slippery_north(), x_start - 1, y - 1)
-        # self.put_obj(self._create_slippery_south(), x_end + 1 , y + 1)
-        # self.put_obj(self._create_slippery_north(), x_end + 1, y - 1)
-        # self.put_obj(self._create_slippery_south(), x_start - 1 , y + 1)
 
         for x in range(x_start, x_end + 1):
-            # self.put_obj(self._create_slippery_north(), x, y - 1)
-            # self.put_obj(self._create_slippery_south(), x, y + 1)
             self.put_obj(Lava(), x, y)
 
     def create_lava_line(self, y, x_start, x_end):
         for x in range(x_start, x_end + 1):
             self.put_obj(Lava(), x, y)
-
-
-    def _reward(self) -> float:
-        """
-        Compute the reward to be given upon success
-        """
-        # return 1 - 0.9 * (self.step_count / self.max_steps)
-        return 100
-        # return 100
-
-
-    def _env_four(self, width, height):
-        # TODO Schmäler machen und mindestens 1 mio timesteps (live für tensorboard)
-        # einmal bild schicken bevor trainiert wird
-        self.create_lava_line(height - 5, 1, 7)        
-        self.create_lava_line(height - 5, 12, 19)        
-        self.create_slippery_lava_line(height // 2 + 2, 4, 6)        
-        self.create_slippery_lava_line(height // 2 + 2, 9, 12)   
-        self.create_slippery_lava_line(height // 2 + 2, 15, 19, False, True)   
-
-        self.create_lava_line(height // 2 - 2, 1, 4)  
-        self.create_lava_line(height // 2 - 2, 7, 19)  
-        
-        self.create_slippery_lava_line(4, 1, 3, True)        
-        self.create_slippery_lava_line(4, 6, 9)   
-        self.create_slippery_lava_line(4, 15, 19, False, True)   
-
-        self.get_start_position(np.array((width - 2, height - 2)))
-
-        # self.agent_pos = np.array((width - 2, height - 2))
-        # self.agent_dir = 3
-        # Place a goal square 
-        self.goal_pos = np.array((width - 2, height - 2))
-        self.put_obj(Goal(), *self.goal_pos)
 
     def _gen_grid(self, width, height):
         assert width >= 5 and height >= 5
@@ -400,19 +187,217 @@ class LavaSlipperyEnv(MiniGridEnv):
         self.grid.horz_wall(0, height - 1)
         self.grid.vert_wall(0, 0)
         self.grid.vert_wall(width - 1, 0)
-        
-        if self.version == 0:
-            self._env_one(width, height)
-        elif self.version == 1:
-            self._env_two(width, height)
-        elif self.version == 2:
-            self._env_three(width, height)
-        else:
-            self._env_four(width, height)
-       
-    
+
         self.mission = (
             "avoid the lava and get to the green goal square"
             if self.obstacle_type == Lava
             else "find the opening and get to the green goal square"
         )
+
+    def place_agent(self, agent_pos=None, agent_dir=0):
+        max_tries = 10_000
+        num_tries = 0
+        if self.randomize_start == True:
+            while True:
+                num_tries += 1
+                if num_tries > max_tries:
+                    raise RecursionError("rejection sampling failed in place_obj")
+                x = np.random.randint(0, self.width)
+                y = np.random.randint(0, self.height)
+
+                cell = self.grid.get(*(x,y))
+                if cell is None or (cell.can_overlap() and not isinstance(cell, Lava) and not isinstance(cell, Goal)):
+                    self.agent_pos = np.array((x, y))
+                    self.agent_dir = np.random.randint(0, 4)
+                    break
+        elif agent_dir is None:
+            self.agent_pos = np.array((1, 1))
+            self.agent_dir = 0
+        else:
+            self.agent_pos = agent_pos
+            self.agent_dir = agent_dir
+
+    def place_goal(self, goal_pos):
+        self.goal_pos = goal_pos
+        self.put_obj(Goal(), *self.goal_pos)
+
+    def run_bfs(self):
+        if self.bfs_rewards:
+            self.bfs_reward = self.run_BFS_reward()
+
+class LavaSlipperyPool(LavaSlipperyEnv):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _gen_grid(self, width, height):
+        super()._gen_grid(width, height)
+        w_mid = width // 2
+        h_mid = height // 2
+
+        self.put_obj(Lava(), w_mid - 1, h_mid - 2)
+        self.put_obj(Lava(), w_mid - 2, h_mid - 2)
+        self.put_obj(Lava(), w_mid, h_mid - 2)
+        self.put_obj(Lava(), w_mid + 1, h_mid - 2)
+
+        self.put_obj(Lava(), w_mid - 1, h_mid - 1)
+        self.put_obj(Lava(), w_mid - 2, h_mid - 1)
+        self.put_obj(Lava(), w_mid, h_mid - 1)
+        self.put_obj(Lava(), w_mid + 1, h_mid - 1)
+
+        self.put_obj(Lava(), w_mid - 1, h_mid)
+        self.put_obj(Lava(), w_mid - 2, h_mid)
+        self.put_obj(Lava(), w_mid, h_mid)
+        self.put_obj(Lava(), w_mid + 1, h_mid)
+
+        self.put_obj(Lava(), w_mid - 1, h_mid + 1)
+        self.put_obj(Lava(), w_mid - 2, h_mid + 1)
+        self.put_obj(Lava(), w_mid, h_mid + 1)
+        self.put_obj(Lava(), w_mid + 1, h_mid + 1)
+
+
+        self.put_obj(self._create_slippery_north(), w_mid - 3, h_mid - 3)
+        self.put_obj(self._create_slippery_north(), w_mid - 2, h_mid - 3)
+        self.put_obj(self._create_slippery_north(), w_mid - 1, h_mid - 3)
+        self.put_obj(self._create_slippery_north(), w_mid, h_mid - 3)
+        self.put_obj(self._create_slippery_north(), w_mid + 1, h_mid - 3)
+        self.put_obj(self._create_slippery_north(), w_mid + 2, h_mid - 3)
+
+        self.put_obj(self._create_slippery_west(), w_mid - 3, h_mid - 2)
+        self.put_obj(self._create_slippery_west(), w_mid - 3, h_mid - 1)
+        self.put_obj(self._create_slippery_west(), w_mid - 3, h_mid)
+        self.put_obj(self._create_slippery_west(), w_mid - 3, h_mid + 1)
+
+        self.put_obj(self._create_slippery_east(), w_mid + 2, h_mid - 2)
+        self.put_obj(self._create_slippery_east(), w_mid + 2, h_mid - 1)
+        self.put_obj(self._create_slippery_east(), w_mid + 2, h_mid)
+        self.put_obj(self._create_slippery_east(), w_mid + 2, h_mid + 1)
+
+        self.put_obj(self._create_slippery_south(), w_mid - 3, h_mid + 2)
+        self.put_obj(self._create_slippery_south(), w_mid - 2, h_mid + 2)
+        self.put_obj(self._create_slippery_south(), w_mid - 1, h_mid + 2)
+        self.put_obj(self._create_slippery_south(), w_mid, h_mid + 2)
+        self.put_obj(self._create_slippery_south(), w_mid + 1, h_mid + 2)
+        self.put_obj(self._create_slippery_south(), w_mid + 2, h_mid + 2)
+
+        self.place_agent(agent_pos=np.array((1, 1)), agent_dir=0)
+        self.place_goal(np.array((width - 2, height - 2)))
+        self.run_bfs()
+
+class LavaSlipperyEnv1(LavaSlipperyEnv):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _gen_grid(self, width, height):
+        super()._gen_grid(width, height)
+
+        w_mid = width // 2
+        h_mid = height // 2
+
+        self.put_obj(Lava(), w_mid - 1, h_mid - 1)
+        self.put_obj(Lava(), w_mid, h_mid - 1)
+        self.put_obj(Lava(), w_mid - 1, h_mid)
+        self.put_obj(Lava(), w_mid, h_mid)
+
+        self.put_obj(self._create_slippery_west(), w_mid - 2, h_mid - 1)
+        self.put_obj(self._create_slippery_west(), w_mid - 2, h_mid)
+
+        self.put_obj(self._create_slippery_east(), w_mid + 1, h_mid - 1)
+        self.put_obj(self._create_slippery_east(), w_mid + 1, h_mid)
+
+
+        self.put_obj(Lava(), w_mid - 1, 1)
+        self.put_obj(Lava(), w_mid, 1)
+
+        self.put_obj(self._create_slippery_south(), w_mid - 1, 2)
+        self.put_obj(self._create_slippery_south(), w_mid, 2)
+        self.put_obj(self._create_slippery_west(), w_mid - 2, 1)
+        self.put_obj(self._create_slippery_east(), w_mid + 1, 1)
+
+        self.put_obj(Lava(), w_mid - 1, height - 2)
+        self.put_obj(Lava(), w_mid, height - 2)
+
+        self.put_obj(self._create_slippery_north(), w_mid - 1, height - 3)
+        self.put_obj(self._create_slippery_north(), w_mid, height - 3)
+        self.put_obj(self._create_slippery_west(), w_mid - 2, height - 2)
+        self.put_obj(self._create_slippery_east(), w_mid + 1, height - 2)
+
+        self.place_agent(agent_pos=np.array((1, 1)), agent_dir=0)
+        self.place_goal(np.array((width - 2, height - 2)))
+        self.run_bfs()
+
+class LavaSlipperyCliff(LavaSlipperyEnv):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _gen_grid(self, width, height):
+        super()._gen_grid(width, height)
+        w_mid = width // 2
+        h_mid = height // 2
+
+        self.put_obj(Lava(), w_mid - 2, 1)
+        self.put_obj(Lava(), w_mid - 1, 1)
+        self.put_obj(Lava(), w_mid, 1)
+        self.put_obj(Lava(), w_mid + 1, 1)
+        self.put_obj(Lava(), w_mid - 2, 2)
+        self.put_obj(Lava(), w_mid - 1, 2)
+        self.put_obj(Lava(), w_mid, 2)
+        self.put_obj(Lava(), w_mid + 1, 2)
+        self.put_obj(Lava(), w_mid - 2, 2)
+        self.put_obj(Lava(), w_mid - 1, 2)
+        self.put_obj(Lava(), w_mid, 2)
+        self.put_obj(Lava(), w_mid + 1, 3)
+        self.put_obj(Lava(), w_mid - 2, 3)
+        self.put_obj(Lava(), w_mid - 1, 3)
+        self.put_obj(Lava(), w_mid, 3)
+        self.put_obj(Lava(), w_mid + 1, 3)
+
+
+
+        self.put_obj(self._create_slippery_south(), w_mid - 2, 4)
+        self.put_obj(self._create_slippery_south(), w_mid - 1, 4)
+        self.put_obj(self._create_slippery_south(), w_mid, 4)
+        self.put_obj(self._create_slippery_south(), w_mid + 1, 4)
+
+        self.put_obj(self._create_slippery_south(), w_mid - 2, 5)
+        self.put_obj(self._create_slippery_south(), w_mid - 1, 5)
+        self.put_obj(self._create_slippery_south(), w_mid, 5)
+        self.put_obj(self._create_slippery_south(), w_mid + 1, 5)
+
+        self.put_obj(self._create_slippery_south(), w_mid - 2, 6)
+        self.put_obj(self._create_slippery_south(), w_mid - 1, 6)
+        self.put_obj(self._create_slippery_south(), w_mid, 6)
+        self.put_obj(self._create_slippery_south(), w_mid + 1, 6)
+
+        self.put_obj(self._create_slippery_south(), w_mid - 2, 7)
+        self.put_obj(self._create_slippery_south(), w_mid - 1, 7)
+        self.put_obj(self._create_slippery_south(), w_mid, 7)
+        self.put_obj(self._create_slippery_south(), w_mid + 1, 7)
+
+
+        self.place_agent(agent_pos=np.array((1, 1)), agent_dir=0)
+        self.place_goal(np.array((width - 2, 1)))
+        self.run_bfs()
+
+class LavaSlipperyMaze(LavaSlipperyEnv):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _gen_grid(self, width, height):
+        # TODO make scalable
+        super()._gen_grid(width, height)
+        self.create_lava_line(height - 5, 1, 7)
+        self.create_lava_line(height - 5, 12, 19)
+        self.create_slippery_lava_line(height // 2 + 2, 4, 6)
+        self.create_slippery_lava_line(height // 2 + 2, 9, 12)
+        self.create_slippery_lava_line(height // 2 + 2, 15, 19, False, True)
+
+        self.create_lava_line(height // 2 - 2, 1, 4)
+        self.create_lava_line(height // 2 - 2, 7, 19)
+
+        self.create_slippery_lava_line(4, 1, 3, True)
+        self.create_slippery_lava_line(4, 6, 9)
+        self.create_slippery_lava_line(4, 15, 19, False, True)
+
+        self.place_agent(agent_pos=np.array((width - 2, height - 2)), agent_dir=0)
+        self.place_goal(np.array((width - 2, height - 2)))
+        self.run_bfs()
