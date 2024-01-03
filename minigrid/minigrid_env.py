@@ -154,7 +154,6 @@ class MiniGridEnv(gym.Env):
             else all(self.agent_pos >= 0) and self.agent_dir >= 0
         )
 
-        #self.bfs_reward = self.run_BFS_reward()
 
         # Check that the agent doesn't overlap with an object
         start_cell = self.grid.get(*self.agent_pos)

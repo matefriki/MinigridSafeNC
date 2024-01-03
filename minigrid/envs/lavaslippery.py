@@ -66,7 +66,6 @@ class LavaSlipperyEnv(MiniGridEnv):
     ### Registered Configurations
 
     S: size of map SxS.
-    V: Version
 
     - `MiniGrid-VLavaSlipperyS12-v0`
     - `MiniGrid-VLavaSlipperyS12-v0`
@@ -84,12 +83,12 @@ class LavaSlipperyEnv(MiniGridEnv):
                 probability_turn_displacement=2/9,
                 obstacle_type=Lava,
                 goal_reward=1,
-                failure_penalty=-1
+                failure_penalty=-1,
+                bfs_rewards=True,
                      **kwargs):
 
         self.obstacle_type = obstacle_type
         self.size = size
-        self.version = version
         self.probability_intended = probability_intended
         self.probability_displacement = probability_displacement
         self.probability_turn_intended = probability_turn_intended
@@ -125,6 +124,7 @@ class LavaSlipperyEnv(MiniGridEnv):
         self.randomize_start = randomize_start
         self.goal_reward = goal_reward
         self.failure_penalty = failure_penalty
+        self.bfs_rewards = bfs_rewards
 
 
     def _create_slippery_north(self):
@@ -221,6 +221,10 @@ class LavaSlipperyEnv(MiniGridEnv):
         self.goal_pos = goal_pos
         self.put_obj(Goal(), *self.goal_pos)
 
+    def run_bfs(self):
+        if self.bfs_rewards:
+            self.bfs_reward = self.run_BFS_reward()
+
 class LavaSlipperyPool(LavaSlipperyEnv):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -277,6 +281,7 @@ class LavaSlipperyPool(LavaSlipperyEnv):
 
         self.place_agent(agent_pos=np.array((1, 1)), agent_dir=0)
         self.place_goal(np.array((width - 2, height - 2)))
+        self.run_bfs()
 
 class LavaSlipperyEnv1(LavaSlipperyEnv):
     def __init__(self, *args, **kwargs):
@@ -316,13 +321,11 @@ class LavaSlipperyEnv1(LavaSlipperyEnv):
         self.put_obj(self._create_slippery_west(), w_mid - 2, height - 2)
         self.put_obj(self._create_slippery_east(), w_mid + 1, height - 2)
 
-        # Place the agent
         self.place_agent(agent_pos=np.array((1, 1)), agent_dir=0)
-
-        # Place a goal square
         self.place_goal(np.array((width - 2, height - 2)))
+        self.run_bfs()
 
-class LavaSlipperyEnv2(LavaSlipperyEnv):
+class LavaSlipperyCliff(LavaSlipperyEnv):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -373,6 +376,7 @@ class LavaSlipperyEnv2(LavaSlipperyEnv):
 
         self.place_agent(agent_pos=np.array((1, 1)), agent_dir=0)
         self.place_goal(np.array((width - 2, 1)))
+        self.run_bfs()
 
 class LavaSlipperyMaze(LavaSlipperyEnv):
     def __init__(self, *args, **kwargs):
@@ -396,3 +400,4 @@ class LavaSlipperyMaze(LavaSlipperyEnv):
 
         self.place_agent(agent_pos=np.array((width - 2, height - 2)), agent_dir=0)
         self.place_goal(np.array((width - 2, height - 2)))
+        self.run_bfs()
