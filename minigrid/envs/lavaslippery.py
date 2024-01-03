@@ -84,7 +84,7 @@ class LavaSlipperyEnv(MiniGridEnv):
                 obstacle_type=Lava,
                 goal_reward=1,
                 failure_penalty=-1,
-                bfs_rewards=True,
+                bfs_rewards=False,
                      **kwargs):
 
         self.obstacle_type = obstacle_type
