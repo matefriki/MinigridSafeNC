@@ -66,19 +66,19 @@ def register_minigrid_envs():
     )
 
     register(
-        id="MiniGrid-LavaSlipperyS12-v1",
+        id="MiniGrid-LavaSlipperyS12-v0",
         entry_point="minigrid.envs:LavaSlipperyEnv1",
         kwargs={"size": 12},
     )
 
     register(
-        id="MiniGrid-LavaSlipperyS12-v2",
-        entry_point="minigrid.envs:LavaSlipperyEnv2",
+        id="MiniGrid-LavaSlipperyCliffS12-v0",
+        entry_point="minigrid.envs:LavaSlipperyCliff",
         kwargs={"size": 12},
     )
 
     register(
-        id="MiniGrid-LavaSlipperyS21-v3",
+        id="MiniGrid-LavaSlipperyMazeS21-v0",
         entry_point="minigrid.envs:LavaSlipperyMaze",
         kwargs={"width": 21, "height": 21},
     )
