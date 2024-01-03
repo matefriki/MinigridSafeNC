@@ -83,7 +83,8 @@ class LavaSlipperyEnv(MiniGridEnv):
                 probability_turn_intended=3/9,
                 probability_turn_displacement=2/9,
                 obstacle_type=Lava,
-                     version=0 ,
+                goal_reward=1,
+                failure_penalty=-1
                      **kwargs):
 
         self.obstacle_type = obstacle_type
@@ -122,6 +123,8 @@ class LavaSlipperyEnv(MiniGridEnv):
         )
 
         self.randomize_start = randomize_start
+        self.goal_reward = goal_reward
+        self.failure_penalty = failure_penalty
 
 
     def _create_slippery_north(self):

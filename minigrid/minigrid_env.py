@@ -771,8 +771,6 @@ class MiniGridEnv(gym.Env):
             need_position_update = True
         # Rotate left
         elif action == self.actions.left:
-            reward = self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
-
             if is_slippery(current_cell):
                 possible_fwd_pos, prob = self.get_neighbours_prob_turn(self.agent_pos, current_cell.probabilities_turn)
                 fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
@@ -792,8 +790,6 @@ class MiniGridEnv(gym.Env):
 
         # Rotate right
         elif action == self.actions.right:
-            reward = self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
-
             if is_slippery(current_cell):
                 possible_fwd_pos, prob = self.get_neighbours_prob_turn(self.agent_pos, current_cell.probabilities_turn)
                 fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
@@ -853,16 +849,21 @@ class MiniGridEnv(gym.Env):
 
         if fwd_cell is not None and fwd_cell.type == "goal":
             terminated = True
-            reward = self._reward()
+            try: reward = self.goal_reward
+            except: reward = 1
         elif fwd_cell is not None and fwd_cell.type == "lava":
-            reward = -100
             terminated = True
+            try: reward = self.failure_penalty
+            except: reward = -1
         elif fwd_cell is not None and fwd_cell.type == "adversary":
             terminated = True
-            reward = self.collision_penalty
+            try: reward = self.collision_penalty
+            except: reward = -1
             self.agent_pos = tuple(fwd_pos)
         else:
-            if self.bfs_reward is not None: reward = self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
+            try: reward += self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
+            except: pass
+
 
 
 
