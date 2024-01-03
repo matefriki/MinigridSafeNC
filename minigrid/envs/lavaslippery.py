@@ -80,13 +80,25 @@ class LavaSlipperyEnv(MiniGridEnv):
     - `MiniGrid-VLavaSlipperyS12-v0`
 
     """
-    def __init__(self, randomize_start=True, size=12, width=None, height=None, probability_intended=3/9, probability_displacement=2/9, obstacle_type=Lava, version=0 , **kwargs):
+    def __init__(self,
+                randomize_start=True, size=12,
+                width=None,
+                height=None, 
+                probability_intended=3/9,
+                probability_displacement=2/9, 
+                probability_turn_intended=3/9,
+                probability_turn_displacement=2/9, 
+                obstacle_type=Lava,
+                     version=0 ,
+                     **kwargs):
         
         self.obstacle_type = obstacle_type
         self.size = size
         self.version = version
         self.probability_intended = probability_intended
         self.probability_displacement = probability_displacement
+        self.probability_turn_intended = probability_turn_intended
+        self.probability_turn_displacement = probability_turn_displacement
         
         if width is not None and height is not None:        
             self.width = width
@@ -118,22 +130,30 @@ class LavaSlipperyEnv(MiniGridEnv):
         
     def _create_slippery_north(self):
         return SlipperyNorth(probability_intended=self.probability_intended, 
-                             probability_displacement=self.probability_displacement)
+                             probability_displacement=self.probability_displacement,
+                             probability_turn_displacement=self.probability_turn_displacement,
+                             probability_turn_intended=self.probability_turn_intended)
 
     
     def _create_slippery_south(self):
         return SlipperySouth(probability_intended=self.probability_intended, 
-                             probability_displacement=self.probability_displacement)
+                             probability_displacement=self.probability_displacement,
+                             probability_turn_displacement=self.probability_turn_displacement,
+                             probability_turn_intended=self.probability_turn_intended)
 
 
     def _create_slippery_east(self):
         return SlipperyEast(probability_intended=self.probability_intended, 
-                            probability_displacement=self.probability_displacement)
+                             probability_displacement=self.probability_displacement,
+                             probability_turn_displacement=self.probability_turn_displacement,
+                             probability_turn_intended=self.probability_turn_intended)
 
     
     def _create_slippery_west(self):
         return SlipperyWest(probability_intended=self.probability_intended, 
-                            probability_displacement=self.probability_displacement)
+                             probability_displacement=self.probability_displacement,
+                             probability_turn_displacement=self.probability_turn_displacement,
+                             probability_turn_intended=self.probability_turn_intended)
 
     def _place_slippery_lava(self, x, y):
         self.put_obj(Lava(), x, y)

@@ -139,7 +139,7 @@ class Slippery(WorldObj):
             fill_coords(img, point_in_line(0.7, yhi, 0.9, ylo, r=0.03), (0, 0, 0))
 
 class SlipperyNorth(WorldObj):
-    def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9):
+    def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9, probability_turn_intended=6/9, probability_turn_displacement=3/9):
         super().__init__("slipperynorth", color)
         self.offset = (0,1)
         self.direction = 1
@@ -148,7 +148,7 @@ class SlipperyNorth(WorldObj):
         # 0: Left Above - 1: Left - 2: Left Below
         # 3: Above - 4: Current - 5: Below
         # 6: Right Above - 7: Right - 8: Right Below
-        self.probabilities_turn = [0.0, 0.0, 0.0, 0.0, probability_intended, probability_displacement, 0.0, 0.0, 0.0]
+        self.probabilities_turn = [0.0, 0.0, 0.0, 0.0, probability_turn_intended, probability_turn_displacement, 0.0, 0.0, 0.0]
 
         self.probabilities_0 =   [0,  0   , probability_displacement / 2, 0, 0 ,   probability_intended  ,0 ,  0   , probability_displacement / 2]
         self.probabilities_90 =  [0   ,  probability_intended   , probability_displacement , 0 , 0 ,   0  , 0 , 0 , 0]
@@ -187,7 +187,7 @@ class SlipperyNorth(WorldObj):
 
 
 class SlipperySouth(WorldObj):
-    def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9):
+    def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9, probability_turn_intended=6/9, probability_turn_displacement=3/9):
         super().__init__("slipperysouth", color)
         self.offset = (0,-1)
         self.direction = 3
@@ -197,7 +197,7 @@ class SlipperySouth(WorldObj):
         # 3: Above - 4: Current - 5: Below
         # 6: Right Above - 7: Right - 8: Right Below
 
-        self.probabilities_turn = [0.0, 0.0, 0.0, probability_displacement, probability_intended, 0.0, 0.0, 0.0, 0.0]
+        self.probabilities_turn = [0.0, 0.0, 0.0, probability_turn_displacement, probability_turn_intended, 0.0, 0.0, 0.0, 0.0]
 
         self.probabilities_0 =   [probability_displacement / 2,  0   , 0 , probability_intended , 0 ,   0  , probability_displacement / 2 ,  0   , 0]
         self.probabilities_90 =  [0   ,  0   , 0 , 0 , 0 ,   0  , probability_displacement , probability_intended , 0]
@@ -231,7 +231,7 @@ class SlipperySouth(WorldObj):
             fill_coords(img, rotate_fn(point_in_line(0.7, yhi, 0.9, ylo, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
 
 class SlipperyEast(WorldObj):
-    def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9):
+    def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9, probability_turn_intended=6/9, probability_turn_displacement=3/9):
         super().__init__("slipperyeast", color)
         self.offset = (-1,0)
         self.direction = 2
@@ -241,7 +241,7 @@ class SlipperyEast(WorldObj):
         # 3: Above - 4: Current - 5: Below
         # 6: Right Above - 7: Right - 8: Right Below
 
-        self.probabilities_turn = [0.0, probability_displacement, 0.0, 0.0, probability_intended, 0.0, 0.0, 0.0, 0.0]
+        self.probabilities_turn = [0.0, probability_turn_displacement, 0.0, 0.0, probability_turn_intended, 0.0, 0.0, 0.0, 0.0]
 
         self.probabilities_0 =   [probability_displacement / 2,  probability_intended  , probability_displacement / 2 ,  0 , 0 ,   0  , 0 ,  0   , 0]
         self.probabilities_90 =  [probability_displacement / 2  ,  probability_displacement / 2  , 0 , probability_intended , 0 ,   0  , 0 , 0 , 0]
@@ -276,7 +276,7 @@ class SlipperyEast(WorldObj):
             fill_coords(img, rotate_fn(point_in_line(0.7, yhi, 0.9, ylo, r=0.03), cx=0.5, cy=0.5, theta=0.5 * math.pi), (0, 0, 0))
 
 class SlipperyWest(WorldObj):
-    def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9):
+    def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9, probability_turn_intended=6/9, probability_turn_displacement=3/9):
         super().__init__("slipperywest", color)
         self.offset = (1,0)
         self.direction = 0
@@ -286,7 +286,7 @@ class SlipperyWest(WorldObj):
         # 3: Above - 4: Current - 5: Below
         # 6: Right Above - 7: Right - 8: Right Below
 
-        self.probabilities_turn = [0.0, 0.0, 0.0, 0.0, probability_intended, 0.0, 0.0, probability_displacement, 0.0]
+        self.probabilities_turn = [0.0, 0.0, 0.0, 0.0, probability_turn_intended, 0.0, 0.0, probability_turn_displacement, 0.0]
 
         self.probabilities_0 =   [0, 0, 0, 0, 0, 0, probability_displacement / 2,  probability_intended, probability_displacement / 2]
         self.probabilities_90 =  [0, 0, 0, 0, 0, probability_intended, 0,  probability_displacement / 2, probability_displacement / 2]
