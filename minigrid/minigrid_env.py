@@ -147,7 +147,6 @@ class MiniGridEnv(gym.Env):
         # Generate a new random grid at the start of each episode
         self._gen_grid(self.width, self.height)
 
-
         # These fields should be defined by _gen_grid
         assert (
             self.agent_pos >= (0, 0)
@@ -670,7 +669,7 @@ class MiniGridEnv(gym.Env):
     def run_BFS_reward(grid):
         if not hasattr(grid, "goal_pos") or np.all(grid.goal_pos == (-1, -1)):
              return []
-        
+
         starting_position = (grid.goal_pos[0], grid.goal_pos[1])
         max_distance = 0
         distances = [None] * grid.width * grid.height
@@ -761,7 +760,7 @@ class MiniGridEnv(gym.Env):
         # Get the contents of the cell in front of the agent
         fwd_cell = self.grid.get(*fwd_pos)
         current_cell = self.grid.get(*self.agent_pos)
-        
+
         if action == self.actions.forward and is_slippery(current_cell):
             direction = self.agent_dir
             probabilities = current_cell.get_probabilities(self.agent_dir)
@@ -779,7 +778,7 @@ class MiniGridEnv(gym.Env):
                 fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
                 fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
                 fwd_cell = self.grid.get(*fwd_pos)
-              
+
                 if fwd_pos == (self.agent_pos[0], self.agent_pos[1]):
                     self.agent_dir -= 1
                     if self.agent_dir < 0:
@@ -800,7 +799,7 @@ class MiniGridEnv(gym.Env):
                 fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
                 fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
                 fwd_cell = self.grid.get(*fwd_pos)
-                
+
                 if fwd_pos == (self.agent_pos[0], self.agent_pos[1]):
                     self.agent_dir -= 1
                     if self.agent_dir < 0:
@@ -817,7 +816,7 @@ class MiniGridEnv(gym.Env):
                 self.agent_pos = tuple(fwd_pos)
                 fwd_cell = self.grid.get(*fwd_pos)
                 need_position_update = True
-         
+
 
         # Pick up an object
         elif action == self.actions.pickup:
@@ -891,7 +890,7 @@ class MiniGridEnv(gym.Env):
         for pos in probabilities_dict:
             if probabilities_dict[pos]!=-50:
                 sum_prob += probabilities_dict[pos]
-          
+
         probabilties = list(probabilities_dict.values())
         return list(probabilities_dict.keys()), [float(i) / sum(probabilities) for i in probabilties]
 
