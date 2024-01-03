@@ -128,7 +128,17 @@ class LavaFaultyEnv(MiniGridEnv):
         self.put_obj(Lava(), x, y + 1)
         self.put_obj(Lava(), x + 1  , y + 1)
         
+    def step(self, action: ActType) -> tuple[ObsType, SupportsFloat, bool, bool, dict[str, Any]]:
+        if self.previous_action is not None and self.faulty_behavior:
+            prob = np.random.choice(100, 1)
 
+            if prob < self.fault_probability:
+                action = self.previous_action
+                print('Action stuck')
+
+
+        self.previous_action = action
+        return super().step(action)
         
     def _env_one(self, width, height):
         w_mid = width // 2

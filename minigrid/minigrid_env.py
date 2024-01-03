@@ -737,17 +737,6 @@ class MiniGridEnv(gym.Env):
         self, action: ActType
     ) -> tuple[ObsType, SupportsFloat, bool, bool, dict[str, Any]]:
         self.step_count += 1
-
-
-        if self.previous_action is not None and self.faulty_behavior:
-            prob = np.random.choice(100, 1)
-
-            if prop < self.fault_probability:
-                action = self.previous_action
-
-
-        self.previous_action = action
-
         reward = 0
         terminated = False
         truncated = False
@@ -843,15 +832,17 @@ class MiniGridEnv(gym.Env):
         if need_position_update and (fwd_cell is None or fwd_cell.can_overlap()):
             self.agent_pos = tuple(fwd_pos)
 
-        if fwd_cell is not None and fwd_cell.type == "goal":
+        current_cell = self.grid.get(*self.agent_pos)
+
+        if current_cell is not None and current_cell.type == "goal":
             terminated = True
             try: reward = self.goal_reward
             except: reward = 1
-        elif fwd_cell is not None and fwd_cell.type == "lava":
+        elif current_cell is not None and current_cell.type == "lava":
             terminated = True
             try: reward = self.failure_penalty
             except: reward = -1
-        elif fwd_cell is not None and fwd_cell.type == "adversary":
+        elif current_cell is not None and current_cell.type == "adversary":
             terminated = True
             try: reward = self.collision_penalty
             except: reward = -1

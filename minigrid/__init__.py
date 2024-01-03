@@ -87,9 +87,24 @@ def register_minigrid_envs():
     # LavaFaulty
 
     register(
-        id="MiniGrid-LavaFaultyS12-v0",
+        id="MiniGrid-LavaFaultyS12-30-v0",
         entry_point="minigrid.envs:LavaFaultyEnv",
-        kwargs={"size": 15, "version": 0, "faulty_probability": 0.3},
+        kwargs={"size": 15, "version": 0, "faulty_probability": 30},
+    )
+    register(
+        id="MiniGrid-LavaFaultyS12-20-v0",
+        entry_point="minigrid.envs:LavaFaultyEnv",
+        kwargs={"size": 15, "version": 0, "faulty_probability": 20},
+    )
+    register(
+        id="MiniGrid-LavaFaultyS12-10-v0",
+        entry_point="minigrid.envs:LavaFaultyEnv",
+        kwargs={"size": 15, "version": 0, "faulty_probability": 10},
+    )   
+    register(
+        id="MiniGrid-LavaFaultyS12-5-v0",
+        entry_point="minigrid.envs:LavaFaultyEnv",
+        kwargs={"size": 15, "version": 0, "faulty_probability": 5},
     )
 
     # DoubleDoors
