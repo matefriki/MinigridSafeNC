@@ -130,7 +130,6 @@ class MiniGridEnv(gym.Env):
 
         # Custom
         self.background_tiles = dict()
-        # self.bfs_reward = run_BFS_reward(self.grid, goalPos[0]) # TODO check goal pos and get neighbour etc.
 
     def reset(
         self,
@@ -156,10 +155,8 @@ class MiniGridEnv(gym.Env):
             else all(self.agent_pos >= 0) and self.agent_dir >= 0
         )
 
-        position = (self.goal_pos[0], self.goal_pos[1])
-        # position = (self.agent_pos[0], self.agent_pos[1])
-        self.bfs_reward = self.run_BFS_reward(position)
-        #self.print_bfs_reward()
+        self.bfs_reward = self.run_BFS_reward()
+
         # Check that the agent doesn't overlap with an object
         start_cell = self.grid.get(*self.agent_pos)
         assert start_cell is None or start_cell.can_overlap()
@@ -670,7 +667,11 @@ class MiniGridEnv(gym.Env):
 
         return neighbours
 
-    def run_BFS_reward(grid, starting_position):
+    def run_BFS_reward(grid):
+        if not hasattr(grid, "goal_pos") or np.all(grid.goal_pos == (-1, -1)):
+             return []
+        
+        starting_position = (grid.goal_pos[0], grid.goal_pos[1])
         max_distance = 0
         distances = [None] * grid.width * grid.height
         bfs_queue = deque([starting_position])
@@ -752,6 +753,7 @@ class MiniGridEnv(gym.Env):
         reward = 0
         terminated = False
         truncated = False
+        need_position_update = False
 
         # Get the position in front of the agent
         fwd_pos = self.front_pos
@@ -759,74 +761,63 @@ class MiniGridEnv(gym.Env):
         # Get the contents of the cell in front of the agent
         fwd_cell = self.grid.get(*fwd_pos)
         current_cell = self.grid.get(*self.agent_pos)
+        
         if action == self.actions.forward and is_slippery(current_cell):
-            #print(F"We are on slippery {self.agent_pos}, Agent Direction {self.agent_dir}, Cell Dir {current_cell.direction}")
             direction = self.agent_dir
             probabilities = current_cell.get_probabilities(self.agent_dir)
             possible_fwd_pos, prob = self.get_neighbours_prob_forward(self.agent_pos, probabilities, current_cell.offset, current_cell.direction)
-            #print(F"Probability {prob}")
             fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
             fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
             fwd_cell = self.grid.get(*fwd_pos)
-            #print(F'Resulting cell is {fwd_pos}')
-
+            need_position_update = True
         # Rotate left
-        if action == self.actions.left:
-            self.agent_dir -= 1
-            if self.agent_dir < 0:
-                self.agent_dir += 4
+        elif action == self.actions.left:
             reward = self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
 
-            # if is_slippery(current_cell):
-            #     possible_fwd_pos, prob = self.get_neighbours_prob_turn(self.agent_pos, current_cell.probabilities_turn)
-            #     fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
-            #     fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
-            #     fwd_cell = self.grid.get(*fwd_pos)
-            #     if fwd_cell is None or fwd_cell.can_overlap():
-            #         self.agent_pos = tuple(fwd_pos)
-            #     if fwd_cell is not None and fwd_cell.type == "goal":
-            #         terminated = True
-            #         reached_goal = True
-            #         reward = self._reward()
-            #     if fwd_cell is not None and fwd_cell.type == "lava":
-            #         terminated = True
-            #         ran_into_lava = True
+            if is_slippery(current_cell):
+                possible_fwd_pos, prob = self.get_neighbours_prob_turn(self.agent_pos, current_cell.probabilities_turn)
+                fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
+                fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
+                fwd_cell = self.grid.get(*fwd_pos)
+              
+                if fwd_pos == (self.agent_pos[0], self.agent_pos[1]):
+                    self.agent_dir -= 1
+                    if self.agent_dir < 0:
+                        self.agent_dir += 4
+                else:
+                    need_position_update = True
+            else:
+                self.agent_dir -= 1
+                if self.agent_dir < 0:
+                    self.agent_dir += 4
 
         # Rotate right
         elif action == self.actions.right:
-            self.agent_dir = (self.agent_dir + 1) % 4
             reward = self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
 
-            # if is_slippery(current_cell):
-            #     possible_fwd_pos, prob = self.get_neighbours_prob_turn(self.agent_pos, current_cell.probabilities_turn)
-            #     fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
-            #     fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
-            #     fwd_cell = self.grid.get(*fwd_pos)
-            #     if fwd_cell is None or fwd_cell.can_overlap():
-            #         self.agent_pos = tuple(fwd_pos)
-            #     if fwd_cell is not None and fwd_cell.type == "goal":
-            #         terminated = True
-            #         reached_goal = True
-            #         reward = self._reward()
-            #     if fwd_cell is not None and fwd_cell.type == "lava":
-            #         terminated = True
-            #         ran_into_lava = True
+            if is_slippery(current_cell):
+                possible_fwd_pos, prob = self.get_neighbours_prob_turn(self.agent_pos, current_cell.probabilities_turn)
+                fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
+                fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
+                fwd_cell = self.grid.get(*fwd_pos)
+                
+                if fwd_pos == (self.agent_pos[0], self.agent_pos[1]):
+                    self.agent_dir -= 1
+                    if self.agent_dir < 0:
+                        self.agent_dir += 4
+                else:
+                    need_position_update = True
+            else:
+                self.agent_dir = (self.agent_dir + 1) % 4
+
 
         # Move forward
         elif action == self.actions.forward:
             if fwd_cell is None or fwd_cell.can_overlap():
                 self.agent_pos = tuple(fwd_pos)
-                reward = self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
-            if fwd_cell is not None and fwd_cell.type == "goal":
-                terminated = True
-                reward = self._reward()
-            if fwd_cell is not None and fwd_cell.type == "lava":
-                reward = -1
-                terminated = True
-            if fwd_cell is not None and fwd_cell.type == "adversary":
-                terminated = True
-                reward = self.collision_penalty
-                self.agent_pos = tuple(fwd_pos)
+                fwd_cell = self.grid.get(*fwd_pos)
+                need_position_update = True
+         
 
         # Pick up an object
         elif action == self.actions.pickup:
@@ -858,6 +849,25 @@ class MiniGridEnv(gym.Env):
         else:
             raise ValueError(f"Unknown action: {action}")
 
+        if need_position_update and (fwd_cell is None or fwd_cell.can_overlap()):
+            self.agent_pos = tuple(fwd_pos)
+
+        if fwd_cell is not None and fwd_cell.type == "goal":
+            terminated = True
+            reward = self._reward()
+        elif fwd_cell is not None and fwd_cell.type == "lava":
+            reward = -100
+            terminated = True
+        elif fwd_cell is not None and fwd_cell.type == "adversary":
+            terminated = True
+            reward = self.collision_penalty
+            self.agent_pos = tuple(fwd_pos)
+        else:
+            reward = self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
+
+
+
+
         if self.step_count >= self.max_steps:
             truncated = True
 
@@ -871,35 +881,19 @@ class MiniGridEnv(gym.Env):
     def get_neighbours_prob_forward(self, agent_pos, probabilities, offset, cell_direction):
         neighbours = [tuple((x,y)) for x in range(agent_pos[0]-1, agent_pos[0]+2) for y in range(agent_pos[1]-1,agent_pos[1]+2)]
         probabilities_dict = dict(zip(neighbours, probabilities))
-        #print(F"Prob dict {probabilities_dict}")
 
         for pos in probabilities_dict:
             cell = self.grid.get(*pos)
             if cell is not None and not cell.can_overlap():
                 probabilities_dict[pos] = 0.0
-        # print(F"Cell direction {cell_direction} Agent dir {self.agent_dir}")
+
         sum_prob = 0
         for pos in probabilities_dict:
             if probabilities_dict[pos]!=-50:
                 sum_prob += probabilities_dict[pos]
-            # if probabilities_dict[pos]!=-50 and self.agent_dir  == cell_direction :
-            #     sum_prob += probabilities_dict[pos]
-            # elif probabilities_dict[pos]!=-50 and self.agent_dir  != cell_direction:
-            #     probabilities_dict[pos] =  probabilities_dict[pos] /10
-            #     sum_prob += probabilities_dict[pos]
-
-        # if probabilities_dict[tuple((agent_pos[0] + offset[0], agent_pos[1]+offset[1]))] == 0:
-        #     print("Hello")
-        #     probabilities_dict[tuple((agent_pos[0], agent_pos[1]))] = 1-sum_prob
-        # else:
-        #     print(F"World Sum probabilties {sum_prob}")
-        #     print(probabilities_dict)
-        #     probabilities_dict[tuple((agent_pos[0], agent_pos[1]))] = 0.0
-        #     probabilities_dict[tuple((agent_pos[0] + offset[0], agent_pos[1]+offset[1]))] = 1-sum_prob
-
-        # print(probabilities_dict)
-        # print(agent_pos+offset)
-        return list(probabilities_dict.keys()), list(probabilities_dict.values())
+          
+        probabilties = list(probabilities_dict.values())
+        return list(probabilities_dict.keys()), [float(i) / sum(probabilities) for i in probabilties]
 
     def get_neighbours_prob_turn(self, agent_pos, probabilities):
         neighbours = [tuple((x,y)) for x in range(agent_pos[0]-1, agent_pos[0]+2) for y in range(agent_pos[1]-1,agent_pos[1]+2)]
@@ -918,6 +912,7 @@ class MiniGridEnv(gym.Env):
             if (prob!=-50):
                 sum_prob += prob
         non_blocked_prob = [x if x!=-50 else 1-sum_prob for x in non_blocked_prob]
+
         return non_blocked_neighbours, non_blocked_prob
 
 
