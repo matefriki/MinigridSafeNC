@@ -192,6 +192,7 @@ class LavaSlipperyEnv(MiniGridEnv):
         )
 
     def place_agent(self, agent_pos=None, agent_dir=0):
+        max_tries = 10_000
         num_tries = 0
         if self.randomize_start == True:
             while True:
