@@ -60,24 +60,27 @@ def register_minigrid_envs():
 
 
     register(
-        id="MiniGrid-LavaSlipperyS12-v0",
-        entry_point="minigrid.envs:LavaSlipperyEnv",
-        kwargs={"size": 12, "version": 0},
+        id="MiniGrid-LavaSlipperyPoolS12-v0",
+        entry_point="minigrid.envs:LavaSlipperyPool",
+        kwargs={"size": 12},
     )
+
     register(
         id="MiniGrid-LavaSlipperyS12-v1",
-        entry_point="minigrid.envs:LavaSlipperyEnv",
-        kwargs={"size": 12, "version": 1},
+        entry_point="minigrid.envs:LavaSlipperyEnv1",
+        kwargs={"size": 12},
     )
+
     register(
         id="MiniGrid-LavaSlipperyS12-v2",
-        entry_point="minigrid.envs:LavaSlipperyEnv",
-        kwargs={"size": 12, "version": 2},
+        entry_point="minigrid.envs:LavaSlipperyEnv2",
+        kwargs={"size": 12},
     )
+
     register(
-        id="MiniGrid-LavaSlipperyS12-v3",
-        entry_point="minigrid.envs:LavaSlipperyEnv",
-        kwargs={"width": 21, "height": 21, "version": 3},
+        id="MiniGrid-LavaSlipperyS21-v3",
+        entry_point="minigrid.envs:LavaSlipperyMaze",
+        kwargs={"width": 21, "height": 21},
     )
 
 
@@ -88,10 +91,10 @@ def register_minigrid_envs():
         entry_point="minigrid.envs:LavaFaultyEnv",
         kwargs={"size": 15, "version": 0, "faulty_probability": 0.3},
     )
-    
+
     # DoubleDoors
     # ----------------------------------------
-    
+
     register(
         id = "MiniGrid-DoubleDoor-12x12-v0",
         entry_point="minigrid.envs:DoubleDoorEnv",
@@ -102,13 +105,13 @@ def register_minigrid_envs():
         entry_point="minigrid.envs:DoubleDoorEnv",
         kwargs={"width": 16, "height": 16}
     )
-    
+
     register(
         id = "MiniGrid-DoubleDoor-10x8-v0",
         entry_point="minigrid.envs:DoubleDoorEnv",
         kwargs={"width": 10, "height": 8}
     )
-    
+
     # SingleDoors
     # ----------------------------------------
     register(
@@ -116,7 +119,7 @@ def register_minigrid_envs():
         entry_point="minigrid.envs:SingleDoorEnv",
         kwargs={"width": 7, "height": 6}
     )
-    
+
     # AdversarySimple
     # ----------------------------------------
     register(
@@ -124,13 +127,13 @@ def register_minigrid_envs():
         entry_point="minigrid.envs:AdversaryEnv",
         kwargs={"width": 8, "height": 8}
     )
-    
+
     register(
         id = "MiniGrid-AdvSimple-8x8-v0",
         entry_point="minigrid.envs:AdversaryEnv",
         kwargs={"width": 8, "height": 8, "generate_wall": False}
     )
-    
+
     register(
         id = "MiniGrid-AdvLava-8x8-v0",
         entry_point="minigrid.envs:AdversaryEnv",
@@ -139,7 +142,7 @@ def register_minigrid_envs():
                 "generate_wall": False,
                 "generate_lava": True}
     )
-    
+
     register(
         id = "MiniGrid-AdvSlippery-8x8-v0",
         entry_point="minigrid.envs:AdversaryEnv",
