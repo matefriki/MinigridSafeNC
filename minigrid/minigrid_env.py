@@ -53,13 +53,10 @@ class MiniGridEnv(gym.Env):
         highlight: bool = True,
         tile_size: int = TILE_PIXELS,
         agent_pov: bool = False,
-        faulty_behavior: bool = False,
-        faulty_probability: int = 0
+        **kwargs
     ):
         # Initialize mission
         self.mission = mission_space.sample()
-        self.faulty_behavior = faulty_behavior
-        self.fault_probability = faulty_probability
         self.previous_action = None
         # Can't set both grid_size and width/height
         if grid_size:
@@ -363,14 +360,10 @@ class MiniGridEnv(gym.Env):
                 if init:
                     background_str += "\n"
 
-        properties_str = ""
-
-        if self.faulty_behavior:
-            properties_str += F"FaultProbability:{self.fault_probability}"
 
         seperator = "-" * self.grid.width * 2
             #print("")
-        return str + "\n" + seperator + "\n" + background_str + "\n" + seperator + "\n" + seperator + "\n" + properties_str
+        return str + "\n" + seperator + "\n" + background_str + "\n" + seperator + "\n" + seperator + "\n"
 
 
     @abstractmethod

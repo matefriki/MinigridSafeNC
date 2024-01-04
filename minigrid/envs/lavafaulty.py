@@ -77,10 +77,23 @@ class LavaFaultyEnv(MiniGridEnv):
     - `MiniGrid-LavaFaultyS12-v0`
     
     """
-    def __init__(self, size=12, width=None, height=None, faulty_probability=30 ,obstacle_type=Lava, version=0 , **kwargs):
+    def __init__(self, 
+                size=12,
+                width=None,
+                height=None,
+                faulty_probability=30,
+                faulty_behavior=True,
+                obstacle_type=Lava,
+                version=0,
+                randomize_start=True,
+                **kwargs):
+        
         self.obstacle_type = obstacle_type
         self.size = size
         self.version = version
+        self.fault_probability = faulty_probability
+        self.faulty_behavior = faulty_behavior
+        self.previous_action = None
 
         if width is not None and height is not None:        
             self.width = width
@@ -105,8 +118,6 @@ class LavaFaultyEnv(MiniGridEnv):
             max_steps=4 * size * size,
             # Set this to True for maximum speed
             see_through_walls=False,
-            faulty_behavior=True,
-            faulty_probability=faulty_probability,
             **kwargs
         )
         
@@ -195,3 +206,13 @@ class LavaFaultyEnv(MiniGridEnv):
             if self.obstacle_type == Lava
             else "find the opening and get to the green goal square"
         )
+
+    def printGrid(self, init=False):
+        grid = super().printGrid(init)
+
+        properties_str = ""
+
+        if self.faulty_behavior:
+            properties_str += F"FaultProbability:{self.fault_probability}\n"
+
+        return  grid + properties_str
