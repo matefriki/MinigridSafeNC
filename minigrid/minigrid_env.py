@@ -199,7 +199,7 @@ class MiniGridEnv(gym.Env):
        adv = Adversary(direction,color, tasks=tasks, repeating=repeating)
        self.put_obj(adv,i,j)
        self.adversaries[color] = adv
-       return (i, j)
+       return adv
 
 
     @property
