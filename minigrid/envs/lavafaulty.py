@@ -145,7 +145,6 @@ class LavaFaultyEnv(MiniGridEnv):
 
             if prob < self.fault_probability:
                 action = self.previous_action
-                print('Action stuck')
 
 
         self.previous_action = action
@@ -155,10 +154,8 @@ class LavaFaultyEnv(MiniGridEnv):
         w_mid = width // 2
         h_mid = height // 2
         
-        self._place_lava(w_mid + 2, h_mid - 1)
-        self._place_lava(w_mid - 1, h_mid + 1)
-        self._place_lava(width - 3 ,2)
-        self._place_lava(2, height - 3)
+        self.create_vertical_lava_line(4, 1, 7)
+        self.create_vertical_lava_line(9, h_mid, height - 2)
         
         # Place the agent
         self.agent_pos = np.array((1, 1))
@@ -184,6 +181,11 @@ class LavaFaultyEnv(MiniGridEnv):
 
     def create_lava_line(self, y, x_start, x_end):
         for x in range(x_start, x_end + 1):
+            self.put_obj(Lava(), x, y)
+
+    
+    def create_vertical_lava_line(self, x, y_start, y_end):
+        for y in range(y_start, y_end + 1):
             self.put_obj(Lava(), x, y)
 
     def _gen_grid(self, width, height):
