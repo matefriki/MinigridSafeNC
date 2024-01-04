@@ -189,13 +189,14 @@ class MiniGridEnv(gym.Env):
        j: int,
        color: str,
        direction: int = 0,
-       tasks: List[Task] = [DoRandom()]
+       tasks: List[Task] = [DoRandom()],
+       repeating=False
     ):
        """
        Adds an adversary to the grid
        """
 
-       adv = Adversary(direction,color, tasks=tasks)
+       adv = Adversary(direction,color, tasks=tasks, repeating=repeating)
        self.put_obj(adv,i,j)
        self.adversaries[color] = adv
        return (i, j)

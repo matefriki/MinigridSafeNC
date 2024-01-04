@@ -27,11 +27,11 @@ VIEW_TO_STATE_IDX = {
 
 
 class Adversary(WorldObj):
-    def __init__(self, adversary_dir=1, color="blue", tasks=[DoRandom()]):
+    def __init__(self, adversary_dir=1, color="blue", tasks=[DoRandom()], repeating=False):
         super().__init__("adversary", color)
         self.adversary_dir = adversary_dir
         self.color = color
-        self.task_manager = TaskManager(tasks)
+        self.task_manager = TaskManager(tasks, repeating=repeating)
         self.carrying = None
         self.name = color.capitalize()
 
