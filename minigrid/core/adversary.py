@@ -55,3 +55,12 @@ class Adversary(WorldObj):
 
     def encode(self):
         return (OBJECT_TO_IDX[self.type], COLOR_TO_IDX[self.color], VIEW_TO_STATE_IDX[self.adversary_dir])
+
+    def append_task(self, task):
+        try:
+            self.task_manager.tasks.appendleft(task)
+        except:
+            self.task_manager.tasks.append(task)
+
+    def insert_task(self, task, position):
+        self.task_manager.tasks.insert(position, task)
