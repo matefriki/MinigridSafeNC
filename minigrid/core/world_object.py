@@ -159,9 +159,9 @@ class SlipperyNorth(WorldObj):
     def get_probabilities(self, agent_dir):
         if agent_dir == self.direction:
             return self.probabilities_0
-        elif agent_dir == 2: 
+        elif agent_dir == 2:
             return self.probabilities_90
-        elif agent_dir == 3: 
+        elif agent_dir == 3:
             return self.probabilities_180
         elif agent_dir == 0:
             return self.probabilities_270
@@ -206,7 +206,7 @@ class SlipperySouth(WorldObj):
             return self.probabilities_0
         elif agent_dir == 0: # Agent looks to east
             return self.probabilities_90
-        elif agent_dir == 1: # Agent looks down 
+        elif agent_dir == 1: # Agent looks down
             return self.probabilities_180
         elif agent_dir == 2:
             return self.probabilities_270
@@ -251,16 +251,16 @@ class SlipperyEast(WorldObj):
     def get_probabilities(self, agent_dir):
         if agent_dir == self.direction:
             return self.probabilities_0
-        elif agent_dir == 3: 
+        elif agent_dir == 3:
             return self.probabilities_90
-        elif agent_dir == 0:  
+        elif agent_dir == 0:
             return self.probabilities_180
         elif agent_dir == 1:
             return self.probabilities_270
         else:
             raise NotImplementedError("Agent directory not implemented")
 
-    
+
     def render(self, img):
         c = (100, 100, 200)
         fill_coords(img, point_in_rect(0, 1, 0, 1), c)
@@ -296,7 +296,7 @@ class SlipperyWest(WorldObj):
             return self.probabilities_0
         elif agent_dir == 1:
             return self.probabilities_90
-        elif agent_dir == 2: 
+        elif agent_dir == 2:
             return self.probabilities_180
         elif agent_dir == 3:
             return self.probabilities_270
