@@ -150,10 +150,10 @@ class SlipperyNorth(WorldObj):
         # 6: Right Above - 7: Right - 8: Right Below
         self.probabilities_turn = [0.0, 0.0, 0.0, 0.0, probability_turn_intended, probability_turn_displacement, 0.0, 0.0, 0.0]
 
-        self.probabilities_0 =   [0,  0   , probability_displacement / 2, 0, 0 ,   probability_intended  ,0 ,  0   , probability_displacement / 2]
-        self.probabilities_90 =  [0   ,  probability_intended   , probability_displacement , 0 , 0 ,   0  , 0 , 0 , 0]
-        self.probabilities_180 = [0   ,  0   , 0 , probability_intended , 0 , probability_displacement , 0    ,  0   , 0]
-        self.probabilities_270 = [0,    0 , 0 , 0 , 0 ,   0  , 0    ,  probability_intended   , probability_displacement]
+        self.probabilities_0 =   [0, 0, probability_displacement / 2, 0, 0, probability_intended, 0, 0, probability_displacement / 2]
+        self.probabilities_90 =  [0, probability_intended, probability_displacement, 0, 0, 0, 0, 0, 0]
+        self.probabilities_180 = [0, 0, 0, probability_intended, 0, probability_displacement, 0,  0, 0]
+        self.probabilities_270 = [0, 0, 0, 0, 0, 0, 0, probability_intended, probability_displacement]
 
 
     def get_probabilities(self, agent_dir):
@@ -196,10 +196,10 @@ class SlipperySouth(WorldObj):
 
         self.probabilities_turn = [0.0, 0.0, 0.0, probability_turn_displacement, probability_turn_intended, 0.0, 0.0, 0.0, 0.0]
 
-        self.probabilities_0 =   [probability_displacement / 2,  0   , 0 , probability_intended , 0 ,   0  , probability_displacement / 2 ,  0   , 0]
-        self.probabilities_90 =  [0   ,  0   , 0 , 0 , 0 ,   0  , probability_displacement , probability_intended , 0]
-        self.probabilities_180 = [0   ,  0   , 0 , probability_displacement , 0 , probability_intended , 0    ,  0   , 0]
-        self.probabilities_270 = [probability_displacement, probability_intended , 0 , 0 , 0 ,   0  , 0    ,  0   , 0]
+        self.probabilities_0 =   [probability_displacement / 2,  0, 0, probability_intended, 0, 0, probability_displacement / 2, 0, 0]
+        self.probabilities_90 =  [0, 0, 0, 0, 0, 0, probability_displacement, probability_intended, 0]
+        self.probabilities_180 = [0, 0, 0, probability_displacement , 0, probability_intended, 0,  0, 0]
+        self.probabilities_270 = [probability_displacement, probability_intended, 0, 0, 0, 0, 0, 0, 0]
 
     def get_probabilities(self, agent_dir):
         if agent_dir == self.direction:
@@ -240,10 +240,10 @@ class SlipperyEast(WorldObj):
 
         self.probabilities_turn = [0.0, probability_turn_displacement, 0.0, 0.0, probability_turn_intended, 0.0, 0.0, 0.0, 0.0]
 
-        self.probabilities_0 =   [probability_displacement / 2,  probability_intended  , probability_displacement / 2 ,  0 , 0 ,   0  , 0 ,  0   , 0]
-        self.probabilities_90 =  [probability_displacement / 2  ,  probability_displacement / 2  , 0 , probability_intended , 0 ,   0  , 0 , 0 , 0]
-        self.probabilities_180 = [0   ,  probability_displacement   , 0 , 0 , 0 , 0 , 0    , probability_intended   , 0]
-        self.probabilities_270 = [0, probability_displacement / 2 , probability_displacement / 2 , 0 , 0 ,   probability_intended, 0    ,  0   , 0]
+        self.probabilities_0 =   [probability_displacement / 2, probability_intended, probability_displacement / 2, 0, 0, 0, 0, 0, 0]
+        self.probabilities_90 =  [probability_displacement / 2, probability_displacement / 2, 0, probability_intended, 0 , 0, 0, 0, 0]
+        self.probabilities_180 = [0, probability_displacement, 0, 0, 0, 0, 0, probability_intended, 0]
+        self.probabilities_270 = [0, probability_displacement / 2 , probability_displacement / 2, 0, 0, probability_intended, 0, 0, 0]
 
     def can_overlap(self):
         return True
