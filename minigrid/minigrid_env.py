@@ -26,6 +26,8 @@ from collections import deque
 
 T = TypeVar("T")
 
+stay_at_pos_distribution = [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+
 def is_slippery(cell : WorldObj):
     return isinstance(cell, (SlipperySouth, Slippery, SlipperyEast, SlipperyWest, SlipperyNorth))
 
@@ -746,7 +748,8 @@ class MiniGridEnv(gym.Env):
         if action == self.actions.forward and is_slippery(current_cell):
             direction = self.agent_dir
             probabilities = current_cell.get_probabilities(self.agent_dir)
-            possible_fwd_pos, prob = self.get_neighbours_prob_forward(self.agent_pos, probabilities, current_cell.offset, current_cell.direction)
+            possible_fwd_pos, prob = self.get_neighbours_prob(self.agent_pos, probabilities)
+            print(prob)
             fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
             fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
             fwd_cell = self.grid.get(*fwd_pos)
@@ -754,7 +757,8 @@ class MiniGridEnv(gym.Env):
         # Rotate left
         elif action == self.actions.left:
             if is_slippery(current_cell):
-                possible_fwd_pos, prob = self.get_neighbours_prob_turn(self.agent_pos, current_cell.probabilities_turn)
+                possible_fwd_pos, prob = self.get_neighbours_prob(self.agent_pos, current_cell.probabilities_turn)
+                print(prob)
                 fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
                 fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
                 fwd_cell = self.grid.get(*fwd_pos)
@@ -773,7 +777,8 @@ class MiniGridEnv(gym.Env):
         # Rotate right
         elif action == self.actions.right:
             if is_slippery(current_cell):
-                possible_fwd_pos, prob = self.get_neighbours_prob_turn(self.agent_pos, current_cell.probabilities_turn)
+                possible_fwd_pos, prob = self.get_neighbours_prob(self.agent_pos, current_cell.probabilities_turn)
+                print(prob)
                 fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
                 fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
                 fwd_cell = self.grid.get(*fwd_pos)
@@ -859,7 +864,7 @@ class MiniGridEnv(gym.Env):
 
         return obs, reward, terminated, truncated, {}
 
-    def get_neighbours_prob_forward(self, agent_pos, probabilities, offset, cell_direction):
+    def get_neighbours_prob(self, agent_pos, probabilities):
         neighbours = [tuple((x,y)) for x in range(agent_pos[0]-1, agent_pos[0]+2) for y in range(agent_pos[1]-1,agent_pos[1]+2)]
         probabilities_dict = dict(zip(neighbours, probabilities))
 
@@ -867,34 +872,11 @@ class MiniGridEnv(gym.Env):
             cell = self.grid.get(*pos)
             if cell is not None and not cell.can_overlap():
                 probabilities_dict[pos] = 0.0
+        try:
+            return list(probabilities_dict.keys()), [float(p) / sum(probabilities_dict.values()) for p in probabilities_dict.values()]
+        except ZeroDivisionError as e:
+            return list(probabilities_dict.keys()), stay_at_pos_distribution
 
-        sum_prob = 0
-        for pos in probabilities_dict:
-            if probabilities_dict[pos]!=-50:
-                sum_prob += probabilities_dict[pos]
-
-        probabilties = list(probabilities_dict.values())
-        return list(probabilities_dict.keys()), [float(i) / sum(probabilities) for i in probabilties]
-
-    def get_neighbours_prob_turn(self, agent_pos, probabilities):
-        neighbours = [tuple((x,y)) for x in range(agent_pos[0]-1, agent_pos[0]+2) for y in range(agent_pos[1]-1,agent_pos[1]+2)]
-        non_blocked_neighbours = []
-        i = 0
-        non_blocked_prob = []
-        for pos in neighbours:
-            cell = self.grid.get(*pos)
-            if (cell is None or cell.can_overlap()):
-                non_blocked_neighbours.append(pos)
-                non_blocked_prob.append(probabilities[i])
-            i += 1
-
-        sum_prob = 0
-        for prob in non_blocked_prob:
-            if (prob!=-50):
-                sum_prob += prob
-        non_blocked_prob = [x if x!=-50 else 1-sum_prob for x in non_blocked_prob]
-
-        return non_blocked_neighbours, non_blocked_prob
 
 
     def gen_obs_grid(self, agent_view_size=None):

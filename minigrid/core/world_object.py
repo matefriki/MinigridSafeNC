@@ -171,9 +171,6 @@ class SlipperyNorth(WorldObj):
     def can_overlap(self):
         return True
 
-    def get_probabilities(self, agent_dir):
-        pass
-
     def render(self, img):
         c = (100, 100, 200)
         fill_coords(img, point_in_rect(0, 1, 0, 1), c)
