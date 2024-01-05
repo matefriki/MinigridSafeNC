@@ -33,20 +33,12 @@ def get_plan(pos, dir, carrying, env, goal_pos):
         right = (node[0], node[1], -node[3], node[2])
         fwd_pos = node[0] + node[2], node[1] + node[3]
         forward_cell = env.grid.get(*fwd_pos)
-        forward_background = env.grid.get_background(*fwd_pos)
-        my_color = "red" if (env.agent_pos == pos).all() else env.grid.get(*pos).color
-        background_color = forward_background.color if forward_background is not None else None
 
         forward_pos_open = forward_cell is None or forward_cell.can_overlap()
         forward_pos_open = forward_pos_open and not isinstance(forward_cell, Lava)
-        forward_pos_not_agent = (fwd_pos != env.agent_pos).any()
-        background_is_my_color_or_none_or_i_am_red = (forward_background is None or
-                                                      (background_color == "lightblue" and my_color == "blue") or
-                                                      (background_color == "lightgreen" and my_color == "green") or
-                                                      (background_color == "lightgreen" and my_color == "purple") or # purple belongs to green region
-                                                      my_color == "red") # red can do whatever
+        forward_pos_not_agent = fwd_pos[0] != env.agent_pos[0] or fwd_pos[1] != env.agent_pos[1]
 
-        if forward_pos_open and forward_pos_not_agent and  background_is_my_color_or_none_or_i_am_red:
+        if forward_pos_open and forward_pos_not_agent:
             forward = (node[0] + node[2], node[1] + node[3], node[2], node[3])
             return forward, left, right
         else:
@@ -81,7 +73,6 @@ class GoTo(Task):
         # if farther than 1 unit away, Run A*
         if self.plan is None or len(self.plan) == 0:
             self.plan = get_plan(pos, dir, carrying, env, self.goal_position)
-            self.plan.append((self.goal_position[0], self.goal_position[1], dir[0], dir[1])) # TODO dir?
 
         # if we have a plan, but we are not in the state we should be, create new plan
         if self.plan is not None:
