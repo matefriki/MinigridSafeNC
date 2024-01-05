@@ -305,10 +305,19 @@ class MiniGridEnv(gym.Env):
 
         str = ""
         background_str = ""
+        adversaries = {adv.adversary_pos: adv for adv in self.adversaries.values()}
         for j in range(self.grid.height):
             for i in range(self.grid.width):
                 b = self.grid.get_background(i, j)
                 c = self.grid.get(i, j)
+
+                if (i,j) in adversaries.keys():
+                    a = adversaries[(i,j)]
+                    str += AGENT_DIR_TO_STR[a.adversary_dir] + a.color[0].upper()
+                    if init:
+                        background_str += "  "
+                    continue
+
                 if init:
                     if c and c.type == "wall":
                         background_str += OBJECT_TO_STR[c.type] + c.color[0].upper()
@@ -331,7 +340,7 @@ class MiniGridEnv(gym.Env):
                         background_str += type_str + b.color.replace("light","")[0].upper()
 
                 if self.agent_pos is not None and i == self.agent_pos[0] and j == self.agent_pos[1]:
-                    #str += 2 * AGENT_DIR_TO_STR[self.agent_dir]
+
                     if init:
                         str += "XR"
                     else:
@@ -340,11 +349,8 @@ class MiniGridEnv(gym.Env):
 
 
                 if c is None:
-                    #print("{}, {}".format(i,j,), end="")
                     str += "  "
                     continue
-
-                #print("{}, {}: {}{}".format(i,j,OBJECT_TO_STR[c.type], c.color[0]), end="")
 
                 if c.type == "door":
                     if c.is_open:
@@ -355,9 +361,6 @@ class MiniGridEnv(gym.Env):
                         str += "D" + c.color[0].upper()
                     continue
 
-                if not init and c.type == "adversary":
-                    str += AGENT_DIR_TO_STR[c.adversary_dir] + c.color[0].upper()
-                    continue
 
                 str += OBJECT_TO_STR[c.type] + c.color[0].upper()
 
@@ -368,8 +371,7 @@ class MiniGridEnv(gym.Env):
 
 
         seperator = "-" * self.grid.width * 2
-            #print("")
-        return str + "\n" + seperator + "\n" + background_str + "\n" + seperator + "\n" + seperator + "\n"
+        return str + "\n" + seperator + "\n" + background_str + "\n" + seperator + "\n" + seperator + "\n" + properties_str
 
 
     @abstractmethod
