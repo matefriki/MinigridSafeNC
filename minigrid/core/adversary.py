@@ -51,16 +51,17 @@ class Adversary(WorldObj):
         return DIR_TO_VEC[self.adversary_dir]
 
     def can_overlap(self):
-        return False
+        return True
 
     def encode(self):
         return (OBJECT_TO_IDX[self.type], COLOR_TO_IDX[self.color], VIEW_TO_STATE_IDX[self.adversary_dir])
 
     def append_task(self, task):
-        try:
-            self.task_manager.tasks.appendleft(task)
-        except:
-            self.task_manager.tasks.append(task)
+        self.task_manager.tasks.append(task)
 
     def insert_task(self, task, position):
         self.task_manager.tasks.insert(position, task)
+
+
+    def get_action(self, env):
+        return self.task_manager.get_best_action(self.cur_pos, self.dir_vec(), self.carrying, env)

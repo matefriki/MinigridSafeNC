@@ -100,7 +100,7 @@ def register_minigrid_envs():
         id="MiniGrid-LavaFaultyS12-10-v0",
         entry_point="minigrid.envs:LavaFaultyEnv",
         kwargs={"size": 15, "version": 0, "faulty_probability": 10},
-    )   
+    )
     register(
         id="MiniGrid-LavaFaultyS12-5-v0",
         entry_point="minigrid.envs:LavaFaultyEnv",
@@ -139,19 +139,19 @@ def register_minigrid_envs():
     # ----------------------------------------
     register(
         id = "MiniGrid-Adv-8x8-v0",
-        entry_point="minigrid.envs:AdversaryEnv",
+        entry_point="minigrid.envs:AdversarySimple",
         kwargs={"width": 8, "height": 8}
     )
 
     register(
         id = "MiniGrid-AdvSimple-8x8-v0",
-        entry_point="minigrid.envs:AdversaryEnv",
+        entry_point="minigrid.envs:AdversarySimple",
         kwargs={"width": 8, "height": 8, "generate_wall": False}
     )
 
     register(
         id = "MiniGrid-AdvLava-8x8-v0",
-        entry_point="minigrid.envs:AdversaryEnv",
+        entry_point="minigrid.envs:AdversarySimple",
         kwargs={"width": 8,
                 "height": 8,
                 "generate_wall": False,
@@ -160,7 +160,7 @@ def register_minigrid_envs():
 
     register(
         id = "MiniGrid-AdvSlippery-8x8-v0",
-        entry_point="minigrid.envs:AdversaryEnv",
+        entry_point="minigrid.envs:AdversarySimple",
         kwargs={"width": 8,
                 "height": 8,
                 "generate_wall": False,
