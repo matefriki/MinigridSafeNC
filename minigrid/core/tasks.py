@@ -84,8 +84,11 @@ class GoTo(Task):
                 self.plan = None
                 return self.get_best_action(pos, dir, carrying, env)
 
-        if self.plan is None or len(self.plan) < 1:  # this will only happen if the agent is blocked in somehow
-            raise ValueError(f"Adversary got stuck at pos: {pos}")
+        if self.plan is None or len(self.plan) < 1:
+            # yield because there might be another actor blocking the way to our goal
+            self.plan = None
+            return Actions.done
+
         next_state = self.plan[0]
 
         # decide how to achieve next state
