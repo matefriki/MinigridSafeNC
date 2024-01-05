@@ -749,10 +749,8 @@ class MiniGridEnv(gym.Env):
         current_cell = self.grid.get(*self.agent_pos)
 
         if action == self.actions.forward and is_slippery(current_cell):
-            direction = self.agent_dir
             probabilities = current_cell.get_probabilities(self.agent_dir)
             possible_fwd_pos, prob = self.get_neighbours_prob(self.agent_pos, probabilities)
-            print(prob)
             fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
             fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
             fwd_cell = self.grid.get(*fwd_pos)
@@ -836,6 +834,11 @@ class MiniGridEnv(gym.Env):
 
         current_cell = self.grid.get(*self.agent_pos)
 
+        collision = False
+        for adversary in self.adversaries.values():
+            if np.array_equal(self.agent_pos, adversary.adversary_pos):
+                collision = True
+
         if current_cell is not None and current_cell.type == "goal":
             terminated = True
             try: reward = self.goal_reward
@@ -844,7 +847,7 @@ class MiniGridEnv(gym.Env):
             terminated = True
             try: reward = self.failure_penalty
             except: reward = -1
-        elif current_cell is not None and current_cell.type == "adversary":
+        elif collision:
             terminated = True
             try: reward = self.collision_penalty
             except: reward = -1

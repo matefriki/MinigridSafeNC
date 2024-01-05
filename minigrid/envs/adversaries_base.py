@@ -65,19 +65,21 @@ class AdversaryEnv(MiniGridEnv):
 
     def move_adversary(self, adversary, blocked_positions, agent_pos):
         # fetch current location and forward location
-        cur_pos = adversary.cur_pos
-        current_cell = self.grid.get(*adversary.cur_pos)
+        cur_pos = adversary.adversary_pos
+        current_cell = self.grid.get(*adversary.adversary_pos)
         fwd_pos = cur_pos + adversary.dir_vec()
         fwd_cell = self.grid.get(*fwd_pos)
         collision = False
+        need_position_update = False
 
         action = adversary.get_action(self)
-
         if action == self.actions.forward and isinstance(current_cell, (SlipperyNorth, SlipperyEast, SlipperySouth, SlipperyWest)):
-            possible_fwd_pos, prob = self.get_neighbours_prob_forward(adversary.cur_pos, current_cell.probabilities_forward, current_cell.offset)
+            probabilities = current_cell.get_probabilities(adversary.adversary_dir)
+            possible_fwd_pos, prob = self.get_neighbours_prob(adversary.adversary_pos, probabilities)
             fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
             fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
             fwd_cell = self.grid.get(*fwd_pos)
+            need_position_update = True
 
         if action == self.actions.left:
             adversary.adversary_dir -= 1
@@ -92,13 +94,7 @@ class AdversaryEnv(MiniGridEnv):
         elif action == self.actions.forward:
             if fwd_pos[0] == agent_pos[0] and fwd_pos[1] == agent_pos[1]:
                 collision = True
-                adversary.cur_pos = tuple(fwd_pos)
-
-            elif (fwd_cell is None or fwd_cell.can_overlap()) and not tuple(fwd_pos) in blocked_positions:
-                self.grid.set_background(*fwd_pos,fwd_cell)
-                self.background_tiles[tuple(fwd_pos)] = fwd_cell  # np.array is not hashable
-
-                adversary.cur_pos = tuple(fwd_pos)
+            adversary.adversary_pos = tuple(fwd_pos)
 
         # Pick up an object
         elif action == self.actions.pickup:
@@ -127,9 +123,7 @@ class AdversaryEnv(MiniGridEnv):
         else:
             raise ValueError(f"Unknown action: {action}")
 
-        # finally update the env with these changes
-
-        self.grid.set(*cur_pos, None)
-        self.grid.set(*adversary.cur_pos, adversary)
+        if need_position_update and (fwd_cell is None or fwd_cell.can_overlap()):
+            adversary.adversary_pos = tuple(fwd_pos)
 
         return collision
