@@ -34,7 +34,7 @@ class Grid:
 
         self.grid: list[WorldObj | None] = [None] * (width * height)
         self.background = [None] * width * height
-        
+
 
     def __contains__(self, key: Any) -> bool:
         if isinstance(key, WorldObj):
@@ -78,8 +78,8 @@ class Grid:
         assert 0 <= j < self.height
         assert self.grid is not None
         return self.grid[j * self.width + i]
-    
-    
+
+
     def set_background(self, i, j, v):
         assert i >= 0 and i < self.width
         assert j >= 0 and j < self.height

@@ -759,7 +759,6 @@ class MiniGridEnv(gym.Env):
         elif action == self.actions.left:
             if is_slippery(current_cell):
                 possible_fwd_pos, prob = self.get_neighbours_prob(self.agent_pos, current_cell.probabilities_turn)
-                print(prob)
                 fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
                 fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
                 fwd_cell = self.grid.get(*fwd_pos)
@@ -779,7 +778,6 @@ class MiniGridEnv(gym.Env):
         elif action == self.actions.right:
             if is_slippery(current_cell):
                 possible_fwd_pos, prob = self.get_neighbours_prob(self.agent_pos, current_cell.probabilities_turn)
-                print(prob)
                 fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
                 fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
                 fwd_cell = self.grid.get(*fwd_pos)
