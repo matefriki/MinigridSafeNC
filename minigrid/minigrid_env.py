@@ -121,6 +121,9 @@ class MiniGridEnv(gym.Env):
         self.grid = Grid(width, height)
         self.carrying = None
 
+        # List of adversaries
+        self.adversaries = list()
+
         # Rendering attributes
         self.render_mode = render_mode
         self.highlight = highlight
@@ -180,6 +183,7 @@ class MiniGridEnv(gym.Env):
         sample_hash = hashlib.sha256()
 
         to_encode = [self.grid.encode().tolist(), self.agent_pos, self.agent_dir]
+        to_encode += [(adv.adversary_pos, adv.adversary_dir, adv.color) for adv in self.adversaries]
         for item in to_encode:
             sample_hash.update(str(item).encode("utf8"))
 
@@ -198,8 +202,7 @@ class MiniGridEnv(gym.Env):
        Adds an adversary to the grid
        """
 
-       adv = Adversary(direction,color, tasks=tasks, repeating=repeating)
-       self.put_obj(adv,i,j)
+       adv = Adversary((i,j), direction, color, tasks=tasks, repeating=repeating)
        self.adversaries[color] = adv
        return adv
 
