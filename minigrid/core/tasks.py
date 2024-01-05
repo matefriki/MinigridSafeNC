@@ -2,7 +2,9 @@ from abc import ABC
 from typing import Iterable, List
 from collections import deque
 
+
 from minigrid.core.world_object import Lava
+from minigrid.core.actions import Actions
 
 
 try:
@@ -75,7 +77,7 @@ class GoTo(Task):
 
     def get_best_action(self, pos, dir, carrying, env):
         if pos == self.goal_position:
-            return 6
+            return Actions.done
         # if farther than 1 unit away, Run A*
         if self.plan is None or len(self.plan) == 0:
             self.plan = get_plan(pos, dir, carrying, env, self.goal_position)
@@ -97,11 +99,11 @@ class GoTo(Task):
 
         # decide how to achieve next state
         if abs(next_state[0] - pos[0]) == 1 or abs(next_state[1] - pos[1]) == 1:
-            return 2  # forward
+            return Actions.forward
         elif next_state[2] == dir[1] and next_state[3] == -dir[0]:
-            return 0  # left
+            return Actions.left
         elif next_state[2] == -dir[1] and next_state[3] == dir[0]:
-            return 1  # right
+            return Actions.right
         else:  # something went wrong such as bumping into other agent, replan
             self.plan = None
             return self.get_best_action(pos, dir, carrying, env)
@@ -122,9 +124,9 @@ class PickUpObject(Task):
         delta_row = self.obj_position[0] - pos[0]
         delta_col = self.obj_position[1] - pos[1]
         if delta_row == dir[0] and delta_col == dir[1]:
-            return 3 # TODO!!
+            return Actions.pickup
         else:
-            return 1
+            return Actions.left
     def __repr__(self):
         return "Task: Pick up object at position {}".format(self.obj_position)
 
@@ -141,10 +143,9 @@ class PlaceObject(Task):
         delta_row = self.obj_position[0] - pos[0]
         delta_col = self.obj_position[1] - pos[1]
         if delta_row == dir[0] and delta_col == dir[1]:
-            return 4 # TODO!!
+            return Actions.drop
         else:
-            return 1
-        return 6
+            return Actions.left
     def __repr__(self):
         return "Task: Place object at position {}".format(self.obj_position)
 
@@ -162,7 +163,7 @@ class DoNothing(Task):
     def get_best_action(self, pos, dir, carrying, env):
         if self.duration != 0:
             self.steps += 1
-        return 6 # done
+        return Actions.done
     def __repr__(self):
         return "Task: Do nothing"
 
