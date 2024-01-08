@@ -305,7 +305,7 @@ class MiniGridEnv(gym.Env):
 
         str = ""
         background_str = ""
-        adversaries = {adv.adversary_pos: adv for adv in self.adversaries.values()}
+        adversaries = {adv.adversary_pos: adv for adv in self.adversaries.values()} if self.adversaries else {}
         for j in range(self.grid.height):
             for i in range(self.grid.width):
                 b = self.grid.get_background(i, j)
