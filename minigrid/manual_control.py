@@ -61,6 +61,9 @@ class ManualControl:
         if key == "backspace":
             self.reset()
             return
+        if key == "f12":
+            self.take_screenshot()
+            return
 
         key_to_action = {
             "left": Actions.left,
@@ -78,6 +81,16 @@ class ManualControl:
             self.step(action)
         else:
             print(key)
+
+    def take_screenshot(self):
+        import datetime
+        filename = f"{datetime.datetime.now().isoformat()}.png"
+        print(f"Saving a screenshot to '{filename}'")
+        window = self.env.window
+        screenshot = pygame.Surface(window.get_size())
+        screenshot.blit(window, (0,0))
+        pygame.image.save(screenshot, filename)
+
 
 
 if __name__ == "__main__":
@@ -134,6 +147,8 @@ if __name__ == "__main__":
         print("Using agent view")
         env = RGBImgPartialObsWrapper(env, args.tile_size)
         env = ImgObsWrapper(env)
+
+
 
     manual_control = ManualControl(env, seed=args.seed)
     manual_control.start()
