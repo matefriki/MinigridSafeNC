@@ -27,11 +27,13 @@ VIEW_TO_STATE_IDX = {
 
 
 class Adversary(WorldObj):
-    def __init__(self, adversary_dir=1, color="blue", tasks=[DoRandom()]):
+    def __init__(self, adversary_pos, adversary_dir=1, color="blue", tasks=[DoRandom()], repeating=False):
         super().__init__("adversary", color)
-        self.adversary_dir = adversary_dir
+        self.adversary_pos = adversary_pos # TODO
+        self.adversary_dir = adversary_dir # TODO
         self.color = color
-        self.task_manager = TaskManager(tasks)
+        self.rgb = COLORS[self.color]
+        self.task_manager = TaskManager(tasks, repeating=repeating)
         self.carrying = None
         self.name = color.capitalize()
 
@@ -51,7 +53,17 @@ class Adversary(WorldObj):
         return DIR_TO_VEC[self.adversary_dir]
 
     def can_overlap(self):
-        return False
+        return True
 
     def encode(self):
         return (OBJECT_TO_IDX[self.type], COLOR_TO_IDX[self.color], VIEW_TO_STATE_IDX[self.adversary_dir])
+
+    def append_task(self, task):
+        self.task_manager.tasks.append(task)
+
+    def insert_task(self, task, position):
+        self.task_manager.tasks.insert(position, task)
+
+
+    def get_action(self, env):
+        return self.task_manager.get_best_action(self.adversary_pos, self.dir_vec(), self.carrying, env)

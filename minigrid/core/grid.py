@@ -34,7 +34,7 @@ class Grid:
 
         self.grid: list[WorldObj | None] = [None] * (width * height)
         self.background = [None] * width * height
-        
+
 
     def __contains__(self, key: Any) -> bool:
         if isinstance(key, WorldObj):
@@ -78,8 +78,8 @@ class Grid:
         assert 0 <= j < self.height
         assert self.grid is not None
         return self.grid[j * self.width + i]
-    
-    
+
+
     def set_background(self, i, j, v):
         assert i >= 0 and i < self.width
         assert j >= 0 and j < self.height
@@ -161,6 +161,7 @@ class Grid:
         cls,
         obj: WorldObj | None,
         agent_dir: int | None = None,
+        adversaries: list = [],
         highlight: bool = False,
         tile_size: int = TILE_PIXELS,
         subdivs: int = 3,
@@ -171,6 +172,8 @@ class Grid:
 
         # Hash map lookup key for the cache
         key: tuple[Any, ...] = (agent_dir, highlight, tile_size)
+        for adversary in adversaries:
+            key += (adversary.adversary_dir, adversary.color)
         key = obj.encode() + key if obj else key
 
         if key in cls.tile_cache:
@@ -188,16 +191,18 @@ class Grid:
             obj.render(img)
 
         # Overlay the agent on top
+        tri_fn = point_in_triangle(
+            (0.12, 0.19),
+            (0.87, 0.50),
+            (0.12, 0.81),
+        )
         if agent_dir is not None:
-            tri_fn = point_in_triangle(
-                (0.12, 0.19),
-                (0.87, 0.50),
-                (0.12, 0.81),
-            )
-
             # Rotate the agent based on its direction
             tri_fn = rotate_fn(tri_fn, cx=0.5, cy=0.5, theta=0.5 * math.pi * agent_dir)
             fill_coords(img, tri_fn, (255, 0, 0))
+        for adversary in adversaries:
+            tri_fn = rotate_fn(tri_fn, cx=0.5, cy=0.5, theta=0.5 * math.pi * adversary.adversary_dir)
+            fill_coords(img, tri_fn, adversary.rgb)
 
         # Highlight the cell if needed
         if highlight:
@@ -216,6 +221,7 @@ class Grid:
         tile_size: int,
         agent_pos: tuple[int, int],
         agent_dir: int | None = None,
+        adversaries: list = [],
         highlight_mask: np.ndarray | None = None,
     ) -> np.ndarray:
         """
@@ -234,15 +240,21 @@ class Grid:
         img = np.zeros(shape=(height_px, width_px, 3), dtype=np.uint8)
 
         # Render the grid
+        present_adversaries = list()
         for j in range(0, self.height):
             for i in range(0, self.width):
+                present_adversaries.clear()
                 cell = self.get(i, j)
 
                 agent_here = np.array_equal(agent_pos, (i, j))
+                for adversary in adversaries:
+                    if np.array_equal(adversary.adversary_pos, (i, j)):
+                        present_adversaries.append(adversary)
                 assert highlight_mask is not None
                 tile_img = Grid.render_tile(
                     cell,
                     agent_dir=agent_dir if agent_here else None,
+                    adversaries=present_adversaries,
                     highlight=highlight_mask[i, j],
                     tile_size=tile_size,
                 )
@@ -252,6 +264,9 @@ class Grid:
                 xmin = i * tile_size
                 xmax = (i + 1) * tile_size
                 img[ymin:ymax, xmin:xmax, :] = tile_img
+
+                if len(present_adversaries) > 0:
+                    adversaries = [a for a in adversaries if a not in present_adversaries]
 
         return img
 

@@ -138,10 +138,9 @@ class Slippery(WorldObj):
             fill_coords(img, point_in_line(0.5, ylo, 0.7, yhi, r=0.03), (0, 0, 0))
             fill_coords(img, point_in_line(0.7, yhi, 0.9, ylo, r=0.03), (0, 0, 0))
 
-class SlipperyNorth(WorldObj):
+class SlipperySouth(WorldObj):
     def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9, probability_turn_intended=6/9, probability_turn_displacement=3/9):
-        super().__init__("slipperynorth", color)
-        self.offset = (0,1)
+        super().__init__("slipperysouth", color)
         self.direction = 1
 
         # Field probabilties are stored in the order:
@@ -150,18 +149,18 @@ class SlipperyNorth(WorldObj):
         # 6: Right Above - 7: Right - 8: Right Below
         self.probabilities_turn = [0.0, 0.0, 0.0, 0.0, probability_turn_intended, probability_turn_displacement, 0.0, 0.0, 0.0]
 
-        self.probabilities_0 =   [0,  0   , probability_displacement / 2, 0, 0 ,   probability_intended  ,0 ,  0   , probability_displacement / 2]
-        self.probabilities_90 =  [0   ,  probability_intended   , probability_displacement , 0 , 0 ,   0  , 0 , 0 , 0]
-        self.probabilities_180 = [0   ,  0   , 0 , probability_intended , 0 , probability_displacement , 0    ,  0   , 0]
-        self.probabilities_270 = [0,    0 , 0 , 0 , 0 ,   0  , 0    ,  probability_intended   , probability_displacement]
+        self.probabilities_0 =   [0, 0, probability_displacement / 2, 0, 0, probability_intended, 0, 0, probability_displacement / 2]
+        self.probabilities_90 =  [0, probability_intended, probability_displacement, 0, 0, 0, 0, 0, 0]
+        self.probabilities_180 = [0, 0, 0, probability_intended, 0, probability_displacement, 0,  0, 0]
+        self.probabilities_270 = [0, 0, 0, 0, 0, 0, 0, probability_intended, probability_displacement]
 
 
     def get_probabilities(self, agent_dir):
         if agent_dir == self.direction:
             return self.probabilities_0
-        elif agent_dir == 2: 
+        elif agent_dir == 2:
             return self.probabilities_90
-        elif agent_dir == 3: 
+        elif agent_dir == 3:
             return self.probabilities_180
         elif agent_dir == 0:
             return self.probabilities_270
@@ -170,9 +169,6 @@ class SlipperyNorth(WorldObj):
 
     def can_overlap(self):
         return True
-
-    def get_probabilities(self, agent_dir):
-        pass
 
     def render(self, img):
         c = (100, 100, 200)
@@ -186,9 +182,10 @@ class SlipperyNorth(WorldObj):
             fill_coords(img, point_in_line(0.7, yhi, 0.9, ylo, r=0.03), (0, 0, 0))
 
 
-class SlipperySouth(WorldObj):
+
+class SlipperyNorth(WorldObj):
     def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9, probability_turn_intended=6/9, probability_turn_displacement=3/9):
-        super().__init__("slipperysouth", color)
+        super().__init__("slipperynorth", color)
         self.offset = (0,-1)
         self.direction = 3
 
@@ -199,17 +196,17 @@ class SlipperySouth(WorldObj):
 
         self.probabilities_turn = [0.0, 0.0, 0.0, probability_turn_displacement, probability_turn_intended, 0.0, 0.0, 0.0, 0.0]
 
-        self.probabilities_0 =   [probability_displacement / 2,  0   , 0 , probability_intended , 0 ,   0  , probability_displacement / 2 ,  0   , 0]
-        self.probabilities_90 =  [0   ,  0   , 0 , 0 , 0 ,   0  , probability_displacement , probability_intended , 0]
-        self.probabilities_180 = [0   ,  0   , 0 , probability_displacement , 0 , probability_intended , 0    ,  0   , 0]
-        self.probabilities_270 = [probability_displacement, probability_intended , 0 , 0 , 0 ,   0  , 0    ,  0   , 0]
+        self.probabilities_0 =   [probability_displacement / 2,  0, 0, probability_intended, 0, 0, probability_displacement / 2, 0, 0]
+        self.probabilities_90 =  [0, 0, 0, 0, 0, 0, probability_displacement, probability_intended, 0]
+        self.probabilities_180 = [0, 0, 0, probability_displacement , 0, probability_intended, 0,  0, 0]
+        self.probabilities_270 = [probability_displacement, probability_intended, 0, 0, 0, 0, 0, 0, 0]
 
     def get_probabilities(self, agent_dir):
         if agent_dir == self.direction:
             return self.probabilities_0
         elif agent_dir == 0: # Agent looks to east
             return self.probabilities_90
-        elif agent_dir == 1: # Agent looks down 
+        elif agent_dir == 1: # Agent looks down
             return self.probabilities_180
         elif agent_dir == 2:
             return self.probabilities_270
@@ -230,9 +227,9 @@ class SlipperySouth(WorldObj):
             fill_coords(img, rotate_fn(point_in_line(0.5, ylo, 0.7, yhi, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
             fill_coords(img, rotate_fn(point_in_line(0.7, yhi, 0.9, ylo, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
 
-class SlipperyEast(WorldObj):
+class SlipperyWest(WorldObj):
     def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9, probability_turn_intended=6/9, probability_turn_displacement=3/9):
-        super().__init__("slipperyeast", color)
+        super().__init__("slipperywest", color)
         self.offset = (-1,0)
         self.direction = 2
 
@@ -243,10 +240,10 @@ class SlipperyEast(WorldObj):
 
         self.probabilities_turn = [0.0, probability_turn_displacement, 0.0, 0.0, probability_turn_intended, 0.0, 0.0, 0.0, 0.0]
 
-        self.probabilities_0 =   [probability_displacement / 2,  probability_intended  , probability_displacement / 2 ,  0 , 0 ,   0  , 0 ,  0   , 0]
-        self.probabilities_90 =  [probability_displacement / 2  ,  probability_displacement / 2  , 0 , probability_intended , 0 ,   0  , 0 , 0 , 0]
-        self.probabilities_180 = [0   ,  probability_displacement   , 0 , 0 , 0 , 0 , 0    , probability_intended   , 0]
-        self.probabilities_270 = [0, probability_displacement / 2 , probability_displacement / 2 , 0 , 0 ,   probability_intended, 0    ,  0   , 0]
+        self.probabilities_0 =   [probability_displacement / 2, probability_intended, probability_displacement / 2, 0, 0, 0, 0, 0, 0]
+        self.probabilities_90 =  [probability_displacement / 2, probability_displacement / 2, 0, probability_intended, 0 , 0, 0, 0, 0]
+        self.probabilities_180 = [0, probability_displacement, 0, 0, 0, 0, 0, probability_intended, 0]
+        self.probabilities_270 = [0, probability_displacement / 2 , probability_displacement / 2, 0, 0, probability_intended, 0, 0, 0]
 
     def can_overlap(self):
         return True
@@ -254,16 +251,16 @@ class SlipperyEast(WorldObj):
     def get_probabilities(self, agent_dir):
         if agent_dir == self.direction:
             return self.probabilities_0
-        elif agent_dir == 3: 
+        elif agent_dir == 3:
             return self.probabilities_90
-        elif agent_dir == 0:  
+        elif agent_dir == 0:
             return self.probabilities_180
         elif agent_dir == 1:
             return self.probabilities_270
         else:
             raise NotImplementedError("Agent directory not implemented")
 
-    
+
     def render(self, img):
         c = (100, 100, 200)
         fill_coords(img, point_in_rect(0, 1, 0, 1), c)
@@ -275,9 +272,9 @@ class SlipperyEast(WorldObj):
             fill_coords(img, rotate_fn(point_in_line(0.5, ylo, 0.7, yhi, r=0.03), cx=0.5, cy=0.5, theta=0.5 * math.pi), (0, 0, 0))
             fill_coords(img, rotate_fn(point_in_line(0.7, yhi, 0.9, ylo, r=0.03), cx=0.5, cy=0.5, theta=0.5 * math.pi), (0, 0, 0))
 
-class SlipperyWest(WorldObj):
+class SlipperyEast(WorldObj):
     def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9, probability_turn_intended=6/9, probability_turn_displacement=3/9):
-        super().__init__("slipperywest", color)
+        super().__init__("slipperyeast", color)
         self.offset = (1,0)
         self.direction = 0
 
@@ -299,7 +296,7 @@ class SlipperyWest(WorldObj):
             return self.probabilities_0
         elif agent_dir == 1:
             return self.probabilities_90
-        elif agent_dir == 2: 
+        elif agent_dir == 2:
             return self.probabilities_180
         elif agent_dir == 3:
             return self.probabilities_270
