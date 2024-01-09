@@ -140,7 +140,7 @@ class Slippery(WorldObj):
 
 class SlipperySouth(WorldObj):
     def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9, probability_turn_intended=6/9, probability_turn_displacement=3/9):
-        super().__init__("slipperynorth", color)
+        super().__init__("slipperysouth", color)
         self.direction = 1
 
         # Field probabilties are stored in the order:
@@ -185,7 +185,7 @@ class SlipperySouth(WorldObj):
 
 class SlipperyNorth(WorldObj):
     def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9, probability_turn_intended=6/9, probability_turn_displacement=3/9):
-        super().__init__("slipperysouth", color)
+        super().__init__("slipperynorth", color)
         self.offset = (0,-1)
         self.direction = 3
 
@@ -229,7 +229,7 @@ class SlipperyNorth(WorldObj):
 
 class SlipperyWest(WorldObj):
     def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9, probability_turn_intended=6/9, probability_turn_displacement=3/9):
-        super().__init__("slipperyeast", color)
+        super().__init__("slipperywest", color)
         self.offset = (-1,0)
         self.direction = 2
 
@@ -274,7 +274,7 @@ class SlipperyWest(WorldObj):
 
 class SlipperyEast(WorldObj):
     def __init__(self, color: str = "blue", probability_intended=3/9, probability_displacement=2/9, probability_turn_intended=6/9, probability_turn_displacement=3/9):
-        super().__init__("slipperywest", color)
+        super().__init__("slipperyeast", color)
         self.offset = (1,0)
         self.direction = 0
 
