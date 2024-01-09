@@ -371,7 +371,7 @@ class MiniGridEnv(gym.Env):
 
 
         seperator = "-" * self.grid.width * 2
-        return str + "\n" + seperator + "\n" + background_str + "\n" + seperator + "\n" + seperator + "\n" + properties_str
+        return str + "\n" + seperator + "\n" + background_str + "\n" + seperator + "\n" + seperator + "\n"
 
 
     @abstractmethod
