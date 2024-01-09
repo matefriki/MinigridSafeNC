@@ -835,9 +835,10 @@ class MiniGridEnv(gym.Env):
         current_cell = self.grid.get(*self.agent_pos)
 
         collision = False
-        for adversary in self.adversaries.values():
-            if np.array_equal(self.agent_pos, adversary.adversary_pos):
-                collision = True
+        if self.adversaries:
+            for adversary in self.adversaries.values():
+                if np.array_equal(self.agent_pos, adversary.adversary_pos):
+                    collision = True
 
         if current_cell is not None and current_cell.type == "goal":
             terminated = True
@@ -1000,7 +1001,7 @@ class MiniGridEnv(gym.Env):
             tile_size,
             self.agent_pos,
             self.agent_dir,
-            adversaries=self.adversaries.values(),
+            adversaries=self.adversaries.values() if self.adversaries else [],
             highlight_mask=highlight_mask if highlight else None,
         )
 
