@@ -341,7 +341,7 @@ class MiniGridEnv(gym.Env):
 
                         background_str += type_str + b.color.replace("light","")[0].upper()
 
-                    if self.bfs_reward:
+                    if hasattr(self, "bfs_reward") and self.bfs_reward:
                          bfs_rewards.append(f"{i};{j};{self.bfs_reward[i + self.grid.width * j]}")
 
                 if self.agent_pos is not None and i == self.agent_pos[0] and j == self.agent_pos[1]:
@@ -377,7 +377,7 @@ class MiniGridEnv(gym.Env):
 
         seperator = "-" * self.grid.width * 2
 
-        if init and self.bfs_reward:
+        if init and hasattr(self, "bfs_reward") and self.bfs_reward:
             return str + "\n" + seperator + "\n" + background_str + "\n" + seperator + "\n" + ";".join(bfs_rewards) + "\n" + seperator + "\n"
         else:
             return str + "\n" + seperator + "\n" + background_str + "\n" + seperator + "\n" + seperator + "\n"
