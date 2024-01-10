@@ -225,6 +225,22 @@ class LavaSlipperyEnv(MiniGridEnv):
         if self.bfs_rewards:
             self.bfs_reward = self.run_BFS_reward()
 
+    def printGrid(self, init=False):
+        grid = super().printGrid(init)
+
+        properties_str = ""
+
+        if self.probability_turn_displacement:
+            properties_str += F"ProbTurnDisplacement:{self.probability_turn_displacement}\n"
+        if self.probability_turn_intended:
+            properties_str += F"ProbTurnIntended:{self.probability_turn_intendedt}\n"
+        if self.probability_intended:
+            properties_str += F"ProbForwardDisplacement:{self.probability_intended}\n"
+        if self.probability_displacement:
+            properties_str += F"ProbForwardIntended:{self.probability_displacement}\n"
+
+        return grid + properties_str
+
 class LavaSlipperyPool(LavaSlipperyEnv):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
