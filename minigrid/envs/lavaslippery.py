@@ -230,14 +230,10 @@ class LavaSlipperyEnv(MiniGridEnv):
 
         properties_str = ""
 
-        if self.probability_turn_displacement:
-            properties_str += F"ProbTurnDisplacement:{self.probability_turn_displacement}\n"
-        if self.probability_turn_intended:
-            properties_str += F"ProbTurnIntended:{self.probability_turn_intendedt}\n"
-        if self.probability_intended:
-            properties_str += F"ProbForwardDisplacement:{self.probability_intended}\n"
-        if self.probability_displacement:
-            properties_str += F"ProbForwardIntended:{self.probability_displacement}\n"
+        properties_str += F"ProbTurnDisplacement:{self.probability_turn_displacement}\n"
+        properties_str += F"ProbTurnIntended:{self.probability_turn_intended}\n"
+        properties_str += F"ProbForwardDisplacement:{self.probability_intended}\n"
+        properties_str += F"ProbForwardIntended:{self.probability_displacement}\n"
 
         return grid + properties_str
 
