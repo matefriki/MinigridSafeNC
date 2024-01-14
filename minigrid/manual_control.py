@@ -163,5 +163,6 @@ if __name__ == "__main__":
         env = RGBImgPartialObsWrapper(env, args.tile_size)
         env = ImgObsWrapper(env)
 
+    print(env.printGrid(init=True))
     manual_control = ManualControl(env, seed=args.seed, random_agent=args.random_agent)
     manual_control.start()
