@@ -1070,6 +1070,7 @@ class MiniGridEnv(gym.Env):
 
             # Create background with mission description
             offset = surf.get_size()[0] * 0.1
+            offset = 0
             # offset = 32 if self.agent_pov else 64
             bg = pygame.Surface(
                 (int(surf.get_size()[0] + offset), int(surf.get_size()[1] + offset))
@@ -1080,13 +1081,13 @@ class MiniGridEnv(gym.Env):
 
             bg = pygame.transform.smoothscale(bg, (self.screen_size, self.screen_size))
 
-            font_size = 22
-            text = self.mission
-            font = pygame.freetype.SysFont(pygame.font.get_default_font(), font_size)
-            text_rect = font.get_rect(text, size=font_size)
-            text_rect.center = bg.get_rect().center
-            text_rect.y = bg.get_height() - font_size * 1.5
-            font.render_to(bg, text_rect, text, size=font_size)
+            #font_size = 22
+            #text = self.mission
+            #font = pygame.freetype.SysFont(pygame.font.get_default_font(), font_size)
+            #text_rect = font.get_rect(text, size=font_size)
+            #text_rect.center = bg.get_rect().center
+            #text_rect.y = bg.get_height() - font_size * 1.5
+            #font.render_to(bg, text_rect, text, size=font_size)
 
             self.window.blit(bg, (0, 0))
             pygame.event.pump()
