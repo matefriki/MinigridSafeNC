@@ -17,7 +17,7 @@ from minigrid.core.world_object import (
     Point
  )
 
-from minigrid.minigrid_env import MiniGridEnv
+from minigrid.minigrid_env import MiniGridEnv, is_slippery
 
 import numpy as np
 
@@ -77,10 +77,8 @@ class LavaSlipperyEnv(MiniGridEnv):
                 randomize_start=True, size=12,
                 width=None,
                 height=None,
-                probability_intended=3/9,
-                probability_displacement=2/9,
-                probability_turn_intended=3/9,
-                probability_turn_displacement=2/9,
+                probability_intended=8/9,
+                probability_turn_intended=8/9,
                 obstacle_type=Lava,
                 goal_reward=1,
                 failure_penalty=-1,
@@ -90,9 +88,7 @@ class LavaSlipperyEnv(MiniGridEnv):
         self.obstacle_type = obstacle_type
         self.size = size
         self.probability_intended = probability_intended
-        self.probability_displacement = probability_displacement
         self.probability_turn_intended = probability_turn_intended
-        self.probability_turn_displacement = probability_turn_displacement
 
         if width is not None and height is not None:
             self.width = width
@@ -206,7 +202,7 @@ class LavaSlipperyEnv(MiniGridEnv):
                 y = np.random.randint(0, self.height)
 
                 cell = self.grid.get(*(x,y))
-                if cell is None or (cell.can_overlap() and not isinstance(cell, Lava) and not isinstance(cell, Goal)):
+                if cell is None or (cell.can_overlap() and not isinstance(cell, Lava) and not isinstance(cell, Goal) and not is_slippery(cell)):
                     self.agent_pos = np.array((x, y))
                     self.agent_dir = np.random.randint(0, 4)
                     break
@@ -230,9 +226,7 @@ class LavaSlipperyEnv(MiniGridEnv):
 
         properties_str = ""
 
-        properties_str += F"ProbTurnDisplacement:{self.probability_turn_displacement}\n"
         properties_str += F"ProbTurnIntended:{self.probability_turn_intended}\n"
-        properties_str += F"ProbForwardDisplacement:{self.probability_displacement}\n"
         properties_str += F"ProbForwardIntended:{self.probability_intended}\n"
 
         return grid + properties_str
@@ -243,6 +237,7 @@ class LavaSlipperyPool(LavaSlipperyEnv):
 
     def _gen_grid(self, width, height):
         super()._gen_grid(width, height)
+        #TODO
         w_mid = width // 2
         h_mid = height // 2
 
@@ -293,7 +288,7 @@ class LavaSlipperyPool(LavaSlipperyEnv):
 
         self.place_agent(agent_pos=np.array((1, 1)), agent_dir=0)
         self.place_goal(np.array((width - 2, height - 2)))
-        self.run_bfs()
+        #self.run_bfs()
 
 class LavaSlipperyEnv1(LavaSlipperyEnv):
     def __init__(self, *args, **kwargs):
@@ -335,7 +330,7 @@ class LavaSlipperyEnv1(LavaSlipperyEnv):
 
         self.place_agent(agent_pos=np.array((1, 1)), agent_dir=0)
         self.place_goal(np.array((width - 2, height - 2)))
-        self.run_bfs()
+        #self.run_bfs()
 
 class LavaSlipperyCliff(LavaSlipperyEnv):
     def __init__(self, *args, **kwargs):
@@ -343,59 +338,21 @@ class LavaSlipperyCliff(LavaSlipperyEnv):
 
     def _gen_grid(self, width, height):
         super()._gen_grid(width, height)
-        w_mid = width // 2
-        h_mid = height // 2
-
-        self.put_obj(Lava(), w_mid - 2, 1)
-        self.put_obj(Lava(), w_mid - 1, 1)
-        self.put_obj(Lava(), w_mid, 1)
-        self.put_obj(Lava(), w_mid + 1, 1)
-        self.put_obj(Lava(), w_mid - 2, 2)
-        self.put_obj(Lava(), w_mid - 1, 2)
-        self.put_obj(Lava(), w_mid, 2)
-        self.put_obj(Lava(), w_mid + 1, 2)
-        self.put_obj(Lava(), w_mid - 2, 2)
-        self.put_obj(Lava(), w_mid - 1, 2)
-        self.put_obj(Lava(), w_mid, 2)
-        self.put_obj(Lava(), w_mid + 1, 3)
-        self.put_obj(Lava(), w_mid - 2, 3)
-        self.put_obj(Lava(), w_mid - 1, 3)
-        self.put_obj(Lava(), w_mid, 3)
-        self.put_obj(Lava(), w_mid + 1, 3)
-
-
-
-        self.put_obj(self._create_slippery_north(), w_mid - 2, 4)
-        self.put_obj(self._create_slippery_north(), w_mid - 1, 4)
-        self.put_obj(self._create_slippery_north(), w_mid, 4)
-        self.put_obj(self._create_slippery_north(), w_mid + 1, 4)
-
-        self.put_obj(self._create_slippery_north(), w_mid - 2, 5)
-        self.put_obj(self._create_slippery_north(), w_mid - 1, 5)
-        self.put_obj(self._create_slippery_north(), w_mid, 5)
-        self.put_obj(self._create_slippery_north(), w_mid + 1, 5)
-
-        self.put_obj(self._create_slippery_north(), w_mid - 2, 6)
-        self.put_obj(self._create_slippery_north(), w_mid - 1, 6)
-        self.put_obj(self._create_slippery_north(), w_mid, 6)
-        self.put_obj(self._create_slippery_north(), w_mid + 1, 6)
-
-        self.put_obj(self._create_slippery_north(), w_mid - 2, 7)
-        self.put_obj(self._create_slippery_north(), w_mid - 1, 7)
-        self.put_obj(self._create_slippery_north(), w_mid, 7)
-        self.put_obj(self._create_slippery_north(), w_mid + 1, 7)
+        for i in range(1,5):
+            self.grid.horz_wall(3, i, width - 6, Lava)
+        for i in range(5,10):
+            self.grid.horz_wall(3, i, width - 6, SlipperyNorth)
 
 
         self.place_agent(agent_pos=np.array((1, 1)), agent_dir=0)
         self.place_goal(np.array((width - 2, 1)))
-        self.run_bfs()
+        #self.run_bfs()
 
 class LavaSlipperyMaze(LavaSlipperyEnv):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def _gen_grid(self, width, height):
-        # TODO make scalable
         super()._gen_grid(width, height)
         self.create_lava_line(height - 5, 1, 7)
         self.create_lava_line(height - 5, 12, 19)
@@ -412,4 +369,4 @@ class LavaSlipperyMaze(LavaSlipperyEnv):
 
         self.place_agent(agent_pos=np.array((width - 2, height - 2)), agent_dir=0)
         self.place_goal(np.array((width - 2, height - 2)))
-        self.run_bfs()
+        #self.run_bfs()
