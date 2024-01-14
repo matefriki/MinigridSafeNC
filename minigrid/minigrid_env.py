@@ -314,7 +314,7 @@ class MiniGridEnv(gym.Env):
 
                 if (i,j) in adversaries.keys():
                     a = adversaries[(i,j)]
-                    str += AGENT_DIR_TO_STR[a.adversary_dir] + a.color[0].upper()
+                    str += OBJECT_TO_STR["adversary"] + a.color[0].upper()
                     if init:
                         background_str += "  "
                     continue
