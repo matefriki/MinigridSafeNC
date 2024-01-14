@@ -288,7 +288,7 @@ class LavaSlipperyPool(LavaSlipperyEnv):
 
         self.place_agent(agent_pos=np.array((1, 1)), agent_dir=0)
         self.place_goal(np.array((width - 2, height - 2)))
-        #self.run_bfs()
+        self.run_bfs()
 
 class LavaSlipperyEnv1(LavaSlipperyEnv):
     def __init__(self, *args, **kwargs):
@@ -330,7 +330,7 @@ class LavaSlipperyEnv1(LavaSlipperyEnv):
 
         self.place_agent(agent_pos=np.array((1, 1)), agent_dir=0)
         self.place_goal(np.array((width - 2, height - 2)))
-        #self.run_bfs()
+        self.run_bfs()
 
 class LavaSlipperyCliff(LavaSlipperyEnv):
     def __init__(self, *args, **kwargs):
@@ -346,7 +346,7 @@ class LavaSlipperyCliff(LavaSlipperyEnv):
 
         self.place_agent(agent_pos=np.array((1, 1)), agent_dir=0)
         self.place_goal(np.array((width - 2, 1)))
-        #self.run_bfs()
+        self.run_bfs()
 
 class LavaSlipperyMaze(LavaSlipperyEnv):
     def __init__(self, *args, **kwargs):
@@ -369,4 +369,4 @@ class LavaSlipperyMaze(LavaSlipperyEnv):
 
         self.place_agent(agent_pos=np.array((width - 2, height - 2)), agent_dir=0)
         self.place_goal(np.array((width - 2, height - 2)))
-        #self.run_bfs()
+        self.run_bfs()
