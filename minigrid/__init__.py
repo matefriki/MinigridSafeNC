@@ -89,24 +89,41 @@ def register_minigrid_envs():
     register(
         id="MiniGrid-LavaFaultyS12-30-v0",
         entry_point="minigrid.envs:LavaFaultyEnv",
-        kwargs={"size": 15, "faulty_probability": 30},
+        kwargs={"size": 15, "fault_probability": 0.3},
     )
     register(
         id="MiniGrid-LavaFaultyS12-20-v0",
         entry_point="minigrid.envs:LavaFaultyEnv",
-        kwargs={"size": 15, "faulty_probability": 20},
+        kwargs={"size": 15, "fault_probability": 0.2},
     )
     register(
         id="MiniGrid-LavaFaultyS12-10-v0",
         entry_point="minigrid.envs:LavaFaultyEnv",
-        kwargs={"size": 15, "faulty_probability": 10},
+        kwargs={"size": 15, "fault_probability": 0.1},
     )
     register(
         id="MiniGrid-LavaFaultyS12-5-v0",
         entry_point="minigrid.envs:LavaFaultyEnv",
-        kwargs={"size": 15, "faulty_probability": 5},
+        kwargs={"size": 15, "fault_probability": 0.05},
     )
 
+    register(
+        id="MiniGrid-LavaFaultyS12-1-v0",
+        entry_point="minigrid.envs:LavaFaultyEnv",
+        kwargs={"size": 15, "fault_probability": 0.01},
+    )
+
+    register(
+        id="MiniGrid-LavaFaultyS8-1-v0",
+        entry_point="minigrid.envs:LavaFaultyEnv",
+        kwargs={"size": 8, "fault_probability": 0.01},
+    )
+
+    register(
+        id="MiniGrid-LavaFaultyS8-30-v0",
+        entry_point="minigrid.envs:LavaFaultyEnv",
+        kwargs={"size": 8, "fault_probability": 0.3},
+    )
     # DoubleDoors
     # ----------------------------------------
 

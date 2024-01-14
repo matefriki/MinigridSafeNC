@@ -20,6 +20,7 @@ from minigrid.core.world_object import (
 from minigrid.minigrid_env import MiniGridEnv
 
 import numpy as np
+import random
 
 class LavaFaultyEnv(MiniGridEnv):
     """
@@ -36,7 +37,7 @@ class LavaFaultyEnv(MiniGridEnv):
                 size=12,
                 width=None,
                 height=None,
-                faulty_probability=30,
+                fault_probability=0.1,
                 faulty_behavior=True,
                 obstacle_type=Lava,
                 randomize_start=True,
@@ -44,7 +45,7 @@ class LavaFaultyEnv(MiniGridEnv):
 
         self.obstacle_type = obstacle_type
         self.size = size
-        self.fault_probability = faulty_probability
+        self.fault_probability = fault_probability
         self.faulty_behavior = faulty_behavior
         self.previous_action = None
 
@@ -74,12 +75,12 @@ class LavaFaultyEnv(MiniGridEnv):
             **kwargs
         )
 
+    def fault(self):
+        return True if random.random() < self.fault_probability else False
+
     def step(self, action: ActType) -> tuple[ObsType, SupportsFloat, bool, bool, dict[str, Any]]:
-        # TODO
-        if self.previous_action is not None and self.faulty_behavior:
-            prob = np.random.choice(100, 1)
-            if prob < self.fault_probability:
-                action = self.previous_action
+        if self.step_count > 0 and self.fault():
+            action = self.previous_action
         self.previous_action = action
         return super().step(action)
 
