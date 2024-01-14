@@ -868,10 +868,6 @@ class MiniGridEnv(gym.Env):
             try: reward += self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
             except: pass
 
-
-
-
-
         if self.step_count >= self.max_steps:
             truncated = True
 
@@ -880,13 +876,6 @@ class MiniGridEnv(gym.Env):
 
         obs = self.gen_obs()
         symbolic_info = dict()
-        # TODO agent pos and dir
-        # keys position
-        # ball position
-        # box position
-        # adversaries
-        adversaries = {color:(adv.adversary_pos, adv.adversary_dir) for color,adv in self.adversaries.items()}
-        print(State(colAgent=self.agent_pos[0], rowAgent=self.agent_pos[1], viewAgent=self.agent_dir, adversaries=adversaries))
         return obs, reward, terminated, truncated, symbolic_info
 
     def get_neighbours_prob(self, agent_pos, probabilities):
@@ -901,8 +890,6 @@ class MiniGridEnv(gym.Env):
             return list(probabilities_dict.keys()), [float(p) / sum(probabilities_dict.values()) for p in probabilities_dict.values()]
         except ZeroDivisionError as e:
             return list(probabilities_dict.keys()), stay_at_pos_distribution
-
-
 
     def gen_obs_grid(self, agent_view_size=None):
         """
@@ -1096,6 +1083,11 @@ class MiniGridEnv(gym.Env):
 
         elif self.render_mode == "rgb_array":
             return img
+
+    def get_symbolic_state(self):
+        adversaries = tuple()
+        state = State(colAgent=self.agent_pos[0], rowAgent=self.agent_pos[1], viewAgent=self.agent_dir, adversaries=adversaries)
+        return state
 
     def close(self):
         if self.window:
