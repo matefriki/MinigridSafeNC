@@ -21,6 +21,7 @@ from minigrid.core.mission import MissionSpace
 from minigrid.core.world_object import Point, WorldObj, Slippery, SlipperyEast, SlipperyNorth, SlipperySouth, SlipperyWest, Lava
 from minigrid.core.adversary import Adversary
 from minigrid.core.tasks import DoRandom, Task, List
+from minigrid.core.state import State
 
 from collections import deque
 
