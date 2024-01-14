@@ -879,8 +879,15 @@ class MiniGridEnv(gym.Env):
             self.render()
 
         obs = self.gen_obs()
-
-        return obs, reward, terminated, truncated, {}
+        symbolic_info = dict()
+        # TODO agent pos and dir
+        # keys position
+        # ball position
+        # box position
+        # adversaries
+        adversaries = {color:(adv.adversary_pos, adv.adversary_dir) for color,adv in self.adversaries.items()}
+        print(State(colAgent=self.agent_pos[0], rowAgent=self.agent_pos[1], viewAgent=self.agent_dir, adversaries=adversaries))
+        return obs, reward, terminated, truncated, symbolic_info
 
     def get_neighbours_prob(self, agent_pos, probabilities):
         neighbours = [tuple((x,y)) for x in range(agent_pos[0]-1, agent_pos[0]+2) for y in range(agent_pos[1]-1,agent_pos[1]+2)]
