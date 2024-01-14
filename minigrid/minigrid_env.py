@@ -381,6 +381,9 @@ class MiniGridEnv(gym.Env):
         else:
             return str + "\n" + seperator + "\n" + background_str + "\n" + seperator + "\n" + seperator + "\n"
 
+    def export_grid(self, filename="grid.txt"):
+        with open(filename, "w") as gridFile:
+            gridFile.write(self.printGrid(init=True))
 
     @abstractmethod
     def _gen_grid(self, width, height):
