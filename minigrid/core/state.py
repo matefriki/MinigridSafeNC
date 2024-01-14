@@ -38,9 +38,9 @@ class State:
     balls: tuple = field(default_factory=tuple)
 
 def to_state(ints, booleans):
-    agentState = (ints["colAgent"], ints["rowAgent"], ints["viewAgent"])
     ints = {key:int(value) for key, value in ints.items()}
     booleans = {value: False if key == "!" else True for key, value in booleans.items()}
+    agentState = (ints["colAgent"], ints["rowAgent"], ints["viewAgent"])
     adversaries = tuple()
     boxes = tuple()
     balls = tuple()
@@ -56,6 +56,5 @@ def to_state(ints, booleans):
             pass
         if "col" + color + "Key" in ints:
             pass
-
 
     return State(*agentState, adversaries, balls)
