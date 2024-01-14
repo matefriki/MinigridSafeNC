@@ -52,14 +52,13 @@ class MiniGridEnv(gym.Env):
         agent_view_size: int = 7,
         render_mode: str | None = None,
         screen_size: int | None = 640,
-        highlight: bool = True,
+        highlight: bool = False,
         tile_size: int = TILE_PIXELS,
         agent_pov: bool = False,
         **kwargs
     ):
         # Initialize mission
         self.mission = mission_space.sample()
-        self.previous_action = None
         # Can't set both grid_size and width/height
         if grid_size:
             assert width is None and height is None
@@ -144,7 +143,6 @@ class MiniGridEnv(gym.Env):
         # Reinitialize episode-specific variables
         self.agent_pos = (-1, -1)
         self.agent_dir = -1
-        self.previous_action = None
         self.goal_pos  = (-1, -1)
         # Generate a new random grid at the start of each episode
         self._gen_grid(self.width, self.height)
