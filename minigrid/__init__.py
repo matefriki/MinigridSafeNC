@@ -84,6 +84,12 @@ def register_minigrid_envs():
     )
 
     register(
+        id="MiniGrid-LavaSlipperyCliff-16x13-Dense-Slip50-v0",
+        entry_point="minigrid.envs:LavaSlipperyCliff",
+        kwargs={"height": 13, "width": 16, "bfs_rewards": True, "probability_intended": 0.5, "probability_turn_intended": 0.5},
+    )
+
+    register(
         id="MiniGrid-LavaSlipperyMazeS21-v0",
         entry_point="minigrid.envs:LavaSlipperyMaze",
         kwargs={"width": 21, "height": 21},
