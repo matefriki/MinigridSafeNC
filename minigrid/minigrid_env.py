@@ -752,6 +752,7 @@ class MiniGridEnv(gym.Env):
         reward = 0
         terminated = False
         truncated = False
+        info = dict()
         need_position_update = False
 
         # Get the position in front of the agent
@@ -851,12 +852,17 @@ class MiniGridEnv(gym.Env):
                 if np.array_equal(self.agent_pos, adversary.adversary_pos):
                     collision = True
 
+
+        reached_goal = False
+        ran_into_lava = False
         if current_cell is not None and current_cell.type == "goal":
             terminated = True
+            reached_goal = True
             try: reward = self.goal_reward
             except: reward = 1
         elif current_cell is not None and current_cell.type == "lava":
             terminated = True
+            ran_into_lava = True
             try: reward = self.failure_penalty
             except: reward = -1
         elif collision:
@@ -874,9 +880,13 @@ class MiniGridEnv(gym.Env):
         if self.render_mode == "human":
             self.render()
 
+        info["reached_goal"] = reached_goal
+        info["ran_into_lava"] = ran_into_lava
+        #if terminated:
+        #    print(f"Terminated at: {self.agent_pos} {self.grid.get(*self.agent_pos)} {info}")
+        if len(self.adversaries) > 0: info["collision"] = collision
         obs = self.gen_obs()
-        symbolic_info = dict()
-        return obs, reward, terminated, truncated, symbolic_info
+        return obs, reward, terminated, truncated, info
 
     def get_neighbours_prob(self, agent_pos, probabilities):
         neighbours = [tuple((x,y)) for x in range(agent_pos[0]-1, agent_pos[0]+2) for y in range(agent_pos[1]-1,agent_pos[1]+2)]
