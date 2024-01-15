@@ -220,6 +220,7 @@ class LavaSlipperyEnv(MiniGridEnv):
     def run_bfs(self):
         if self.bfs_rewards:
             self.bfs_reward = self.run_BFS_reward()
+            self.bfs_reward = [rew * 0.1 for rew in self.bfs_reward]
 
     def printGrid(self, init=False):
         grid = super().printGrid(init)
