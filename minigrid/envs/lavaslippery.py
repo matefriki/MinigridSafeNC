@@ -82,6 +82,7 @@ class LavaSlipperyEnv(MiniGridEnv):
                 obstacle_type=Lava,
                 goal_reward=1,
                 failure_penalty=-1,
+                per_step_penalty=0,
                 bfs_rewards=False,
                      **kwargs):
 
@@ -121,6 +122,7 @@ class LavaSlipperyEnv(MiniGridEnv):
         self.goal_reward = goal_reward
         self.failure_penalty = failure_penalty
         self.bfs_rewards = bfs_rewards
+        self.per_step_penalty = per_step_penalty
 
 
     def _create_slippery_north(self):
@@ -226,7 +228,7 @@ class LavaSlipperyEnv(MiniGridEnv):
 
     def step(self, action):
         obs, reward, terminated, truncated, info = super().step(action)
-        return obs, reward - 0.01, terminated, truncated, info
+        return obs, reward - self.per_step_penalty, terminated, truncated, info
 
 class LavaSlipperyPool(LavaSlipperyEnv):
     def __init__(self, *args, **kwargs):
