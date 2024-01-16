@@ -37,7 +37,9 @@ class LavaFaultyEnv(MiniGridEnv):
                 size=12,
                 width=None,
                 height=None,
+                gap=5,
                 fault_probability=0.1,
+                per_step_penalty=0.0,
                 faulty_behavior=True,
                 obstacle_type=Lava,
                 randomize_start=True,
@@ -45,9 +47,11 @@ class LavaFaultyEnv(MiniGridEnv):
 
         self.obstacle_type = obstacle_type
         self.size = size
+        self.gap = gap
         self.fault_probability = fault_probability
         self.faulty_behavior = faulty_behavior
         self.previous_action = None
+        self.per_step_penalty = per_step_penalty
 
         if width is not None and height is not None:
             self.width = width
@@ -82,7 +86,8 @@ class LavaFaultyEnv(MiniGridEnv):
         if self.step_count > 0 and self.fault():
             action = self.previous_action
         self.previous_action = action
-        return super().step(action)
+        obs, reward, terminated, trucated, info = super().step(action)
+        return obs, reward - self.per_step_penalty, terminated, trucated, info
 
     def reset(self, **kwargs) -> tuple[ObsType, dict[str, Any]]:
         self.previous_action = None
@@ -93,12 +98,11 @@ class LavaFaultyEnv(MiniGridEnv):
         # Create an empty grid
         self.grid = Grid(width, height)
 
-        gap = 5
         for row in range(1, height - 1):
-            if row < (height - gap):
-                self.grid.horz_wall(1, row, width - gap - row, Lava)
+            if row < (height - self.gap):
+                self.grid.horz_wall(1, row, width - self.gap - row, Lava)
         for i, col in enumerate(reversed(range(1, width - 1))):
-            self.grid.vert_wall(col, gap + i, None, Lava)
+            self.grid.vert_wall(col, self.gap + i, None, Lava)
 
         self.grid.wall_rect(0, 0, width, height)
 
