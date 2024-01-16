@@ -52,6 +52,7 @@ class LavaFaultyEnv(MiniGridEnv):
         self.faulty_behavior = faulty_behavior
         self.previous_action = None
         self.per_step_penalty = per_step_penalty
+        self.randomize_start = randomize_start
 
         if width is not None and height is not None:
             self.width = width
@@ -106,8 +107,11 @@ class LavaFaultyEnv(MiniGridEnv):
 
         self.grid.wall_rect(0, 0, width, height)
 
-        self.agent_pos = np.array((1, height - 2))
-        self.agent_dir = 3
+        if self.randomize_start:
+            self.place_agent()
+        else:
+            self.agent_pos = np.array((1, height - 2))
+            self.agent_dir = 3
 
         self.mission = (
             "avoid the lava and get to the green goal square"
@@ -115,6 +119,9 @@ class LavaFaultyEnv(MiniGridEnv):
             else "find the opening and get to the green goal square"
         )
         self.put_obj(Goal(), width - 2, 1)
+
+    def disable_random_start(self):
+        self.randomize_start = False
 
     def printGrid(self, init=False):
         grid = super().printGrid(init)
