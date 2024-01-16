@@ -184,6 +184,9 @@ class LavaSlipperyEnv(MiniGridEnv):
             else "find the opening and get to the green goal square"
         )
 
+    def disable_random_start(self):
+        self.randomize_start = False
+
     def place_agent(self, agent_pos=None, agent_dir=0):
         max_tries = 10_000
         num_tries = 0
