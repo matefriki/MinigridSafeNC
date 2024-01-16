@@ -134,6 +134,12 @@ def register_minigrid_envs():
     )
 
     register(
+        id="MiniGrid-LavaFaultyS15-5-Time-v0",
+        entry_point="minigrid.envs:LavaFaultyEnv",
+        kwargs={"size": 15, "fault_probability": 0.05, "per_step_penalty": 0.01},
+    )
+
+    register(
         id="MiniGrid-LavaFaultyS15-1-Time-v0",
         entry_point="minigrid.envs:LavaFaultyEnv",
         kwargs={"size": 15, "fault_probability": 0.01, "per_step_penalty": 0.01},
