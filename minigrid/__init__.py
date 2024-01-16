@@ -115,32 +115,28 @@ def register_minigrid_envs():
 
 
     # LavaFaulty
-
     register(
-        id="MiniGrid-LavaFaultyS12-30-v0",
-        entry_point="minigrid.envs:LavaFaultyEnv",
-        kwargs={"size": 15, "fault_probability": 0.3},
-    )
-    register(
-        id="MiniGrid-LavaFaultyS12-20-v0",
-        entry_point="minigrid.envs:LavaFaultyEnv",
-        kwargs={"size": 15, "fault_probability": 0.2},
-    )
-    register(
-        id="MiniGrid-LavaFaultyS12-10-v0",
-        entry_point="minigrid.envs:LavaFaultyEnv",
-        kwargs={"size": 15, "fault_probability": 0.1},
-    )
-    register(
-        id="MiniGrid-LavaFaultyS12-5-v0",
+        id="MiniGrid-LavaFaultyS15-5-v0",
         entry_point="minigrid.envs:LavaFaultyEnv",
         kwargs={"size": 15, "fault_probability": 0.05},
     )
 
     register(
-        id="MiniGrid-LavaFaultyS12-1-v0",
+        id="MiniGrid-LavaFaultyS15-1-v0",
         entry_point="minigrid.envs:LavaFaultyEnv",
         kwargs={"size": 15, "fault_probability": 0.01},
+    )
+
+    register(
+        id="MiniGrid-LavaFaultyS15-1-Time-v0",
+        entry_point="minigrid.envs:LavaFaultyEnv",
+        kwargs={"size": 15, "fault_probability": 0.01, "per_step_penalty": 0.01},
+    )
+
+    register(
+        id="MiniGrid-LavaFaultyS10-5-v0",
+        entry_point="minigrid.envs:LavaFaultyEnv",
+        kwargs={"size": 10, "fault_probability": 0.05},
     )
 
     register(
