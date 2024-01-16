@@ -69,7 +69,7 @@ class LavaFaultyEnv(MiniGridEnv):
             mission_space=mission_space,
             width=self.width,
             height=self.height,
-            max_steps=4 * size * size,
+            max_steps=200,
             # Set this to True for maximum speed
             see_through_walls=False,
             **kwargs
