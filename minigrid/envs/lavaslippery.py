@@ -125,29 +125,21 @@ class LavaSlipperyEnv(MiniGridEnv):
 
     def _create_slippery_north(self):
         return SlipperyNorth(probability_intended=self.probability_intended,
-                             probability_displacement=self.probability_displacement,
-                             probability_turn_displacement=self.probability_turn_displacement,
                              probability_turn_intended=self.probability_turn_intended)
 
 
     def _create_slippery_south(self):
         return SlipperySouth(probability_intended=self.probability_intended,
-                             probability_displacement=self.probability_displacement,
-                             probability_turn_displacement=self.probability_turn_displacement,
                              probability_turn_intended=self.probability_turn_intended)
 
 
     def _create_slippery_east(self):
         return SlipperyEast(probability_intended=self.probability_intended,
-                             probability_displacement=self.probability_displacement,
-                             probability_turn_displacement=self.probability_turn_displacement,
                              probability_turn_intended=self.probability_turn_intended)
 
 
     def _create_slippery_west(self):
         return SlipperyWest(probability_intended=self.probability_intended,
-                             probability_displacement=self.probability_displacement,
-                             probability_turn_displacement=self.probability_turn_displacement,
                              probability_turn_intended=self.probability_turn_intended)
 
     def _place_slippery_lava(self, x, y):
@@ -231,6 +223,10 @@ class LavaSlipperyEnv(MiniGridEnv):
         properties_str += F"ProbForwardIntended:{self.probability_intended}\n"
 
         return grid + properties_str
+
+    def step(self, action):
+        obs, reward, terminated, truncated, info = super().step(action)
+        return obs, reward - 0.01, terminated, truncated, info
 
 class LavaSlipperyPool(LavaSlipperyEnv):
     def __init__(self, *args, **kwargs):
