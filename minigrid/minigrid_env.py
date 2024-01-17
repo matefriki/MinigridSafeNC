@@ -797,9 +797,7 @@ class MiniGridEnv(gym.Env):
                 fwd_cell = self.grid.get(*fwd_pos)
 
                 if fwd_pos == (self.agent_pos[0], self.agent_pos[1]):
-                    self.agent_dir -= 1
-                    if self.agent_dir < 0:
-                        self.agent_dir += 4
+                    self.agent_dir = (self.agent_dir + 1) % 4
                 else:
                     need_position_update = True
             else:
