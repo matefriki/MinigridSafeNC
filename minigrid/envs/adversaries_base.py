@@ -94,7 +94,8 @@ class AdversaryEnv(MiniGridEnv):
         elif action == self.actions.forward:
             if fwd_pos[0] == agent_pos[0] and fwd_pos[1] == agent_pos[1]:
                 collision = True
-            adversary.adversary_pos = tuple(fwd_pos)
+            if fwd_cell is None or fwd_cell.can_overlap():
+                adversary.adversary_pos = tuple(fwd_pos)
 
         # Pick up an object
         elif action == self.actions.pickup:
