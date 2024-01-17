@@ -187,9 +187,10 @@ class LavaSlipperyEnv(MiniGridEnv):
     def disable_random_start(self):
         self.randomize_start = False
 
-    def place_agent(self, agent_pos=None, agent_dir=0):
+    def place_agent(self, spawn_on_slippery=False, agent_pos=None, agent_dir=0):
         max_tries = 10_000
         num_tries = 0
+
         if self.randomize_start == True:
             while True:
                 num_tries += 1
@@ -199,7 +200,7 @@ class LavaSlipperyEnv(MiniGridEnv):
                 y = np.random.randint(0, self.height)
 
                 cell = self.grid.get(*(x,y))
-                if cell is None or (cell.can_overlap() and not isinstance(cell, Lava) and not isinstance(cell, Goal) and not is_slippery(cell)):
+                if cell is None or (cell.can_overlap() and not isinstance(cell, Lava) and not isinstance(cell, Goal) and (spawn_on_slippery or not is_slippery(cell))):
                     self.agent_pos = np.array((x, y))
                     self.agent_dir = np.random.randint(0, 4)
                     break
@@ -342,11 +343,27 @@ class LavaSlipperyCliff(LavaSlipperyEnv):
         super()._gen_grid(width, height)
         for i in range(1,5):
             self.grid.horz_wall(3, i, width - 6, Lava)
-        for i in range(5,10):
+        for i in range(5,height - 3):
             self.grid.horz_wall(3, i, width - 6, SlipperyNorth)
 
 
         self.place_agent(agent_pos=np.array((1, 1)), agent_dir=0)
+        self.place_goal(np.array((width - 2, 1)))
+        self.run_bfs()
+
+class LavaSlipperyHill(LavaSlipperyEnv):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _gen_grid(self, width, height):
+        super()._gen_grid(width, height)
+        for i in range(1,height - 1):
+            self.grid.horz_wall(1, i, width - 2, SlipperyNorth)
+        for i in range(1,5):
+            self.grid.horz_wall(3, i, width - 6, Lava)
+
+
+        self.place_agent(agent_pos=np.array((1, 1)), agent_dir=0, spawn_on_slippery=True)
         self.place_goal(np.array((width - 2, 1)))
         self.run_bfs()
 

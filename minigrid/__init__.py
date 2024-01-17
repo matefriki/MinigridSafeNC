@@ -114,6 +114,35 @@ def register_minigrid_envs():
     )
 
     register(
+        id="MiniGrid-LavaSlipperyHill-16x13-Slip10-v0",
+        entry_point="minigrid.envs:LavaSlipperyHill",
+        kwargs={"height": 13, "width": 16, "probability_intended": 0.9, "probability_turn_intended": 0.9},
+    )
+
+    register(
+        id="MiniGrid-LavaSlipperyHill-16x13-Slip50-v0",
+        entry_point="minigrid.envs:LavaSlipperyHill",
+        kwargs={"height": 13, "width": 16, "probability_intended": 0.5, "probability_turn_intended": 0.5},
+    )
+
+    register(
+        id="MiniGrid-LavaSlipperyHill-16x13-Slip50-Time-v0",
+        entry_point="minigrid.envs:LavaSlipperyHill",
+        kwargs={"height": 13, "width": 16, "probability_intended": 0.5, "probability_turn_intended": 0.5, "per_step_penalty": 0.01},
+    )
+
+    register(
+        id="MiniGrid-LavaSlipperyHill-16x13-Slip80-Time-v0",
+        entry_point="minigrid.envs:LavaSlipperyHill",
+        kwargs={"height": 13, "width": 16, "probability_intended": 0.2, "probability_turn_intended": 0.2, "per_step_penalty": 0.01},
+    )
+
+    register(
+        id="MiniGrid-LavaSlipperyHill-16x13-Slip10-Time-v0",
+        entry_point="minigrid.envs:LavaSlipperyHill",
+        kwargs={"height": 13, "width": 16, "probability_intended": 0.9, "probability_turn_intended": 0.9, "per_step_penalty": 0.01},
+    )
+    register(
         id="MiniGrid-LavaSlipperyMazeS21-v0",
         entry_point="minigrid.envs:LavaSlipperyMaze",
         kwargs={"width": 21, "height": 21},
