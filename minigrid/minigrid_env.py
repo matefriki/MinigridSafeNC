@@ -546,6 +546,9 @@ class MiniGridEnv(gym.Env):
 
         return pos
 
+    def disable_random_start(self):
+        pass
+
     def add_slippery_tile(self, i: int, j: int, type: str):
             """
             Adds a slippery tile to the grid
