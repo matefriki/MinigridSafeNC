@@ -1103,7 +1103,25 @@ class MiniGridEnv(gym.Env):
 
     def get_symbolic_state(self):
         adversaries = tuple()
-        state = State(colAgent=self.agent_pos[0], rowAgent=self.agent_pos[1], viewAgent=self.agent_dir, adversaries=adversaries)
+        balls = tuple()
+        keys = tuple()
+        boxes = tuple()
+
+        for obj in self.objects:
+            if obj.type == "box":
+                boxes += (obj.to_state(),)
+            if obj.type == "ball":
+                balls += (obj.to_state(),)
+            if obj.type == "key":
+                keys += (obj.to_state(),)
+
+        for color in COLOR_NAMES:
+            try:
+                adversaries += (self.adversaries[color].to_state(),)
+            except Exception as e:
+                pass
+        carrying = "" if not self.carrying else f"{self.carrying.color.capitalize()}{self.carrying.type.capitalize()}"
+        state = State(colAgent=self.agent_pos[0], rowAgent=self.agent_pos[1], viewAgent=self.agent_dir, carrying=carrying, adversaries=adversaries, balls=balls, keys=keys, boxes=boxes)
         return state
 
     def close(self):
