@@ -222,6 +222,11 @@ def register_minigrid_envs():
     # AdversarySimple
     # ----------------------------------------
     register(
+        id = "MiniGrid-Adv-8x8-v0", entry_point="minigrid.envs:AdversarySimple",
+        kwargs={"width": 8, "height": 8}
+    )
+
+    register(
         id = "MiniGrid-Adv-10x10-v0", entry_point="minigrid.envs:AdversarySimple",
         kwargs={"width": 10, "height": 10}
     )
@@ -233,6 +238,18 @@ def register_minigrid_envs():
 
     # AdversaryDebug
     # ----------------------------------------
+    register(
+        id = "MiniGrid-AdvDebug-4x4-v0",
+        entry_point="minigrid.envs:AdversaryDebug",
+        kwargs={"width": 4, "height": 4}
+    )
+
+    register(
+        id = "MiniGrid-AdvDebug-5x5-v0",
+        entry_point="minigrid.envs:AdversaryDebug",
+        kwargs={"width": 5, "height": 5}
+    )
+
     register(
         id = "MiniGrid-AdvDebug-8x8-v0",
         entry_point="minigrid.envs:AdversaryDebug",
