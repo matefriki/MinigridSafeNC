@@ -5,42 +5,52 @@ from minigrid.core.constants import (
 )
 
 @dataclass(frozen=True, eq=True)
-class Key:
+class KeyState:
     color: str = ""
     col: int = 0
     row: int = 0
 
 @dataclass(frozen=True, eq=True)
-class Ball:
+class BallState:
     color: str = ""
     col: int = 0
     row: int = 0
 
 @dataclass(frozen=True, eq=True)
-class Box:
+class BoxState:
     color: str = ""
     col: int = 0
     row: int = 0
 
 @dataclass(frozen=True, eq=True)
-class Adversary:
+class AdversaryState:
     color: str = ""
     col: int = 0
     row: int = 0
     view: int = 0
+    carrying: str = ""
 
 @dataclass(frozen=True, eq=True)
 class State:
     colAgent: int
     rowAgent: int
     viewAgent: int
+    carrying: str
     adversaries: tuple = field(default_factory=tuple)
     balls: tuple = field(default_factory=tuple)
+    boxes: tuple = field(default_factory=tuple)
+    keys: tuple = field(default_factory=tuple)
 
 def to_state(ints, booleans):
     ints = {key:int(value) for key, value in ints.items()}
-    booleans = {value: False if key == "!" else True for key, value in booleans.items()}
-    agentState = (ints["colAgent"], ints["rowAgent"], ints["viewAgent"])
+    any_carrying = dict()
+    for formula, value in booleans.items():
+        if not value: continue
+        if "Carrying" in formula:
+            pos = formula.find("Carrying")
+            l = len("Carrying")
+            any_carrying[formula[0:pos]] = formula[pos+l:]
+    agentState = (ints["colAgent"], ints["rowAgent"], ints["viewAgent"], any_carrying.get("Agent", ""))
     adversaries = tuple()
     boxes = tuple()
     balls = tuple()
@@ -48,10 +58,10 @@ def to_state(ints, booleans):
     for color in COLOR_NAMES:
         color = color.capitalize()
         if "col" + color in ints:
-            adversaries += (Adversary(color, ints["col"+color], ints["row"+color], ints["view"+color]),)
+            adversaries += (AdversaryState(color, ints["col"+color], ints["row"+color], ints["view"+color], carrying=any_carrying.get(color, "")),)
         if "col" + color + "Ball" in ints:
             identifier = color + "Ball"
-            balls += (Ball(color, ints["col"+identifier], ints["row"+identifier]),)
+            balls += (BallState(color, ints["col"+identifier], ints["row"+identifier]),)
         if "col" + color + "Box" in ints:
             pass
         if "col" + color + "Key" in ints:
