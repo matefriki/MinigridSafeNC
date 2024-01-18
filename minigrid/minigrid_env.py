@@ -120,9 +120,10 @@ class MiniGridEnv(gym.Env):
         # Current grid and mission and carrying
         self.grid = Grid(width, height)
         self.carrying = None
+        self.objects = list()
 
-        # List of adversaries
-        self.adversaries = list()
+        # dict of adversaries
+        self.adversaries = dict()
 
         # Rendering attributes
         self.render_mode = render_mode
@@ -146,6 +147,8 @@ class MiniGridEnv(gym.Env):
         self.agent_dir = -1
         self.goal_pos  = (-1, -1)
         # Generate a new random grid at the start of each episode
+
+        self.objects.clear()
         self._gen_grid(self.width, self.height)
 
         # These fields should be defined by _gen_grid
@@ -531,6 +534,9 @@ class MiniGridEnv(gym.Env):
         self.grid.set(i, j, obj)
         obj.init_pos = (i, j)
         obj.cur_pos = (i, j)
+        if obj.can_pickup():
+            self.objects.append(obj)
+            self.objects = sorted(self.objects, key=lambda object: object.color)
 
     def place_agent(self, top=None, size=None, rand_dir=True, max_tries=math.inf):
         """
