@@ -20,6 +20,7 @@ from minigrid.utils.rendering import (
     point_in_rect,
     rotate_fn,
 )
+from minigrid.core.state import KeyState, BallState, BoxState
 
 if TYPE_CHECKING:
     from minigrid.minigrid_env import MiniGridEnv
@@ -469,6 +470,8 @@ class Key(WorldObj):
         fill_coords(img, point_in_circle(cx=0.56, cy=0.28, r=0.190), c)
         fill_coords(img, point_in_circle(cx=0.56, cy=0.28, r=0.064), (0, 0, 0))
 
+    def to_state(self):
+        return KeyState(self.color.capitalize(), *self.cur_pos)
 
 class Ball(WorldObj):
     def __init__(self, color="blue"):
@@ -479,6 +482,9 @@ class Ball(WorldObj):
 
     def render(self, img):
         fill_coords(img, point_in_circle(0.5, 0.5, 0.31), COLORS[self.color])
+
+    def to_state(self):
+        return BallState(self.color.capitalize(), *self.cur_pos)
 
 
 class Box(WorldObj):
@@ -503,3 +509,6 @@ class Box(WorldObj):
         # Replace the box by its contents
         env.grid.set(pos[0], pos[1], self.contains)
         return True
+
+    def to_state():
+        return BoxState(self.color.capitalize(), *self.cur_pos)
