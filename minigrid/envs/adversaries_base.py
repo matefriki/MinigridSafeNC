@@ -54,6 +54,7 @@ class AdversaryEnv(MiniGridEnv):
                 collided = self.move_adversary(adversary, blocked_positions, agent_pos)
                 if collided:
                     terminated = True
+                    info["collision"] = True
                     try:
                         reward = self.collision_penalty
                     except e:
