@@ -25,7 +25,7 @@ class AdversarySimple(AdversaryEnv):
 
     def __init__(self, width=7, height=6, generate_wall=True, generate_lava=False, generate_slippery=False ,max_steps: int | None = None, **kwargs):
         if max_steps is None:
-            max_steps = 10 * (width * height)**2
+            max_steps = 200
 
         self.generate_wall = generate_wall
         super().__init__(
