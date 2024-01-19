@@ -236,6 +236,14 @@ def register_minigrid_envs():
         kwargs={"width": 15, "height": 15}
     )
 
+
+    # OscillatingAdversaries
+    # ----------------------------------------
+    register(
+        id = "MiniGrid-OscAdv-8x8-v0", entry_point="minigrid.envs:OscillatingAdversaries",
+        kwargs={"width": 8, "height": 8}
+    )
+
     # AdversaryDebug
     # ----------------------------------------
     register(
