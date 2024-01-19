@@ -30,12 +30,12 @@ class OscillatingAdversaries(AdversaryEnv):
         self.agent_pos = np.array((int(width/2), 1))
         self.agent_dir = 2
 
-        yellow_adv = self.add_adversary(1, 3, "yellow", direction=0, tasks=[GoTo((2, 3)),
-                                                                            GoTo((2, 1)),
+        yellow_adv = self.add_adversary(1, 3, "yellow", direction=0, tasks=[GoTo((3, 3)),
+                                                                            GoTo((3, 1)),
                                                                             GoTo((1, 3))], repeating=True)
         green_adv = self.add_adversary(width - 2, 5, "green", direction=2, tasks=[GoTo((width - 2, 3)),
-                                                                                  GoTo((width - 3, 3)),
-                                                                                  GoTo((width - 3, 5))], repeating=True)
+                                                                                  GoTo((width - 4, 3)),
+                                                                                  GoTo((width - 4, 5))], repeating=True)
 
 
     def step(self, action):
