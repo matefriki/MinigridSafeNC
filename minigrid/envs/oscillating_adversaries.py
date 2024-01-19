@@ -23,15 +23,15 @@ class OscillatingAdversaries(AdversaryEnv):
         self.grid = Grid(width, height)
         self.grid.wall_rect(0, 0, width, height)
 
-        goal_pos = np.array((int(width/2), height - 2))
+        goal_pos = np.array((int(width/2) - 1, height - 2))
         self.put_obj(Goal(), *goal_pos)
 
         self.adversaries = {}
         self.agent_pos = np.array((int(width/2), 1))
         self.agent_dir = 2
 
-        yellow_adv = self.add_adversary(1, 3, "yellow", direction=0, tasks=[GoTo((width - 2, 3)), GoTo((1, 3))], repeating=True)
-        green_adv = self.add_adversary(width - 2, 5, "green", direction=2, tasks=[GoTo((1, 5)), GoTo((width - 2, 5))], repeating=True)
+        yellow_adv = self.add_adversary(1, 3, "yellow", direction=0, tasks=[GoTo((width - 5, 3)), GoTo((1, 3))], repeating=True)
+        green_adv = self.add_adversary(width - 2, 5, "green", direction=2, tasks=[GoTo((4, 5)), GoTo((width - 2, 5))], repeating=True)
 
 
     def step(self, action):
