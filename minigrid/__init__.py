@@ -58,13 +58,6 @@ def register_minigrid_envs():
     # LavaSlippery
     # ----------------------------------------
 
-
-    register(
-        id="MiniGrid-LavaSlipperyPoolS12-v0",
-        entry_point="minigrid.envs:LavaSlipperyPool",
-        kwargs={"size": 12},
-    )
-
     register(
         id="MiniGrid-LavaSlipperyS12-v0",
         entry_point="minigrid.envs:LavaSlipperyEnv1",
