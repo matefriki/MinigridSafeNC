@@ -456,6 +456,9 @@ class Key(WorldObj):
     def can_pickup(self):
         return True
 
+    def can_overlap(self):
+        return True
+
     def render(self, img):
         c = COLORS[self.color]
 
@@ -480,6 +483,9 @@ class Ball(WorldObj):
     def can_pickup(self):
         return True
 
+    def can_overlap(self):
+        return True
+
     def render(self, img):
         fill_coords(img, point_in_circle(0.5, 0.5, 0.31), COLORS[self.color])
 
@@ -493,6 +499,9 @@ class Box(WorldObj):
         self.contains = contains
 
     def can_pickup(self):
+        return True
+
+    def can_overlap(self):
         return True
 
     def render(self, img):
