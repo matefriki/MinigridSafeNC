@@ -321,5 +321,5 @@ class LavaSlipperyMaze(LavaSlipperyEnv):
     def step(self, action):
         obs, reward, terminated, truncated, info = super().step(action)
         if self.dense_rewards:
-            pass
-        return obs, reward - self.per_step_penalty, terminated, truncated, info
+            reward -= 0.001 * (self.height - self.agent_pos[1])
+        return obs, reward, terminated, truncated, info
