@@ -143,9 +143,14 @@ def register_minigrid_envs():
         kwargs={"height": 13, "width": 16, "probability_intended": 0.9, "probability_turn_intended": 0.9, "per_step_penalty": 0.01},
     )
     register(
-        id="MiniGrid-LavaSlipperyMazeS21-v0",
+        id="MiniGrid-LavaSlipperyMazeS20-v0",
         entry_point="minigrid.envs:LavaSlipperyMaze",
-        kwargs={"width": 21, "height": 21},
+        kwargs={"width": 20, "height": 20},
+    )
+    register(
+        id="MiniGrid-LavaSlipperyMazeS20-Slip90-v0",
+        entry_point="minigrid.envs:LavaSlipperyMaze",
+        kwargs={"width": 20, "height": 20, "probability_intended": 0.1, "probability_turn_intended": 0.1},
     )
 
 
