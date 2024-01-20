@@ -16,6 +16,7 @@ from minigrid.envs.lavafaulty import LavaFaultyEnv
 from minigrid.envs.lavaslippery import LavaSlipperyEnv1, LavaSlipperyCliff, LavaSlipperyHill, LavaSlipperyMaze
 from minigrid.envs.adversary_debug import AdversaryDebug
 from minigrid.envs.adversary_simple import AdversarySimple
+from minigrid.envs.adversarydoorpickup import AdversaryDoorPickup
 from minigrid.envs.oscillating_adversaries import OscillatingAdversaries
 from minigrid.envs.doubledoor import DoubleDoorEnv
 from minigrid.envs.singledoor import SingleDoorEnv

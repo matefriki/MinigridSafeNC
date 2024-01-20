@@ -248,6 +248,13 @@ def register_minigrid_envs():
         kwargs={"width": 8, "height": 8}
     )
 
+    # AdversaryDoorPickup
+    # ----------------------------------------
+    register(
+        id = "MiniGrid-AdvDoorPickup-v0", entry_point="minigrid.envs:AdversaryDoorPickup",
+        kwargs={}
+    )
+
     # AdversaryDebug
     # ----------------------------------------
     register(
