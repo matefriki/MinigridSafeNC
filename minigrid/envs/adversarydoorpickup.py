@@ -1,0 +1,46 @@
+from __future__ import annotations
+
+from minigrid.core.constants import COLOR_NAMES
+from minigrid.core.mission import MissionSpace
+from minigrid.core.roomgrid import RoomGrid
+from minigrid.envs.adversaries_base import AdversaryEnv
+from minigrid.core.tasks import GoTo
+from minigrid.core.world_object import Door, Box
+
+
+class AdversaryDoorPickup(RoomGrid, AdversaryEnv):
+    def __init__(self, success_reward=1, max_steps: int | None = None, **kwargs):
+        max_steps = 200
+        super().__init__(
+            num_rows=1,
+            num_cols=2,
+            room_size=6,
+            max_steps=max_steps,
+            **kwargs,
+        )
+        self.success_reward = success_reward
+
+    def _gen_grid(self, width, height):
+        super()._gen_grid(width, height)
+
+        self.agent_pos = (1, 1)
+        self.agent_dir = 1
+
+        self.put_obj(Door("yellow"), int(width/2), height - 2)
+        object, _ = self.add_object(1, 0, kind="box")
+        self.object = object
+
+        green_adv = self.add_adversary(int(width/2) - 1, 1, "green", direction=1, tasks=[GoTo((int(width/2) - 1, 4)),
+                                                                                         GoTo((1, 4)),
+                                                                                         GoTo((1, 1)),
+                                                                                         GoTo((int(width/2) - 1, 1))], repeating=True)
+
+    def step(self, action):
+        obs, reward, terminated, truncated, info = super().step(action)
+
+        if action == self.actions.pickup:
+            if self.carrying and self.carrying == self.object:
+                reward = self.success_reward
+                terminated = True
+
+        return obs, reward, terminated, truncated, info
