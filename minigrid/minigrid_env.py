@@ -121,6 +121,7 @@ class MiniGridEnv(gym.Env):
         self.grid = Grid(width, height)
         self.carrying = None
         self.objects = list()
+        self.doors = list()
 
         # dict of adversaries
         self.adversaries = dict()
@@ -149,6 +150,7 @@ class MiniGridEnv(gym.Env):
         # Generate a new random grid at the start of each episode
 
         self.objects.clear()
+        self.doors.clear()
         self._gen_grid(self.width, self.height)
 
         # These fields should be defined by _gen_grid
@@ -537,6 +539,9 @@ class MiniGridEnv(gym.Env):
         if obj.can_pickup():
             self.objects.append(obj)
             self.objects = sorted(self.objects, key=lambda object: object.color)
+        if obj.type == "door":
+            self.doors.append(obj)
+            self.doors = sorted(self.doors, key=lambda object: object.color)
 
     def place_agent(self, top=None, size=None, rand_dir=True, max_tries=math.inf):
         """
@@ -1106,6 +1111,7 @@ class MiniGridEnv(gym.Env):
         balls = tuple()
         keys = tuple()
         boxes = tuple()
+        doors = tuple()
 
         for obj in self.objects:
             if obj.type == "box":
@@ -1114,14 +1120,19 @@ class MiniGridEnv(gym.Env):
                 balls += (obj.to_state(),)
             if obj.type == "key":
                 keys += (obj.to_state(),)
+        for door in self.doors:
+            doors += (door.to_state(),)
+
 
         for color in COLOR_NAMES:
             try:
                 adversaries += (self.adversaries[color].to_state(),)
             except Exception as e:
                 pass
+
+
         carrying = "" if not self.carrying else f"{self.carrying.color.capitalize()}{self.carrying.type.capitalize()}"
-        state = State(colAgent=self.agent_pos[0], rowAgent=self.agent_pos[1], viewAgent=self.agent_dir, carrying=carrying, adversaries=adversaries, balls=balls, keys=keys, boxes=boxes)
+        state = State(colAgent=self.agent_pos[0], rowAgent=self.agent_pos[1], viewAgent=self.agent_dir, carrying=carrying, adversaries=adversaries, keys=keys, doors=doors)
         return state
 
     def close(self):

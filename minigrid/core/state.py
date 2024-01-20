@@ -23,6 +23,11 @@ class BoxState:
     row: int = 0
 
 @dataclass(frozen=True, eq=True)
+class DoorState:
+    color: str = ""
+    locked: bool = True
+
+@dataclass(frozen=True, eq=True)
 class AdversaryState:
     color: str = ""
     col: int = 0
@@ -40,6 +45,8 @@ class State:
     balls: tuple = field(default_factory=tuple)
     boxes: tuple = field(default_factory=tuple)
     keys: tuple = field(default_factory=tuple)
+    doors: tuple = field(default_factory=tuple)
+    lockeddoors: tuple = field(default_factory=tuple)
 
 def to_state(ints, booleans):
     ints = {key:int(value) for key, value in ints.items()}
@@ -55,16 +62,24 @@ def to_state(ints, booleans):
     boxes = tuple()
     balls = tuple()
     keys = tuple()
+    lockeddoors = tuple()
+    doors = tuple()
     for color in COLOR_NAMES:
         color = color.capitalize()
         if "col" + color in ints:
             adversaries += (AdversaryState(color, ints["col"+color], ints["row"+color], ints["view"+color], carrying=any_carrying.get(color, "")),)
-        if "col" + color + "Ball" in ints:
-            identifier = color + "Ball"
-            balls += (BallState(color, ints["col"+identifier], ints["row"+identifier]),)
         if "col" + color + "Box" in ints:
             pass
         if "col" + color + "Key" in ints:
-            pass
+            identifier = color + "Key"
+            balls += (KeyState(color, ints["col"+identifier], ints["row"+identifier]),)
+        if color + "DoorOpen" in booleans:
+            if booleans[color + "DoorOpen"]:
+                doors += (DoorState(color, locked=False),)
+            else:
+                doors += (DoorState(color, locked=True),)
+        elif color + "LockedDoorOpen" in booleans:
+            assert False
 
-    return State(*agentState, adversaries, balls)
+
+    return State(*agentState, adversaries=adversaries, doors=doors)

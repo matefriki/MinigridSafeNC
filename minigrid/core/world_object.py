@@ -20,7 +20,7 @@ from minigrid.utils.rendering import (
     point_in_rect,
     rotate_fn,
 )
-from minigrid.core.state import KeyState, BallState, BoxState
+from minigrid.core.state import KeyState, BallState, BoxState, DoorState
 
 if TYPE_CHECKING:
     from minigrid.minigrid_env import MiniGridEnv
@@ -447,7 +447,8 @@ class Door(WorldObj):
 
             # Draw door handle
             fill_coords(img, point_in_circle(cx=0.75, cy=0.50, r=0.08), c)
-
+    def to_state(self):
+        return DoorState(self.color.capitalize(), not self.is_open)
 
 class Key(WorldObj):
     def __init__(self, color: str = "blue"):
