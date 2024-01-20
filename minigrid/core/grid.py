@@ -101,7 +101,10 @@ class Grid:
         if length is None:
             length = self.width - x
         for i in range(0, length):
-            self.set(x + i, y, obj_type())
+            try:
+                self.set(x + i, y, obj_type())
+            except TypeError:
+                self.set(x + i, y, obj_type)
 
     def vert_wall(
         self,
@@ -113,7 +116,11 @@ class Grid:
         if length is None:
             length = self.height - y
         for j in range(0, length):
-            self.set(x, y + j, obj_type())
+            try:
+                self.set(x, y + j, obj_type())
+            except TypeError:
+                self.set(x, y + j, obj_type())
+
 
     def wall_rect(self, x: int, y: int, w: int, h: int):
         self.horz_wall(x, y, w)
