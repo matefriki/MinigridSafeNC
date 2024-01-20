@@ -83,7 +83,7 @@ class LavaSlipperyEnv(MiniGridEnv):
                 goal_reward=1,
                 failure_penalty=-1,
                 per_step_penalty=0,
-                bfs_rewards=False,
+                dense_rewards=False,
                      **kwargs):
 
         self.obstacle_type = obstacle_type
@@ -121,28 +121,8 @@ class LavaSlipperyEnv(MiniGridEnv):
         self.randomize_start = randomize_start
         self.goal_reward = goal_reward
         self.failure_penalty = failure_penalty
-        self.bfs_rewards = bfs_rewards
+        self.dense_rewards = dense_rewards
         self.per_step_penalty = per_step_penalty
-
-
-    def _create_slippery_north(self):
-        return SlipperyNorth(probability_intended=self.probability_intended,
-                             probability_turn_intended=self.probability_turn_intended)
-
-
-    def _create_slippery_south(self):
-        return SlipperySouth(probability_intended=self.probability_intended,
-                             probability_turn_intended=self.probability_turn_intended)
-
-
-    def _create_slippery_east(self):
-        return SlipperyEast(probability_intended=self.probability_intended,
-                             probability_turn_intended=self.probability_turn_intended)
-
-
-    def _create_slippery_west(self):
-        return SlipperyWest(probability_intended=self.probability_intended,
-                             probability_turn_intended=self.probability_turn_intended)
 
     def _place_slippery_lava(self, x, y):
         self.put_obj(Lava(), x, y)
@@ -162,9 +142,6 @@ class LavaSlipperyEnv(MiniGridEnv):
         for x in range(x_start, x_end + 1):
             self.put_obj(Lava(), x, y)
 
-    def create_lava_line(self, y, x_start, x_end):
-        for x in range(x_start, x_end + 1):
-            self.put_obj(Lava(), x, y)
 
     def _gen_grid(self, width, height):
         assert width >= 5 and height >= 5
@@ -216,9 +193,8 @@ class LavaSlipperyEnv(MiniGridEnv):
         self.put_obj(Goal(), *self.goal_pos)
 
     def run_bfs(self):
-        if self.bfs_rewards:
-            self.bfs_reward = self.run_BFS_reward()
-            self.bfs_reward = [rew * 0.1 for rew in self.bfs_reward]
+        self.bfs_reward = self.run_BFS_reward()
+        self.bfs_reward = [rew * 0.1 for rew in self.bfs_reward]
 
     def printGrid(self, init=False):
         grid = super().printGrid(init)
@@ -233,65 +209,6 @@ class LavaSlipperyEnv(MiniGridEnv):
     def step(self, action):
         obs, reward, terminated, truncated, info = super().step(action)
         return obs, reward - self.per_step_penalty, terminated, truncated, info
-
-class LavaSlipperyPool(LavaSlipperyEnv):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def _gen_grid(self, width, height):
-        super()._gen_grid(width, height)
-        #TODO
-        w_mid = width // 2
-        h_mid = height // 2
-
-        self.put_obj(Lava(), w_mid - 1, h_mid - 2)
-        self.put_obj(Lava(), w_mid - 2, h_mid - 2)
-        self.put_obj(Lava(), w_mid, h_mid - 2)
-        self.put_obj(Lava(), w_mid + 1, h_mid - 2)
-
-        self.put_obj(Lava(), w_mid - 1, h_mid - 1)
-        self.put_obj(Lava(), w_mid - 2, h_mid - 1)
-        self.put_obj(Lava(), w_mid, h_mid - 1)
-        self.put_obj(Lava(), w_mid + 1, h_mid - 1)
-
-        self.put_obj(Lava(), w_mid - 1, h_mid)
-        self.put_obj(Lava(), w_mid - 2, h_mid)
-        self.put_obj(Lava(), w_mid, h_mid)
-        self.put_obj(Lava(), w_mid + 1, h_mid)
-
-        self.put_obj(Lava(), w_mid - 1, h_mid + 1)
-        self.put_obj(Lava(), w_mid - 2, h_mid + 1)
-        self.put_obj(Lava(), w_mid, h_mid + 1)
-        self.put_obj(Lava(), w_mid + 1, h_mid + 1)
-
-
-        self.put_obj(self._create_slippery_south(), w_mid - 3, h_mid - 3)
-        self.put_obj(self._create_slippery_south(), w_mid - 2, h_mid - 3)
-        self.put_obj(self._create_slippery_south(), w_mid - 1, h_mid - 3)
-        self.put_obj(self._create_slippery_south(), w_mid, h_mid - 3)
-        self.put_obj(self._create_slippery_south(), w_mid + 1, h_mid - 3)
-        self.put_obj(self._create_slippery_south(), w_mid + 2, h_mid - 3)
-
-        self.put_obj(self._create_slippery_east(), w_mid - 3, h_mid - 2)
-        self.put_obj(self._create_slippery_east(), w_mid - 3, h_mid - 1)
-        self.put_obj(self._create_slippery_east(), w_mid - 3, h_mid)
-        self.put_obj(self._create_slippery_east(), w_mid - 3, h_mid + 1)
-
-        self.put_obj(self._create_slippery_west(), w_mid + 2, h_mid - 2)
-        self.put_obj(self._create_slippery_west(), w_mid + 2, h_mid - 1)
-        self.put_obj(self._create_slippery_west(), w_mid + 2, h_mid)
-        self.put_obj(self._create_slippery_west(), w_mid + 2, h_mid + 1)
-
-        self.put_obj(self._create_slippery_north(), w_mid - 3, h_mid + 2)
-        self.put_obj(self._create_slippery_north(), w_mid - 2, h_mid + 2)
-        self.put_obj(self._create_slippery_north(), w_mid - 1, h_mid + 2)
-        self.put_obj(self._create_slippery_north(), w_mid, h_mid + 2)
-        self.put_obj(self._create_slippery_north(), w_mid + 1, h_mid + 2)
-        self.put_obj(self._create_slippery_north(), w_mid + 2, h_mid + 2)
-
-        self.place_agent(agent_pos=np.array((1, 1)), agent_dir=0)
-        self.place_goal(np.array((width - 2, height - 2)))
-        self.run_bfs()
 
 class LavaSlipperyEnv1(LavaSlipperyEnv):
     def __init__(self, *args, **kwargs):
@@ -333,7 +250,7 @@ class LavaSlipperyEnv1(LavaSlipperyEnv):
 
         self.place_agent(agent_pos=np.array((1, 1)), agent_dir=0)
         self.place_goal(np.array((width - 2, height - 2)))
-        self.run_bfs()
+        if self.dense_rewards: self.run_bfs()
 
 class LavaSlipperyCliff(LavaSlipperyEnv):
     def __init__(self, *args, **kwargs):
@@ -344,12 +261,12 @@ class LavaSlipperyCliff(LavaSlipperyEnv):
         for i in range(1,5):
             self.grid.horz_wall(3, i, width - 6, Lava)
         for i in range(5,height - 3):
-            self.grid.horz_wall(3, i, width - 6, SlipperyNorth)
+            self.grid.horz_wall(3, i, width - 6, SlipperyNorth(probability_intended=self.probability_intended, probability_turn_intended=self.probability_turn_intended))
 
 
         self.place_agent(agent_pos=np.array((1, 1)), agent_dir=0)
         self.place_goal(np.array((width - 2, 1)))
-        self.run_bfs()
+        if self.dense_rewards: self.run_bfs()
 
 class LavaSlipperyHill(LavaSlipperyEnv):
     def __init__(self, *args, **kwargs):
@@ -365,7 +282,7 @@ class LavaSlipperyHill(LavaSlipperyEnv):
 
         self.place_agent(agent_pos=np.array((1, 1)), agent_dir=0, spawn_on_slippery=True)
         self.place_goal(np.array((width - 2, 1)))
-        self.run_bfs()
+        if self.dense_rewards: self.run_bfs()
 
 class LavaSlipperyMaze(LavaSlipperyEnv):
     def __init__(self, *args, **kwargs):
@@ -373,19 +290,36 @@ class LavaSlipperyMaze(LavaSlipperyEnv):
 
     def _gen_grid(self, width, height):
         super()._gen_grid(width, height)
-        self.create_lava_line(height - 5, 1, 7)
-        self.create_lava_line(height - 5, 12, 19)
-        self.create_slippery_lava_line(height // 2 + 2, 4, 6)
-        self.create_slippery_lava_line(height // 2 + 2, 9, 12)
-        self.create_slippery_lava_line(height // 2 + 2, 15, 19, False, True)
+        slippery_tile = SlipperySouth(probability_intended=self.probability_intended, probability_turn_intended=self.probability_turn_intended)
+        self.grid.horz_wall(1, 3, 5, Lava)
+        self.grid.horz_wall(1, 4, 5, Lava)
+        self.grid.horz_wall(6, 3, 3, slippery_tile)
+        self.grid.horz_wall(6, 4, 3, slippery_tile)
+        self.grid.horz_wall(9, 3, 7, Lava)
+        self.grid.horz_wall(9, 4, 7, Lava)
 
-        self.create_lava_line(height // 2 - 2, 1, 4)
-        self.create_lava_line(height // 2 - 2, 7, 19)
+        self.grid.horz_wall(4, 7, 4, Lava)
+        self.grid.horz_wall(4, 8, 4, Lava)
+        self.grid.horz_wall(13, 7, 6, Lava)
+        self.grid.horz_wall(13, 8, 6, Lava)
 
-        self.create_slippery_lava_line(4, 1, 3, True)
-        self.create_slippery_lava_line(4, 6, 9)
-        self.create_slippery_lava_line(4, 15, 19, False, True)
+        self.grid.horz_wall(1, 11, 6, Lava)
+        self.grid.horz_wall(1, 12, 6, Lava)
+        self.grid.horz_wall(7, 11, 3, slippery_tile)
+        self.grid.horz_wall(7, 12, 3, slippery_tile)
+        self.grid.horz_wall(10, 11, 7, Lava)
+        self.grid.horz_wall(10, 12, 7, Lava)
 
-        self.place_agent(agent_pos=np.array((width - 2, height - 2)), agent_dir=0)
+        self.grid.horz_wall(1, 15, 4, Lava)
+        self.grid.horz_wall(1, 16, 4, Lava)
+        self.grid.horz_wall(10, 15, 9, Lava)
+        self.grid.horz_wall(10, 16, 9, Lava)
+
+        self.place_agent(agent_pos=np.array((1, 1)), agent_dir=0)
         self.place_goal(np.array((width - 2, height - 2)))
-        self.run_bfs()
+
+    def step(self, action):
+        obs, reward, terminated, truncated, info = super().step(action)
+        if self.dense_rewards:
+            pass
+        return obs, reward - self.per_step_penalty, terminated, truncated, info
