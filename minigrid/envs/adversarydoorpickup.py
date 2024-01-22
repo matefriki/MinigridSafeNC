@@ -9,7 +9,7 @@ from minigrid.core.world_object import Door, Box
 
 
 class AdversaryDoorPickup(RoomGrid, AdversaryEnv):
-    def __init__(self, success_reward=1, max_steps: int | None = None, **kwargs):
+    def __init__(self, success_reward=1, collision_penalty=-1, dense_reward: bool = False, max_steps: int | None = None, **kwargs):
         max_steps = 200
         super().__init__(
             num_rows=1,
@@ -19,9 +19,13 @@ class AdversaryDoorPickup(RoomGrid, AdversaryEnv):
             **kwargs,
         )
         self.success_reward = success_reward
+        self.collision_penalty = collision_penalty
+        self.dense_reward = dense_reward
 
     def _gen_grid(self, width, height):
         super()._gen_grid(width, height)
+
+        self.width = width
 
         self.agent_pos = (1, 1)
         self.agent_dir = 1
@@ -42,5 +46,6 @@ class AdversaryDoorPickup(RoomGrid, AdversaryEnv):
             if self.carrying and self.carrying == self.object:
                 reward = self.success_reward
                 terminated = True
-
+        if self.dense_reward and self.agent_pos[0] < 7:
+            reward -= 0.001 * (self.width - self.agent_pos[0])
         return obs, reward, terminated, truncated, info
