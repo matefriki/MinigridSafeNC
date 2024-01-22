@@ -776,6 +776,7 @@ class MiniGridEnv(gym.Env):
         fwd_cell = self.grid.get(*fwd_pos)
         current_cell = self.grid.get(*self.agent_pos)
 
+        opened_door = False
         if action == self.actions.forward and is_slippery(current_cell):
             probabilities = current_cell.get_probabilities(self.agent_dir)
             possible_fwd_pos, prob = self.get_neighbours_prob(self.agent_pos, probabilities)
@@ -845,6 +846,8 @@ class MiniGridEnv(gym.Env):
         elif action == self.actions.toggle:
             if fwd_cell:
                 fwd_cell.toggle(self, fwd_pos)
+                if fwd_cell.type == "door" and fwd_cell.is_open:
+                    opened_door = True
 
         # Done action (not used by default)
         elif action == self.actions.done:
@@ -894,6 +897,7 @@ class MiniGridEnv(gym.Env):
 
         info["reached_goal"] = reached_goal
         info["ran_into_lava"] = ran_into_lava
+        info["opened_door"] = opened_door
         #if terminated:
         #    print(f"Terminated at: {self.agent_pos} {self.grid.get(*self.agent_pos)} {info}")
         if len(self.adversaries) > 0: info["collision"] = collision
