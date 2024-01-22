@@ -50,7 +50,7 @@ class AdversaryDoorPickup(RoomGrid, AdversaryEnv):
         if self.dense_reward and action == self.actions.toggle:
             fwd_pos = self.front_pos
             fwd_cell = self.grid.get(*fwd_pos)
-            if fwd_cell.type == "door":
+            if fwd_cell and fwd_cell.type == "door":
                 if fwd_cell.is_open:
                     reward += 0.1
                 if not fwd_cell.is_open:
