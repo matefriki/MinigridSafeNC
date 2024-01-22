@@ -254,6 +254,10 @@ def register_minigrid_envs():
         id = "MiniGrid-AdvDoorPickup-v0", entry_point="minigrid.envs:AdversaryDoorPickup",
         kwargs={}
     )
+    register(
+        id = "MiniGrid-AdvDoorPickup-Dense-v0", entry_point="minigrid.envs:AdversaryDoorPickup",
+        kwargs={"dense_reward": True}
+    )
 
     # AdversaryDebug
     # ----------------------------------------
