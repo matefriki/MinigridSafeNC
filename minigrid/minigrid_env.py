@@ -777,6 +777,7 @@ class MiniGridEnv(gym.Env):
         current_cell = self.grid.get(*self.agent_pos)
 
         opened_door = False
+        picked_up = False
         if action == self.actions.forward and is_slippery(current_cell):
             probabilities = current_cell.get_probabilities(self.agent_dir)
             possible_fwd_pos, prob = self.get_neighbours_prob(self.agent_pos, probabilities)
@@ -834,6 +835,7 @@ class MiniGridEnv(gym.Env):
                     self.carrying = fwd_cell
                     self.carrying.cur_pos = np.array([-1, -1])
                     self.grid.set(fwd_pos[0], fwd_pos[1], None)
+                    picked_up = True
 
         # Drop an object
         elif action == self.actions.drop:
@@ -898,6 +900,7 @@ class MiniGridEnv(gym.Env):
         info["reached_goal"] = reached_goal
         info["ran_into_lava"] = ran_into_lava
         info["opened_door"] = opened_door
+        info["picked_up"] = picked_up
         #if terminated:
         #    print(f"Terminated at: {self.agent_pos} {self.grid.get(*self.agent_pos)} {info}")
         if len(self.adversaries) > 0: info["collision"] = collision
