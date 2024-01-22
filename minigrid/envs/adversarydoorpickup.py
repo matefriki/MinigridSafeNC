@@ -46,6 +46,15 @@ class AdversaryDoorPickup(RoomGrid, AdversaryEnv):
             if self.carrying and self.carrying == self.object:
                 reward = self.success_reward
                 terminated = True
+
+        if self.dense_reward and action == self.actions.toggle:
+            fwd_pos = self.front_pos
+            fwd_cell = self.grid.get(*fwd_pos)
+            if fwd_cell.type == "door":
+                if fwd_cell.is_open:
+                    reward += 0.1
+                if not fwd_cell.is_open:
+                    reward -= 0.11
         if self.dense_reward and self.agent_pos[0] < 7:
             reward -= 0.001 * (self.width - self.agent_pos[0])
         return obs, reward, terminated, truncated, info
