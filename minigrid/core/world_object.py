@@ -111,6 +111,14 @@ class WorldObj:
             v = SlipperyWest(color)
         elif obj_type == "slipperynorth":
             v = SlipperyNorth(color)
+        elif obj_type == "slipperynortheast":
+            v = SlipperyNorthEast(color)
+        elif obj_type == "slipperynorthwest":
+            v = SlipperyNorthWest(color)
+        elif obj_type == "slipperysoutheast":
+            v = SlipperySouthEast(color)
+        elif obj_type == "slipperysouthwest":
+            v = SlipperySouthEast(color)
         else:
             assert False, "unknown object type in decode '%s'" % obj_type
 
@@ -129,7 +137,7 @@ class Slippery(WorldObj):
         return True
 
     def render(self, img):
-        c = (100, 100, 200)
+        c = COLORS[self.color]
         fill_coords(img, point_in_rect(0, 1, 0, 1), c)
         for i in range(6):
             ylo = 0.1  + 0.15 * i
@@ -172,7 +180,7 @@ class SlipperySouth(WorldObj):
         return True
 
     def render(self, img):
-        c = (100, 100, 200)
+        c = COLORS[self.color]
         fill_coords(img, point_in_rect(0, 1, 0, 1), c)
         for i in range(6):
             ylo = 0.1  + 0.15 * i
@@ -182,7 +190,179 @@ class SlipperySouth(WorldObj):
             fill_coords(img, point_in_line(0.5, ylo, 0.7, yhi, r=0.03), (0, 0, 0))
             fill_coords(img, point_in_line(0.7, yhi, 0.9, ylo, r=0.03), (0, 0, 0))
 
+class SlipperyNorthWest(WorldObj):
+    def __init__(self, color: str = "blue", probability_intended=6/9, probability_turn_intended=6/9):
+        super().__init__("slipperynorthwest", color)
 
+        # Field probabilties are stored in the order:
+        # 0: Left Above - 1: Left - 2: Left Below
+        # 3: Above - 4: Current - 5: Below
+        # 6: Right Above - 7: Right - 8: Right Below
+
+        self.probabilities_turn = [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+
+        pi = probability_intended
+        pd = 1 - probability_intended
+        self.probabilities_north = [pd, 0,  0, pi, 0, 0, 0, 0, 0]
+        self.probabilities_west  = [pd, pi, 0, 0,  0, 0, 0, 0, 0]
+        self.probabilities_south = [pd/3, pd/3, pd/3, 0, 0, pi, 0, 0, 0]
+        self.probabilities_east  = [pd/3, 0, 0, pd/3, 0, 0, pd/3, pi, 0]
+
+    def get_probabilities(self, agent_dir):
+        if agent_dir == 3:
+            return self.probabilities_north
+        elif agent_dir == 2:
+            return self.probabilities_west
+        elif agent_dir == 1:
+            return self.probabilities_south
+        elif agent_dir == 0:
+            return self.probabilities_east
+        else:
+            raise NotImplementedError("Agent directory not implemented")
+
+    def can_overlap(self):
+        return True
+
+    def render(self, img):
+        c = COLORS[self.color]
+        fill_coords(img, point_in_rect(0, 1, 0, 1), c)
+        for i in range(6):
+            ylo = 0.1  + 0.15 * i
+            yhi = 0.20 + 0.15 * i
+            fill_coords(img, rotate_fn(point_in_line(0.1, ylo, 0.3, yhi, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
+            fill_coords(img, rotate_fn(point_in_line(0.3, yhi, 0.5, ylo, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
+
+class SlipperyNorthEast(WorldObj):
+    def __init__(self, color: str = "blue", probability_intended=6/9, probability_turn_intended=6/9):
+        super().__init__("slipperynortheast", color)
+
+        # Field probabilties are stored in the order:
+        # 0: Left Above - 1: Left - 2: Left Below
+        # 3: Above - 4: Current - 5: Below
+        # 6: Right Above - 7: Right - 8: Right Below
+
+        self.probabilities_turn = [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+
+        pi = probability_intended
+        pd = 1 - probability_intended
+        self.probabilities_north = [0, 0, 0, pi, 0, 0, pd, 0, 0]
+        self.probabilities_east  = [0, 0, 0, 0, 0, 0, pd, pi, 0]
+        self.probabilities_west  = [pd/3, pi, 0, pd/3, 0, 0, pd/3, 0, 0]
+        self.probabilities_south = [0, 0, 0, 0, 0, pi, pd/3, pd/3, pd/3]
+
+    def get_probabilities(self, agent_dir):
+        if agent_dir == 3:
+            return self.probabilities_north
+        elif agent_dir == 2:
+            return self.probabilities_west
+        elif agent_dir == 1:
+            return self.probabilities_south
+        elif agent_dir == 0:
+            return self.probabilities_east
+        else:
+            raise NotImplementedError("Agent directory not implemented")
+
+    def can_overlap(self):
+        return True
+
+    def render(self, img):
+        c = COLORS[self.color]
+        fill_coords(img, point_in_rect(0, 1, 0, 1), c)
+
+        fill_coords(img, point_in_rect(0.1, 0.75, 0.2, 0.26), (0, 0, 0))
+        fill_coords(img, point_in_rect(0.69, 0.75, 0.2, 0.75), (0, 0, 0))
+
+        fill_coords(img, point_in_rect(0.1, 0.65, 0.3, 0.36), (0, 0, 0))
+        fill_coords(img, point_in_rect(0.59, 0.65, 0.3, 0.75), (0, 0, 0))
+
+        fill_coords(img, point_in_rect(0.1, 0.55, 0.4, 0.46), (0, 0, 0))
+        fill_coords(img, point_in_rect(0.49, 0.55, 0.4, 0.75), (0, 0, 0))
+
+class SlipperySouthWest(WorldObj):
+    def __init__(self, color: str = "blue", probability_intended=6/9, probability_turn_intended=6/9):
+        super().__init__("slipperysouthwest", color)
+
+        # Field probabilties are stored in the order:
+        # 0: Left Above - 1: Left - 2: Left Below
+        # 3: Above - 4: Current - 5: Below
+        # 6: Right Above - 7: Right - 8: Right Below
+
+        self.probabilities_turn = [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+
+        pi = probability_intended
+        pd = 1 - probability_intended
+        self.probabilities_south = [0, 0, pd, 0, 0, pi, 0, 0, 0]
+        self.probabilities_west  = [0, pi, pd, 0, 0, 0, 0, 0, 0]
+        self.probabilities_east  = [0, 0, pd/3, 0, 0, pd/3, 0, pi, pd/3]
+        self.probabilities_north = [pd/3, pd/3, pd/3, pi, 0, 0, 0, 0, 0]
+
+    def get_probabilities(self, agent_dir):
+        if agent_dir == 3:
+            return self.probabilities_north
+        elif agent_dir == 2:
+            return self.probabilities_west
+        elif agent_dir == 1:
+            return self.probabilities_south
+        elif agent_dir == 0:
+            return self.probabilities_east
+        else:
+            raise NotImplementedError("Agent directory not implemented")
+
+    def can_overlap(self):
+        return True
+
+    def render(self, img):
+        c = COLORS[self.color]
+        fill_coords(img, point_in_rect(0, 1, 0, 1), c)
+        for i in range(6):
+            ylo = 0.1  + 0.15 * i
+            yhi = 0.20 + 0.15 * i
+            fill_coords(img, rotate_fn(point_in_line(0.1, ylo, 0.3, yhi, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
+            fill_coords(img, rotate_fn(point_in_line(0.3, yhi, 0.5, ylo, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
+
+class SlipperySouthEast(WorldObj):
+    def __init__(self, color: str = "blue", probability_intended=6/9, probability_turn_intended=6/9):
+        super().__init__("slipperysoutwest", color)
+
+        # Field probabilties are stored in the order:
+        # 0: Left Above - 1: Left - 2: Left Below
+        # 3: Above - 4: Current - 5: Below
+        # 6: Right Above - 7: Right - 8: Right Below
+
+        self.probabilities_turn = [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+
+        pi = probability_intended
+        pd = 1 - probability_intended
+        self.probabilities_south = [0, 0, 0, 0, 0, pi, 0, 0, pd]
+        self.probabilities_east  = [0, 0, 0, 0, 0, 0, 0, pi, pd]
+        self.probabilities_north = [0, 0, 0, pi, 0, 0, pd/3, pd/3, pd/3]
+        self.probabilities_west  = [0, pi, pd/3, 0, 0, pd/3, 0, 0, pd/3]
+
+    def get_probabilities(self, agent_dir):
+        if agent_dir == 3:
+            return self.probabilities_north
+        elif agent_dir == 2:
+            return self.probabilities_west
+        elif agent_dir == 1:
+            return self.probabilities_south
+        elif agent_dir == 0:
+            return self.probabilities_east
+        else:
+            raise NotImplementedError("Agent directory not implemented")
+
+    def can_overlap(self):
+        return True
+
+    def render(self, img):
+        c = COLORS[self.color]
+        fill_coords(img, point_in_rect(0, 1, 0, 1), c)
+        for i in range(6):
+            ylo = 0.1  + 0.15 * i
+            yhi = 0.20 + 0.15 * i
+            fill_coords(img, rotate_fn(point_in_line(0.1, ylo, 0.3, yhi, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
+            fill_coords(img, rotate_fn(point_in_line(0.3, yhi, 0.5, ylo, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
+            fill_coords(img, rotate_fn(point_in_line(0.5, ylo, 0.7, yhi, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
+            fill_coords(img, rotate_fn(point_in_line(0.7, yhi, 0.9, ylo, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
 
 class SlipperyNorth(WorldObj):
     def __init__(self, color: str = "blue", probability_intended=6/9, probability_turn_intended=6/9):
@@ -218,7 +398,7 @@ class SlipperyNorth(WorldObj):
         return True
 
     def render(self, img):
-        c = (100, 100, 200)
+        c = COLORS[self.color]
         fill_coords(img, point_in_rect(0, 1, 0, 1), c)
         for i in range(6):
             ylo = 0.1  + 0.15 * i
@@ -263,7 +443,7 @@ class SlipperyWest(WorldObj):
 
 
     def render(self, img):
-        c = (100, 100, 200)
+        c = COLORS[self.color]
         fill_coords(img, point_in_rect(0, 1, 0, 1), c)
         for i in range(6):
             ylo = 0.1  + 0.15 * i
@@ -309,7 +489,7 @@ class SlipperyEast(WorldObj):
         return True
 
     def render(self, img):
-        c = (100, 100, 200)
+        c = COLORS[self.color]
         fill_coords(img, point_in_rect(0, 1, 0, 1), c)
         for i in range(6):
             ylo = 0.1  + 0.15 * i

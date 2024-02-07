@@ -15,10 +15,10 @@ from gymnasium import spaces
 from gymnasium.core import ActType, ObsType
 
 from minigrid.core.actions import Actions
-from minigrid.core.constants import COLOR_NAMES, DIR_TO_VEC, TILE_PIXELS
+from minigrid.core.constants import COLOR_NAMES, DIR_TO_VEC, TILE_PIXELS, OBJECT_TO_STR
 from minigrid.core.grid import Grid
 from minigrid.core.mission import MissionSpace
-from minigrid.core.world_object import Point, WorldObj, Slippery, SlipperyEast, SlipperyNorth, SlipperySouth, SlipperyWest, Lava
+from minigrid.core.world_object import Point, WorldObj, Slippery, SlipperyEast, SlipperyNorth, SlipperySouth, SlipperyWest, Lava, SlipperyNorthWest, SlipperyNorthEast, SlipperySouthWest, SlipperySouthEast
 from minigrid.core.adversary import Adversary
 from minigrid.core.tasks import DoRandom, Task, List
 from minigrid.core.state import State
@@ -30,7 +30,7 @@ T = TypeVar("T")
 stay_at_pos_distribution = [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0]
 
 def is_slippery(cell : WorldObj):
-    return isinstance(cell, (SlipperySouth, Slippery, SlipperyEast, SlipperyWest, SlipperyNorth))
+    return isinstance(cell, (SlipperySouth, Slippery, SlipperyEast, SlipperyWest, SlipperyNorth, SlipperyNorthWest, SlipperySouthEast, SlipperyNorthEast, SlipperySouthWest))
 
 class MiniGridEnv(gym.Env):
     """
@@ -227,21 +227,6 @@ class MiniGridEnv(gym.Env):
             )
 
         # Map of object types to short string
-        OBJECT_TO_STR = {
-            "wall": "W",
-            "floor": "F",
-            "door": "D",
-            "key": "K",
-            "ball": "A",
-            "box": "B",
-            "goal": "G",
-            "lava": "V",
-            "slippery": "S",
-            "slipperyeast": "e",
-            "slipperysouth": "s",
-            "slipperywest": "w",
-            "slipperynorth": "n" ,
-        }
 
         # Map agent's direction to short string
         AGENT_DIR_TO_STR = {0: ">", 1: "V", 2: "<", 3: "^"}
@@ -287,22 +272,6 @@ class MiniGridEnv(gym.Env):
         #print("Dimensions: {} x {}".format(self.grid.height, self.grid.width))
         #self._gen_grid(self.grid.width, self.grid.height)
         # Map of object types to short string
-        OBJECT_TO_STR = {
-            "wall": "W",
-            "floor": "F",
-            "door": "D",
-            "key": "K",
-            "ball": "A",
-            "box": "B",
-            "goal": "G",
-            "lava": "V",
-            "adversary": "Z",
-            "slippery": "S",
-            "slipperyeast": "e",
-            "slipperysouth": "s",
-            "slipperywest": "w",
-            "slipperynorth": "n" ,
-        }
 
         # Map agent's direction to short string
         AGENT_DIR_TO_STR = {0: ">", 1: "V", 2: "<", 3: "^"}
