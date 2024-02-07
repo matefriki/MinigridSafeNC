@@ -120,7 +120,7 @@ class WindyCityEnv(MiniGridEnv):
         obs, reward, terminated, truncated, info = super().step(action)
         return obs, reward - self.per_step_penalty, terminated, truncated, info
 
-    def _place_building(self, col, row, width, height, obj_type=Wall):
+    def _place_building(self, col, row, width, height, obj_type=Lava):
         for i in range(col, width + col):
             self.grid.vert_wall(i, row, height, obj_type=obj_type)
 
@@ -150,7 +150,7 @@ class WindyCityEnv(MiniGridEnv):
 
         self._place_building(15, 7, 6, 4)
         self.grid.vert_wall(14, 7, 4, obj_type=SlipperyNorth("white"))
-        self.grid.vert_wall(14, 9, 2, obj_type=Wall)
+        self.grid.vert_wall(14, 9, 2, obj_type=Lava)
         self.grid.vert_wall(20, 7, 4, obj_type=SlipperyNorth("white"))
         self.grid.vert_wall(13, 9, 2, obj_type=SlipperyNorth("white"))
         self.grid.horz_wall(15, 6, 5, obj_type=SlipperyEast("white"))
