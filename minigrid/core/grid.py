@@ -119,7 +119,7 @@ class Grid:
             try:
                 self.set(x, y + j, obj_type())
             except TypeError:
-                self.set(x, y + j, obj_type())
+                self.set(x, y + j, obj_type)
 
 
     def wall_rect(self, x: int, y: int, w: int, h: int):
