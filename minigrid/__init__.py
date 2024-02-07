@@ -195,6 +195,15 @@ def register_minigrid_envs():
         entry_point="minigrid.envs:LavaFaultyEnv",
         kwargs={"size": 8, "fault_probability": 0.3},
     )
+    # WindyCity
+    # ----------------------------------------
+
+    register(
+        id="MiniGrid-WindyCity-v0",
+        entry_point="minigrid.envs:WindyCityEnv",
+        kwargs={},
+    )
+
     # DoubleDoors
     # ----------------------------------------
 

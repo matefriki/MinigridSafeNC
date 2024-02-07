@@ -13,6 +13,7 @@ from minigrid.envs.gotoobject import GoToObjectEnv
 from minigrid.envs.keycorridor import KeyCorridorEnv
 from minigrid.envs.lavagap import LavaGapEnv
 from minigrid.envs.lavafaulty import LavaFaultyEnv
+from minigrid.envs.windycity import WindyCityEnv
 from minigrid.envs.lavaslippery import LavaSlipperyEnv1, LavaSlipperyCliff, LavaSlipperyHill, LavaSlipperyMaze
 from minigrid.envs.adversary_debug import AdversaryDebug
 from minigrid.envs.adversary_simple import AdversarySimple
