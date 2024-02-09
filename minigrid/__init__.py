@@ -55,6 +55,266 @@ def register_minigrid_envs():
         kwargs={"size": 11, "num_crossings": 5},
     )
 
+    # LavaSlippery
+    # ----------------------------------------
+
+    register(
+        id="MiniGrid-LavaSlipperyS12-v0",
+        entry_point="minigrid.envs:LavaSlipperyEnv1",
+        kwargs={"size": 12},
+    )
+
+    register(
+        id="MiniGrid-LavaSlipperyCliff-16x13-v0",
+        entry_point="minigrid.envs:LavaSlipperyCliff",
+        kwargs={"height": 13, "width": 16},
+    )
+
+    register(
+        id="MiniGrid-LavaSlipperyCliff-16x13-Slip50-v0",
+        entry_point="minigrid.envs:LavaSlipperyCliff",
+        kwargs={"height": 13, "width": 16, "probability_intended": 0.5, "probability_turn_intended": 0.5},
+    )
+
+    register(
+        id="MiniGrid-LavaSlipperyCliff-16x13-Slip50-Time-v0",
+        entry_point="minigrid.envs:LavaSlipperyCliff",
+        kwargs={"height": 13, "width": 16, "probability_intended": 0.5, "probability_turn_intended": 0.5, "per_step_penalty": 0.01},
+    )
+
+    register(
+        id="MiniGrid-LavaSlipperyCliff-16x13-Slip80-Time-v0",
+        entry_point="minigrid.envs:LavaSlipperyCliff",
+        kwargs={"height": 13, "width": 16, "probability_intended": 0.2, "probability_turn_intended": 0.2, "per_step_penalty": 0.01},
+    )
+
+    register(
+        id="MiniGrid-LavaSlipperyCliff-16x13-Slip10-Time-v0",
+        entry_point="minigrid.envs:LavaSlipperyCliff",
+        kwargs={"height": 13, "width": 16, "probability_intended": 0.9, "probability_turn_intended": 0.9, "per_step_penalty": 0.01},
+    )
+
+    register(
+        id="MiniGrid-LavaSlipperyCliff-16x13-Dense-v0",
+        entry_point="minigrid.envs:LavaSlipperyCliff",
+        kwargs={"height": 13, "width": 16, "dense_rewards": True},
+    )
+
+    register(
+        id="MiniGrid-LavaSlipperyCliff-16x13-Dense-Slip50-v0",
+        entry_point="minigrid.envs:LavaSlipperyCliff",
+        kwargs={"height": 13, "width": 16, "dense_rewards": True, "probability_intended": 0.5, "probability_turn_intended": 0.5},
+    )
+
+    register(
+        id="MiniGrid-LavaSlipperyHill-16x13-Slip10-v0",
+        entry_point="minigrid.envs:LavaSlipperyHill",
+        kwargs={"height": 13, "width": 16, "probability_intended": 0.9, "probability_turn_intended": 0.9},
+    )
+
+    register(
+        id="MiniGrid-LavaSlipperyHill-16x13-Slip50-v0",
+        entry_point="minigrid.envs:LavaSlipperyHill",
+        kwargs={"height": 13, "width": 16, "probability_intended": 0.5, "probability_turn_intended": 0.5},
+    )
+
+    register(
+        id="MiniGrid-LavaSlipperyHill-16x13-Slip50-Time-v0",
+        entry_point="minigrid.envs:LavaSlipperyHill",
+        kwargs={"height": 13, "width": 16, "probability_intended": 0.5, "probability_turn_intended": 0.5, "per_step_penalty": 0.01},
+    )
+
+    register(
+        id="MiniGrid-LavaSlipperyHill-16x13-Slip80-Time-v0",
+        entry_point="minigrid.envs:LavaSlipperyHill",
+        kwargs={"height": 13, "width": 16, "probability_intended": 0.2, "probability_turn_intended": 0.2, "per_step_penalty": 0.01},
+    )
+
+    register(
+        id="MiniGrid-LavaSlipperyHill-16x13-Slip10-Time-v0",
+        entry_point="minigrid.envs:LavaSlipperyHill",
+        kwargs={"height": 13, "width": 16, "probability_intended": 0.9, "probability_turn_intended": 0.9, "per_step_penalty": 0.01},
+    )
+    register(
+        id="MiniGrid-LavaSlipperyMazeS20-v0",
+        entry_point="minigrid.envs:LavaSlipperyMaze",
+        kwargs={"width": 20, "height": 20},
+    )
+    register(
+        id="MiniGrid-LavaSlipperyMazeS20-Slip90-v0",
+        entry_point="minigrid.envs:LavaSlipperyMaze",
+        kwargs={"width": 20, "height": 20, "probability_intended": 0.1, "probability_turn_intended": 0.1},
+    )
+
+    register(
+        id="MiniGrid-LavaSlipperyMazeS20-Slip90-Dense-v0",
+        entry_point="minigrid.envs:LavaSlipperyMaze",
+        kwargs={"width": 20, "height": 20, "probability_intended": 0.1, "probability_turn_intended": 0.1, "dense_rewards": True},
+    )
+
+
+    # LavaFaulty
+    register(
+        id="MiniGrid-LavaFaultyS15-5-v0",
+        entry_point="minigrid.envs:LavaFaultyEnv",
+        kwargs={"size": 15, "fault_probability": 0.05},
+    )
+
+    register(
+        id="MiniGrid-LavaFaultyS15-1-v0",
+        entry_point="minigrid.envs:LavaFaultyEnv",
+        kwargs={"size": 15, "fault_probability": 0.01},
+    )
+
+    register(
+        id="MiniGrid-LavaFaultyS15-5-Time-v0",
+        entry_point="minigrid.envs:LavaFaultyEnv",
+        kwargs={"size": 15, "fault_probability": 0.05, "per_step_penalty": 0.01},
+    )
+
+    register(
+        id="MiniGrid-LavaFaultyS15-1-Time-v0",
+        entry_point="minigrid.envs:LavaFaultyEnv",
+        kwargs={"size": 15, "fault_probability": 0.01, "per_step_penalty": 0.01},
+    )
+
+    register(
+        id="MiniGrid-LavaFaultyS10-5-v0",
+        entry_point="minigrid.envs:LavaFaultyEnv",
+        kwargs={"size": 10, "fault_probability": 0.05},
+    )
+
+    register(
+        id="MiniGrid-LavaFaultyS8-1-v0",
+        entry_point="minigrid.envs:LavaFaultyEnv",
+        kwargs={"size": 8, "fault_probability": 0.01},
+    )
+
+    register(
+        id="MiniGrid-LavaFaultyS8-30-v0",
+        entry_point="minigrid.envs:LavaFaultyEnv",
+        kwargs={"size": 8, "fault_probability": 0.3},
+    )
+    # WindyCity
+    # ----------------------------------------
+
+    register(
+        id="MiniGrid-WindyCity-v0",
+        entry_point="minigrid.envs:WindyCityEnv",
+        kwargs={},
+    )
+
+    # DoubleDoors
+    # ----------------------------------------
+
+    register(
+        id = "MiniGrid-DoubleDoor-12x12-v0",
+        entry_point="minigrid.envs:DoubleDoorEnv",
+        kwargs={"width": 12, "height": 12}
+    )
+    register(
+        id = "MiniGrid-DoubleDoor-16x16-v0",
+        entry_point="minigrid.envs:DoubleDoorEnv",
+        kwargs={"width": 16, "height": 16}
+    )
+
+    register(
+        id = "MiniGrid-DoubleDoor-10x8-v0",
+        entry_point="minigrid.envs:DoubleDoorEnv",
+        kwargs={"width": 10, "height": 8}
+    )
+
+    # SingleDoors
+    # ----------------------------------------
+    register(
+        id = "MiniGrid-SingleDoor-7x6-v0",
+        entry_point="minigrid.envs:SingleDoorEnv",
+        kwargs={"width": 7, "height": 6}
+    )
+
+    # AdversarySimple
+    # ----------------------------------------
+    register(
+        id = "MiniGrid-Adv-8x8-v0", entry_point="minigrid.envs:AdversarySimple",
+        kwargs={"width": 8, "height": 8}
+    )
+
+    register(
+        id = "MiniGrid-Adv-10x10-v0", entry_point="minigrid.envs:AdversarySimple",
+        kwargs={"width": 10, "height": 10}
+    )
+
+    register(
+        id = "MiniGrid-Adv-15x15-v0", entry_point="minigrid.envs:AdversarySimple",
+        kwargs={"width": 15, "height": 15}
+    )
+
+
+    # OscillatingAdversaries
+    # ----------------------------------------
+    register(
+        id = "MiniGrid-OscAdv-8x8-v0", entry_point="minigrid.envs:OscillatingAdversaries",
+        kwargs={"width": 8, "height": 8}
+    )
+
+    # AdversaryDoorPickup
+    # ----------------------------------------
+    register(
+        id = "MiniGrid-AdvDoorPickup-v0", entry_point="minigrid.envs:AdversaryDoorPickup",
+        kwargs={}
+    )
+    register(
+        id = "MiniGrid-AdvDoorPickup-Dense-v0", entry_point="minigrid.envs:AdversaryDoorPickup",
+        kwargs={"dense_reward": True}
+    )
+
+    # AdversaryDebug
+    # ----------------------------------------
+    register(
+        id = "MiniGrid-AdvDebug-4x4-v0",
+        entry_point="minigrid.envs:AdversaryDebug",
+        kwargs={"width": 4, "height": 4}
+    )
+
+    register(
+        id = "MiniGrid-AdvDebug-5x5-v0",
+        entry_point="minigrid.envs:AdversaryDebug",
+        kwargs={"width": 5, "height": 5}
+    )
+
+    register(
+        id = "MiniGrid-AdvDebug-8x8-v0",
+        entry_point="minigrid.envs:AdversaryDebug",
+        kwargs={"width": 8, "height": 8}
+    )
+
+    register(
+        id = "MiniGrid-AdvDebugNoWalls-8x8-v0",
+        entry_point="minigrid.envs:AdversaryDebug",
+        kwargs={"width": 8, "height": 8, "generate_wall": False}
+    )
+
+    register(
+        id = "MiniGrid-AdvDebugLava-8x8-v0",
+        entry_point="minigrid.envs:AdversaryDebug",
+        kwargs={"width": 8,
+                "height": 8,
+                "generate_wall": False,
+                "generate_lava": True}
+    )
+
+    register(
+        id = "MiniGrid-AdvDebugSlippery-8x8-v0",
+        entry_point="minigrid.envs:AdversaryDebug",
+        kwargs={"width": 8,
+                "height": 8,
+                "generate_wall": False,
+                "generate_lava": False,
+                "generate_slippery": True}
+    )
+
+
+
     # SimpleCrossing
     # ----------------------------------------
 

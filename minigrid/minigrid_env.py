@@ -5,6 +5,8 @@ import math
 from abc import abstractmethod
 from typing import Any, Iterable, SupportsFloat, TypeVar
 
+import numpy
+
 import gymnasium as gym
 import numpy as np
 import pygame
@@ -13,13 +15,22 @@ from gymnasium import spaces
 from gymnasium.core import ActType, ObsType
 
 from minigrid.core.actions import Actions
-from minigrid.core.constants import COLOR_NAMES, DIR_TO_VEC, TILE_PIXELS
+from minigrid.core.constants import COLOR_NAMES, DIR_TO_VEC, TILE_PIXELS, OBJECT_TO_STR
 from minigrid.core.grid import Grid
 from minigrid.core.mission import MissionSpace
-from minigrid.core.world_object import Point, WorldObj
+from minigrid.core.world_object import Point, WorldObj, Slippery, SlipperyEast, SlipperyNorth, SlipperySouth, SlipperyWest, Lava, SlipperyNorthWest, SlipperyNorthEast, SlipperySouthWest, SlipperySouthEast
+from minigrid.core.adversary import Adversary
+from minigrid.core.tasks import DoRandom, Task, List
+from minigrid.core.state import State
+
+from collections import deque
 
 T = TypeVar("T")
 
+stay_at_pos_distribution = [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+
+def is_slippery(cell : WorldObj):
+    return isinstance(cell, (SlipperySouth, Slippery, SlipperyEast, SlipperyWest, SlipperyNorth, SlipperyNorthWest, SlipperySouthEast, SlipperyNorthEast, SlipperySouthWest))
 
 class MiniGridEnv(gym.Env):
     """
@@ -42,13 +53,13 @@ class MiniGridEnv(gym.Env):
         agent_view_size: int = 7,
         render_mode: str | None = None,
         screen_size: int | None = 640,
-        highlight: bool = True,
+        highlight: bool = False,
         tile_size: int = TILE_PIXELS,
         agent_pov: bool = False,
+        **kwargs
     ):
         # Initialize mission
         self.mission = mission_space.sample()
-
         # Can't set both grid_size and width/height
         if grid_size:
             assert width is None and height is None
@@ -109,12 +120,20 @@ class MiniGridEnv(gym.Env):
         # Current grid and mission and carrying
         self.grid = Grid(width, height)
         self.carrying = None
+        self.objects = list()
+        self.doors = list()
+
+        # dict of adversaries
+        self.adversaries = dict()
 
         # Rendering attributes
         self.render_mode = render_mode
         self.highlight = highlight
         self.tile_size = tile_size
         self.agent_pov = agent_pov
+
+        # Custom
+        self.background_tiles = dict()
 
     def reset(
         self,
@@ -127,8 +146,11 @@ class MiniGridEnv(gym.Env):
         # Reinitialize episode-specific variables
         self.agent_pos = (-1, -1)
         self.agent_dir = -1
-
+        self.goal_pos  = (-1, -1)
         # Generate a new random grid at the start of each episode
+
+        self.objects.clear()
+        self.doors.clear()
         self._gen_grid(self.width, self.height)
 
         # These fields should be defined by _gen_grid
@@ -137,6 +159,7 @@ class MiniGridEnv(gym.Env):
             if isinstance(self.agent_pos, tuple)
             else all(self.agent_pos >= 0) and self.agent_dir >= 0
         )
+
 
         # Check that the agent doesn't overlap with an object
         start_cell = self.grid.get(*self.agent_pos)
@@ -156,6 +179,7 @@ class MiniGridEnv(gym.Env):
 
         return obs, {}
 
+
     def hash(self, size=16):
         """Compute a hash that uniquely identifies the current state of the environment.
         :param size: Size of the hashing
@@ -163,10 +187,29 @@ class MiniGridEnv(gym.Env):
         sample_hash = hashlib.sha256()
 
         to_encode = [self.grid.encode().tolist(), self.agent_pos, self.agent_dir]
+        to_encode += [(adv.adversary_pos, adv.adversary_dir, adv.color) for adv in self.adversaries]
         for item in to_encode:
             sample_hash.update(str(item).encode("utf8"))
 
         return sample_hash.hexdigest()[:size]
+
+    def add_adversary(
+       self,
+       i: int,
+       j: int,
+       color: str,
+       direction: int = 0,
+       tasks: List[Task] = [DoRandom()],
+       repeating=False
+    ):
+       """
+       Adds an adversary to the grid
+       """
+
+       adv = Adversary((i,j), direction, color, tasks=tasks, repeating=repeating)
+       self.adversaries[color] = adv
+       return adv
+
 
     @property
     def steps_remaining(self):
@@ -184,16 +227,6 @@ class MiniGridEnv(gym.Env):
             )
 
         # Map of object types to short string
-        OBJECT_TO_STR = {
-            "wall": "W",
-            "floor": "F",
-            "door": "D",
-            "key": "K",
-            "ball": "A",
-            "box": "B",
-            "goal": "G",
-            "lava": "V",
-        }
 
         # Map agent's direction to short string
         AGENT_DIR_TO_STR = {0: ">", 1: "V", 2: "<", 3: "^"}
@@ -227,6 +260,98 @@ class MiniGridEnv(gym.Env):
                 output += "\n"
 
         return output
+
+    def printGrid(self, init=False):
+        """
+        Produce a pretty string of the environment's grid along with the agent.
+        A grid cell is represented by 2-character string, the first one for
+        the object and the second one for the color.
+        """
+        if init:
+            self._gen_grid(self.grid.width, self.grid.height) # todo need to add this for minigrid2prism
+        #print("Dimensions: {} x {}".format(self.grid.height, self.grid.width))
+        #self._gen_grid(self.grid.width, self.grid.height)
+        # Map of object types to short string
+
+        # Map agent's direction to short string
+        AGENT_DIR_TO_STR = {0: ">", 1: "V", 2: "<", 3: "^"}
+
+        str = ""
+        background_str = ""
+        adversaries = {adv.adversary_pos: adv for adv in self.adversaries.values()} if self.adversaries else {}
+        bfs_rewards = []
+
+        for j in range(self.grid.height):
+            for i in range(self.grid.width):
+                b = self.grid.get_background(i, j)
+                c = self.grid.get(i, j)
+
+                if (i,j) in adversaries.keys():
+                    a = adversaries[(i,j)]
+                    str += OBJECT_TO_STR["adversary"] + a.color[0].upper()
+                    if init:
+                        background_str += "  "
+                    continue
+
+                if init:
+                    if c and c.type == "wall":
+                        background_str += OBJECT_TO_STR[c.type] + c.color[0].upper()
+                    elif c and c.type in ["slipperynorth", "slipperyeast", "slipperysouth", "slipperywest", "slipperynorthwest", "slipperynortheast", "slipperysoutheast", "slipperysouthwest"]:
+                         background_str += OBJECT_TO_STR[c.type] + c.color[0].upper()
+                    elif b is None:
+                        background_str += "  "
+                    else:
+                        if b.type != "floor":
+                            type_str = OBJECT_TO_STR[b.type]
+                        else:
+                            type_str = " "
+
+                        background_str += type_str + b.color.replace("light","")[0].upper()
+
+                    if hasattr(self, "bfs_reward") and self.bfs_reward:
+                         bfs_rewards.append(f"{i};{j};{self.bfs_reward[i + self.grid.width * j]}")
+
+                if self.agent_pos is not None and i == self.agent_pos[0] and j == self.agent_pos[1]:
+
+                    if init:
+                        str += "XR"
+                    else:
+                        str += 2 * AGENT_DIR_TO_STR[self.agent_dir]
+                    continue
+
+
+                if c is None:
+                    str += "  "
+                    continue
+
+                if c.type == "door":
+                    if c.is_open:
+                        str += "__"
+                    elif c.is_locked:
+                        str += "L" + c.color[0].upper()
+                    else:
+                        str += "D" + c.color[0].upper()
+                    continue
+
+
+                str += OBJECT_TO_STR[c.type] + c.color[0].upper()
+
+            if j < self.grid.height - 1:
+                str += "\n"
+                if init:
+                    background_str += "\n"
+
+
+        seperator = "-" * self.grid.width * 2
+
+        if init and hasattr(self, "bfs_reward") and self.bfs_reward:
+            return str + "\n" + seperator + "\n" + background_str + "\n" + seperator + "\n" + ";".join(bfs_rewards) + "\n" + seperator + "\n"
+        else:
+            return str + "\n" + seperator + "\n" + background_str + "\n" + seperator + "\n" + seperator + "\n"
+
+    def export_grid(self, filename="grid.txt"):
+        with open(filename, "w") as gridFile:
+            gridFile.write(self.printGrid(init=True))
 
     @abstractmethod
     def _gen_grid(self, width, height):
@@ -374,6 +499,12 @@ class MiniGridEnv(gym.Env):
         self.grid.set(i, j, obj)
         obj.init_pos = (i, j)
         obj.cur_pos = (i, j)
+        if obj.can_pickup():
+            self.objects.append(obj)
+            self.objects = sorted(self.objects, key=lambda object: object.color)
+        if obj.type == "door":
+            self.doors.append(obj)
+            self.doors = sorted(self.doors, key=lambda object: object.color)
 
     def place_agent(self, top=None, size=None, rand_dir=True, max_tries=math.inf):
         """
@@ -388,6 +519,29 @@ class MiniGridEnv(gym.Env):
             self.agent_dir = self._rand_int(0, 4)
 
         return pos
+
+    def disable_random_start(self):
+        pass
+
+    def add_slippery_tile(self, i: int, j: int, type: str):
+            """
+            Adds a slippery tile to the grid
+            """
+
+            if type=="slipperynorth":
+                slippery_tile = SlipperyNorth()
+            elif type=="slipperysouth":
+                slippery_tile = SlipperySouth()
+            elif type=="slipperyeast":
+                slippery_tile = SlipperyEast()
+            elif type=="slipperywest":
+                slippery_tile = SlipperyWest()
+            else:
+                slippery_tile = SlipperyNorth()
+
+            self.grid.set(i, j, slippery_tile)
+            return (i, j)
+
 
     @property
     def dir_vec(self):
@@ -490,6 +644,57 @@ class MiniGridEnv(gym.Env):
 
         return vx, vy
 
+    def get_neighbours(self, i, j):
+        neighbours = list()
+        potential_neighbours = [(i-1,j), (i,j+1), (i+1,j), (i,j-1)]
+        for n in potential_neighbours:
+            cell = self.grid.get(*n)
+            if cell is None or (cell.can_overlap()): #and not isinstance(cell, Lava)):
+                neighbours.append(n)
+
+        return neighbours
+
+    def run_BFS_reward(grid):
+        if not hasattr(grid, "goal_pos") or np.all(grid.goal_pos == (-1, -1)):
+             return []
+
+        starting_position = (grid.goal_pos[0], grid.goal_pos[1])
+        max_distance = 0
+        distances = [None] * grid.width * grid.height
+        bfs_queue = deque([starting_position])
+        traversed_cells = set()
+
+        distances[starting_position[0] + grid.width * starting_position[1]] = 0
+        while bfs_queue:
+            current_cell = bfs_queue.pop()
+            if current_cell in traversed_cells: continue
+            traversed_cells.add(current_cell)
+            current_distance = distances[current_cell[0] + grid.width * current_cell[1]]
+            if current_distance > max_distance:
+                max_distance = current_distance
+            for neighbour in grid.get_neighbours(*current_cell):
+                if neighbour in traversed_cells:
+                    continue
+                bfs_queue.appendleft(neighbour)
+                if distances[neighbour[0] + grid.width * neighbour[1]] is None:
+                    distances[neighbour[0] + grid.width * neighbour[1]] = current_distance + 1
+
+        distances = [x if x else 0 for x in distances]
+        # return [ (-x/1) for x in distances]
+        return [ (1/4)* (-x/max_distance) if x != 0 else 0 for x in distances]
+
+    def print_bfs_reward(self):
+        rep = ""
+        for j in range(self.grid.height):
+            for i in range(self.grid.width):
+                rep += F"{self.bfs_reward[j * self.grid.height + i]:5.2f} "
+
+
+            rep += '\n'
+
+        print(rep)
+
+
     def in_view(self, x, y):
         """
         check if a grid position is visible to the agent
@@ -521,36 +726,70 @@ class MiniGridEnv(gym.Env):
         self, action: ActType
     ) -> tuple[ObsType, SupportsFloat, bool, bool, dict[str, Any]]:
         self.step_count += 1
-
         reward = 0
         terminated = False
         truncated = False
+        info = dict()
+        need_position_update = False
 
         # Get the position in front of the agent
         fwd_pos = self.front_pos
 
         # Get the contents of the cell in front of the agent
         fwd_cell = self.grid.get(*fwd_pos)
+        current_cell = self.grid.get(*self.agent_pos)
 
+        opened_door = False
+        picked_up = False
+        if action == self.actions.forward and is_slippery(current_cell):
+            probabilities = current_cell.get_probabilities(self.agent_dir)
+            possible_fwd_pos, prob = self.get_neighbours_prob(self.agent_pos, probabilities)
+            fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
+            fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
+            fwd_cell = self.grid.get(*fwd_pos)
+            need_position_update = True
         # Rotate left
-        if action == self.actions.left:
-            self.agent_dir -= 1
-            if self.agent_dir < 0:
-                self.agent_dir += 4
+        elif action == self.actions.left:
+            if is_slippery(current_cell):
+                possible_fwd_pos, prob = self.get_neighbours_prob(self.agent_pos, current_cell.probabilities_turn)
+                fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
+                fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
+                fwd_cell = self.grid.get(*fwd_pos)
+
+                if fwd_pos == (self.agent_pos[0], self.agent_pos[1]):
+                    self.agent_dir -= 1
+                    if self.agent_dir < 0:
+                        self.agent_dir += 4
+                else:
+                    need_position_update = True
+            else:
+                self.agent_dir -= 1
+                if self.agent_dir < 0:
+                    self.agent_dir += 4
 
         # Rotate right
         elif action == self.actions.right:
-            self.agent_dir = (self.agent_dir + 1) % 4
+            if is_slippery(current_cell):
+                possible_fwd_pos, prob = self.get_neighbours_prob(self.agent_pos, current_cell.probabilities_turn)
+                fwd_pos_index = np.random.choice(len(possible_fwd_pos), 1, p=prob)
+                fwd_pos = possible_fwd_pos[fwd_pos_index[0]]
+                fwd_cell = self.grid.get(*fwd_pos)
+
+                if fwd_pos == (self.agent_pos[0], self.agent_pos[1]):
+                    self.agent_dir = (self.agent_dir + 1) % 4
+                else:
+                    need_position_update = True
+            else:
+                self.agent_dir = (self.agent_dir + 1) % 4
+
 
         # Move forward
         elif action == self.actions.forward:
             if fwd_cell is None or fwd_cell.can_overlap():
                 self.agent_pos = tuple(fwd_pos)
-            if fwd_cell is not None and fwd_cell.type == "goal":
-                terminated = True
-                reward = self._reward()
-            if fwd_cell is not None and fwd_cell.type == "lava":
-                terminated = True
+                fwd_cell = self.grid.get(*fwd_pos)
+                need_position_update = True
+
 
         # Pick up an object
         elif action == self.actions.pickup:
@@ -559,6 +798,7 @@ class MiniGridEnv(gym.Env):
                     self.carrying = fwd_cell
                     self.carrying.cur_pos = np.array([-1, -1])
                     self.grid.set(fwd_pos[0], fwd_pos[1], None)
+                    picked_up = True
 
         # Drop an object
         elif action == self.actions.drop:
@@ -571,6 +811,8 @@ class MiniGridEnv(gym.Env):
         elif action == self.actions.toggle:
             if fwd_cell:
                 fwd_cell.toggle(self, fwd_pos)
+                if fwd_cell.type == "door" and fwd_cell.is_open:
+                    opened_door = True
 
         # Done action (not used by default)
         elif action == self.actions.done:
@@ -579,15 +821,67 @@ class MiniGridEnv(gym.Env):
         else:
             raise ValueError(f"Unknown action: {action}")
 
+        if need_position_update and (fwd_cell is None or fwd_cell.can_overlap()):
+            self.agent_pos = tuple(fwd_pos)
+
+        current_cell = self.grid.get(*self.agent_pos)
+
+        collision = False
+        if self.adversaries:
+            for adversary in self.adversaries.values():
+                if np.array_equal(self.agent_pos, adversary.adversary_pos):
+                    collision = True
+
+
+        reached_goal = False
+        ran_into_lava = False
+        if current_cell is not None and current_cell.type == "goal":
+            terminated = True
+            reached_goal = True
+            try: reward = self.goal_reward
+            except: reward = 1
+        elif current_cell is not None and current_cell.type == "lava":
+            terminated = True
+            ran_into_lava = True
+            try: reward = self.failure_penalty
+            except: reward = -1
+        elif collision:
+            terminated = True
+            try: reward = self.collision_penalty
+            except: reward = -1
+            self.agent_pos = tuple(fwd_pos)
+        else:
+            try: reward += self.bfs_reward[self.agent_pos[0] + self.grid.width * self.agent_pos[1]]
+            except: pass
+
         if self.step_count >= self.max_steps:
             truncated = True
 
         if self.render_mode == "human":
             self.render()
 
+        info["reached_goal"] = reached_goal
+        info["ran_into_lava"] = ran_into_lava
+        info["opened_door"] = opened_door
+        info["picked_up"] = picked_up
+        #if terminated:
+        #    print(f"Terminated at: {self.agent_pos} {self.grid.get(*self.agent_pos)} {info}")
+        if len(self.adversaries) > 0: info["collision"] = collision
         obs = self.gen_obs()
+        return obs, reward, terminated, truncated, info
 
-        return obs, reward, terminated, truncated, {}
+    def get_neighbours_prob(self, agent_pos, probabilities):
+        neighbours = [tuple((x,y)) for x in range(agent_pos[0]-1, agent_pos[0]+2) for y in range(agent_pos[1]-1,agent_pos[1]+2)]
+        probabilities_dict = dict(zip(neighbours, probabilities))
+
+        for pos in probabilities_dict:
+            cell = self.grid.get(*pos)
+            if cell is not None and not cell.can_overlap():
+                probabilities_dict[pos] = 0.0
+        try:
+            return list(probabilities_dict.keys()), [float(p) / sum(probabilities_dict.values()) for p in probabilities_dict.values()]
+        except ZeroDivisionError as e:
+            return list(probabilities_dict.keys()), stay_at_pos_distribution
 
     def gen_obs_grid(self, agent_view_size=None):
         """
@@ -655,6 +949,7 @@ class MiniGridEnv(gym.Env):
             tile_size,
             agent_pos=(self.agent_view_size // 2, self.agent_view_size - 1),
             agent_dir=3,
+            adversaries=self.adversaries.values(),
             highlight_mask=vis_mask,
         )
 
@@ -703,6 +998,7 @@ class MiniGridEnv(gym.Env):
             tile_size,
             self.agent_pos,
             self.agent_dir,
+            adversaries=self.adversaries.values() if self.adversaries else [],
             highlight_mask=highlight_mask if highlight else None,
         )
 
@@ -736,6 +1032,9 @@ class MiniGridEnv(gym.Env):
     def render(self):
         img = self.get_frame(self.highlight, self.tile_size, self.agent_pov)
 
+        self.tile_size = 16
+        screen_width = 2 * self.tile_size * self.grid.width
+        screen_height = 2 * self.tile_size * self.grid.height
         if self.render_mode == "human":
             img = np.transpose(img, axes=(1, 0, 2))
             if self.render_size is None:
@@ -744,7 +1043,7 @@ class MiniGridEnv(gym.Env):
                 pygame.init()
                 pygame.display.init()
                 self.window = pygame.display.set_mode(
-                    (self.screen_size, self.screen_size)
+                    (screen_width, screen_height)
                 )
                 pygame.display.set_caption("minigrid")
             if self.clock is None:
@@ -753,6 +1052,7 @@ class MiniGridEnv(gym.Env):
 
             # Create background with mission description
             offset = surf.get_size()[0] * 0.1
+            offset = 0
             # offset = 32 if self.agent_pov else 64
             bg = pygame.Surface(
                 (int(surf.get_size()[0] + offset), int(surf.get_size()[1] + offset))
@@ -761,15 +1061,15 @@ class MiniGridEnv(gym.Env):
             bg.fill((255, 255, 255))
             bg.blit(surf, (offset / 2, 0))
 
-            bg = pygame.transform.smoothscale(bg, (self.screen_size, self.screen_size))
+            bg = pygame.transform.smoothscale(bg, (screen_width, screen_height))
 
-            font_size = 22
-            text = self.mission
-            font = pygame.freetype.SysFont(pygame.font.get_default_font(), font_size)
-            text_rect = font.get_rect(text, size=font_size)
-            text_rect.center = bg.get_rect().center
-            text_rect.y = bg.get_height() - font_size * 1.5
-            font.render_to(bg, text_rect, text, size=font_size)
+            #font_size = 22
+            #text = self.mission
+            #font = pygame.freetype.SysFont(pygame.font.get_default_font(), font_size)
+            #text_rect = font.get_rect(text, size=font_size)
+            #text_rect.center = bg.get_rect().center
+            #text_rect.y = bg.get_height() - font_size * 1.5
+            #font.render_to(bg, text_rect, text, size=font_size)
 
             self.window.blit(bg, (0, 0))
             pygame.event.pump()
@@ -778,6 +1078,35 @@ class MiniGridEnv(gym.Env):
 
         elif self.render_mode == "rgb_array":
             return img
+
+    def get_symbolic_state(self):
+        adversaries = tuple()
+        balls = tuple()
+        keys = tuple()
+        boxes = tuple()
+        doors = tuple()
+
+        for obj in self.objects:
+            if obj.type == "box":
+                boxes += (obj.to_state(),)
+            if obj.type == "ball":
+                balls += (obj.to_state(),)
+            if obj.type == "key":
+                keys += (obj.to_state(),)
+        for door in self.doors:
+            doors += (door.to_state(),)
+
+
+        for color in COLOR_NAMES:
+            try:
+                adversaries += (self.adversaries[color].to_state(),)
+            except Exception as e:
+                pass
+
+
+        carrying = "" if not self.carrying else f"{self.carrying.color.capitalize()}{self.carrying.type.capitalize()}"
+        state = State(colAgent=self.agent_pos[0], rowAgent=self.agent_pos[1], viewAgent=self.agent_dir, carrying=carrying, adversaries=adversaries, keys=keys, doors=doors)
+        return state
 
     def close(self):
         if self.window:

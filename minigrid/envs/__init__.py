@@ -12,6 +12,15 @@ from minigrid.envs.gotodoor import GoToDoorEnv
 from minigrid.envs.gotoobject import GoToObjectEnv
 from minigrid.envs.keycorridor import KeyCorridorEnv
 from minigrid.envs.lavagap import LavaGapEnv
+from minigrid.envs.lavafaulty import LavaFaultyEnv
+from minigrid.envs.windycity import WindyCityEnv
+from minigrid.envs.lavaslippery import LavaSlipperyEnv1, LavaSlipperyCliff, LavaSlipperyHill, LavaSlipperyMaze
+from minigrid.envs.adversary_debug import AdversaryDebug
+from minigrid.envs.adversary_simple import AdversarySimple
+from minigrid.envs.adversarydoorpickup import AdversaryDoorPickup
+from minigrid.envs.oscillating_adversaries import OscillatingAdversaries
+from minigrid.envs.doubledoor import DoubleDoorEnv
+from minigrid.envs.singledoor import SingleDoorEnv
 from minigrid.envs.lockedroom import LockedRoom, LockedRoomEnv
 from minigrid.envs.memory import MemoryEnv
 from minigrid.envs.multiroom import MultiRoom, MultiRoomEnv

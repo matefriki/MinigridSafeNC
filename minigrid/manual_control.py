@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import gymnasium as gym
+import numpy as np
 import pygame
 from gymnasium import Env
 
@@ -16,23 +17,31 @@ class ManualControl:
         self,
         env: Env,
         seed=None,
+        random_agent=False
     ) -> None:
         self.env = env
         self.seed = seed
         self.closed = False
+        self.random_agent = random_agent
 
     def start(self):
         """Start the window display with blocking event loop"""
         self.reset(self.seed)
 
         while not self.closed:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.env.close()
-                    break
-                if event.type == pygame.KEYDOWN:
-                    event.key = pygame.key.name(int(event.key))
-                    self.key_handler(event)
+            if self.random_agent:
+                index = np.random.choice(3, 1)[0]
+                action = [Actions.left, Actions.right, Actions.forward][index]
+                print(action)
+                self.step(action)
+            else:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        self.env.close()
+                        break
+                    if event.type == pygame.KEYDOWN:
+                        event.key = pygame.key.name(int(event.key))
+                        self.key_handler(event)
 
     def step(self, action: Actions):
         _, reward, terminated, truncated, _ = self.env.step(action)
@@ -61,6 +70,9 @@ class ManualControl:
         if key == "backspace":
             self.reset()
             return
+        if key == "f12":
+            self.take_screenshot()
+            return
 
         key_to_action = {
             "left": Actions.left,
@@ -78,6 +90,16 @@ class ManualControl:
             self.step(action)
         else:
             print(key)
+
+    def take_screenshot(self):
+        import datetime
+        filename = f"{datetime.datetime.now().isoformat()}.png"
+        print(f"Saving a screenshot to '{filename}'")
+        window = self.env.window
+        screenshot = pygame.Surface(window.get_size())
+        screenshot.blit(window, (0,0))
+        pygame.image.save(screenshot, filename)
+
 
 
 if __name__ == "__main__":
@@ -117,6 +139,12 @@ if __name__ == "__main__":
         default="640",
         help="set the resolution for pygame rendering (width and height)",
     )
+    parser.add_argument(
+        "--random-agent",
+        action="store_true",
+        help="make the agent move around randomly"
+    )
+
 
     args = parser.parse_args()
 
@@ -135,5 +163,6 @@ if __name__ == "__main__":
         env = RGBImgPartialObsWrapper(env, args.tile_size)
         env = ImgObsWrapper(env)
 
-    manual_control = ManualControl(env, seed=args.seed)
+    print(env.printGrid(init=True))
+    manual_control = ManualControl(env, seed=args.seed, random_agent=args.random_agent)
     manual_control.start()
