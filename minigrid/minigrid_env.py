@@ -296,14 +296,8 @@ class MiniGridEnv(gym.Env):
                 if init:
                     if c and c.type == "wall":
                         background_str += OBJECT_TO_STR[c.type] + c.color[0].upper()
-                    elif c and c.type == "slipperynorth":
+                    elif c and c.type in ["slipperynorth", "slipperyeast", "slipperysouth", "slipperywest", "slipperynorthwest", "slipperynortheast", "slipperysoutheast", "slipperysouthwest"]:
                          background_str += OBJECT_TO_STR[c.type] + c.color[0].upper()
-                    elif c and c.type == "slipperysouth":
-                        background_str += OBJECT_TO_STR[c.type] + c.color[0].upper()
-                    elif c and c.type == "slipperyeast":
-                        background_str += OBJECT_TO_STR[c.type] + c.color[0].upper()
-                    elif c and c.type == "slipperywest":
-                        background_str += OBJECT_TO_STR[c.type] + c.color[0].upper()
                     elif b is None:
                         background_str += "  "
                     else:
@@ -1038,6 +1032,9 @@ class MiniGridEnv(gym.Env):
     def render(self):
         img = self.get_frame(self.highlight, self.tile_size, self.agent_pov)
 
+        self.tile_size = 16
+        screen_width = 2 * self.tile_size * self.grid.width
+        screen_height = 2 * self.tile_size * self.grid.height
         if self.render_mode == "human":
             img = np.transpose(img, axes=(1, 0, 2))
             if self.render_size is None:
@@ -1046,7 +1043,7 @@ class MiniGridEnv(gym.Env):
                 pygame.init()
                 pygame.display.init()
                 self.window = pygame.display.set_mode(
-                    (self.screen_size, self.screen_size)
+                    (screen_width, screen_height)
                 )
                 pygame.display.set_caption("minigrid")
             if self.clock is None:
@@ -1064,7 +1061,7 @@ class MiniGridEnv(gym.Env):
             bg.fill((255, 255, 255))
             bg.blit(surf, (offset / 2, 0))
 
-            bg = pygame.transform.smoothscale(bg, (self.screen_size, self.screen_size))
+            bg = pygame.transform.smoothscale(bg, (screen_width, screen_height))
 
             #font_size = 22
             #text = self.mission
