@@ -7,12 +7,12 @@ from minigrid.core.world_object import Lava
 from minigrid.core.actions import Actions
 
 
-try:
-    from astar import find_path
-except:
-    print("Install with:")
-    print("pip install git+https://github.com/jrialland/python-astar.git")
-    raise Exception("Need to install astar")
+# try:
+#     from astar import find_path
+# except:
+#     print("Install with:")
+#     print("pip install git+https://github.com/jrialland/python-astar.git")
+#     raise Exception("Need to install astar")
 import numpy.random
 
 class Task(ABC):
