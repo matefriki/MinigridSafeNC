@@ -14,9 +14,12 @@ from gymnasium.spaces import Box
 from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.callbacks import EvalCallback
+from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 from stable_baselines3.common.vec_env import DummyVecEnv
+from stable_baselines3.common.logger import configure
+
 import torch
 import torch.nn as nn
 import os, subprocess, time
@@ -178,16 +181,17 @@ class RandomMazeEnv(MiniGridEnv):
         n_slippery_tiles = int(width*height/5)
         n_slippery_tiles = 0
         for i in range(n_slippery_tiles):
-
+            pos_x, pos_y = int(np.random.randint(1,width-1)), int(np.random.randint(1,height-1))
             direction_slippery = np.random.randint(0,4)
-            if direction_slippery == 0:
-                self.grid.horz_wall(int(np.random.randint(1,width-1)), int(np.random.randint(1,height-1)), 1, SlipperyNorth(probability_intended=self.probability_intended, probability_turn_intended=self.probability_turn_intended))
-            if direction_slippery == 1:
-                self.grid.horz_wall(int(np.random.randint(1,width-1)), int(np.random.randint(1,height-1)), 1, SlipperySouth(probability_intended=self.probability_intended, probability_turn_intended=self.probability_turn_intended))
-            if direction_slippery == 2:
-                self.grid.horz_wall(int(np.random.randint(1,width-1)), int(np.random.randint(1,height-1)), 1, SlipperyEast(probability_intended=self.probability_intended, probability_turn_intended=self.probability_turn_intended))
-            if direction_slippery == 3:
-                self.grid.horz_wall(int(np.random.randint(1,width-1)), int(np.random.randint(1,height-1)), 1, SlipperyWest(probability_intended=self.probability_intended, probability_turn_intended=self.probability_turn_intended))
+            if maze[pos_y][pos_x] != 1:
+                if direction_slippery == 0:
+                    self.grid.horz_wall(pos_x, pos_y, 1, SlipperyNorth(probability_intended=self.probability_intended, probability_turn_intended=self.probability_turn_intended))
+                if direction_slippery == 1:
+                    self.grid.horz_wall(pos_x, pos_y, 1, SlipperySouth(probability_intended=self.probability_intended, probability_turn_intended=self.probability_turn_intended))
+                if direction_slippery == 2:
+                    self.grid.horz_wall(pos_x, pos_y, 1, SlipperyEast(probability_intended=self.probability_intended, probability_turn_intended=self.probability_turn_intended))
+                if direction_slippery == 3:
+                    self.grid.horz_wall(pos_x, pos_y, 1, SlipperyWest(probability_intended=self.probability_intended, probability_turn_intended=self.probability_turn_intended))
 
 
         # Place the agent in a random accessible position
@@ -361,56 +365,112 @@ class MinigridFeaturesExtractor(BaseFeaturesExtractor):
 
 
 
-def train():
-    
+# Custom callback for saving the model every 20k steps
+class SaveModelCallback(BaseCallback):
+    def __init__(self, save_freq, save_path, verbose=0):
+        super(SaveModelCallback, self).__init__(verbose)
+        self.save_freq = save_freq
+        self.save_path = save_path
 
+    def _init_callback(self):
+        if self.save_path is not None:
+            os.makedirs(self.save_path, exist_ok=True)
+
+    def _on_step(self) -> bool:
+        if self.n_calls % self.save_freq == 0:
+            save_file = os.path.join(self.save_path, f"model_{self.n_calls}_steps")
+            self.model.save(save_file)
+            if self.verbose > 0:
+                print(f"Model saved at step {self.n_calls}")
+        return True
+
+
+def train():
     policy_kwargs = dict(
-    features_extractor_class=MinigridFeaturesExtractor,
-    features_extractor_kwargs=dict(features_dim=128),
+        features_extractor_class=MinigridFeaturesExtractor,
+        features_extractor_kwargs=dict(features_dim=128),
     )
 
-    # Step 3: Set up directories for saving models and logs
+    # Step 1: Set up directories for saving models and logs
     log_dir = "./ppo_minigrid_logs/"
     os.makedirs(log_dir, exist_ok=True)
-    
 
-    env = RandomMazeEnv(render_mode="rgb_array", size = 13)
+    # Step 2: Create the environment
+    env = RandomMazeEnv(render_mode="rgb_array", size=13)
     env = ImgObsWrapper(env)
+    env = Monitor(env)  # Monitor the environment to log rewards
+    env = DummyVecEnv([lambda: env])  # Vectorize the environment
 
+    # Step 3: Configure TensorBoard logger
+    new_logger = configure(log_dir, ["stdout", "tensorboard"])
+
+    # Step 4: Initialize the model
     model = PPO("CnnPolicy", env, policy_kwargs=policy_kwargs, verbose=1)
-    model.learn(5e6)
+    model.set_logger(new_logger)
 
-    model.save(os.path.join(log_dir, "ppo_minigrid"))
-    print("Model saved successfully.")
+    # Step 5: Set up the callback for periodic model saving
+    save_callback = SaveModelCallback(save_freq=20000, save_path=log_dir)
+
+    # Step 6: Train the model and save checkpoints
+    model.learn(total_timesteps=int(5e8), callback=save_callback)
+
+    # Final save
+    model.save(os.path.join(log_dir, "ppo_minigrid_final"))
+    print("Final model saved successfully.")
 
     return
 
-    # Step 6: Train the model
-    try:
-        model.learn(total_timesteps=2000, callback=eval_callback)  # Train for 200k timesteps
-        model.save(os.path.join(log_dir, "ppo_minigrid_longer"))
-        print("Model saved successfully.")
-    except KeyboardInterrupt:
-        print("Training interrupted. Saving the model...")
-        model.save(os.path.join(log_dir, "ppo_minigrid_interrupt"))
 
-    # Step 7: Evaluate the trained model
-    obs = eval_env.reset()
-    for _ in range(1000):  # Run the trained model for 1000 steps
-        action, _states = model.predict(obs, deterministic=True)
-        obs, reward, done, info = eval_env.step(action)
+# def train():
+    
+
+#     policy_kwargs = dict(
+#     features_extractor_class=MinigridFeaturesExtractor,
+#     features_extractor_kwargs=dict(features_dim=128),
+#     )
+
+#     # Step 3: Set up directories for saving models and logs
+#     log_dir = "./ppo_minigrid_logs/"
+#     os.makedirs(log_dir, exist_ok=True)
+    
+
+#     env = RandomMazeEnv(render_mode="rgb_array", size = 13)
+#     env = ImgObsWrapper(env)
+
+#     model = PPO("CnnPolicy", env, policy_kwargs=policy_kwargs, verbose=1)
+#     model.learn(5e6)
+
+#     model.save(os.path.join(log_dir, "ppo_minigrid"))
+#     print("Model saved successfully.")
+
+#     return
+
+#     # Step 6: Train the model
+#     try:
+#         model.learn(total_timesteps=2000, callback=eval_callback)  # Train for 200k timesteps
+#         model.save(os.path.join(log_dir, "ppo_minigrid_longer"))
+#         print("Model saved successfully.")
+#     except KeyboardInterrupt:
+#         print("Training interrupted. Saving the model...")
+#         model.save(os.path.join(log_dir, "ppo_minigrid_interrupt"))
+
+#     # Step 7: Evaluate the trained model
+#     obs = eval_env.reset()
+#     for _ in range(1000):  # Run the trained model for 1000 steps
+#         action, _states = model.predict(obs, deterministic=True)
+#         obs, reward, done, info = eval_env.step(action)
         
-        # # Directly call the render method of the base environment
-        # if hasattr(eval_env, "env"):
-        #     eval_env.env.render()  # Call render without extra arguments
-        # else:
-        #     eval_env.render()  # Fallback if no nested env
+#         # # Directly call the render method of the base environment
+#         # if hasattr(eval_env, "env"):
+#         #     eval_env.env.render()  # Call render without extra arguments
+#         # else:
+#         #     eval_env.render()  # Fallback if no nested env
 
-        if done:
-            print("Episode reward:", reward)
-            obs = eval_env.reset()
+#         if done:
+#             print("Episode reward:", reward)
+#             obs = eval_env.reset()
 
-    eval_env.close()
+#     eval_env.close()
     
 
 
@@ -422,7 +482,7 @@ def test_model():
     # env = DummyVecEnv([lambda: env])
 
     # Load the pre-trained model
-    model = PPO.load("ppo_minigrid_logs/ppo_minigrid.zip")
+    model = PPO.load("ppo_minigrid_logs/model_28260000_steps.zip")
 
 
     # Reset the environment
@@ -440,7 +500,7 @@ def test_model():
         obs, reward, trunc, term, info = env.step(action)  # Apply the action to the environment
         done = trunc or term
         print(f"{reward=}")
-        time.sleep(3)
+        # time.sleep(3)
 
         if done:
             print("Episode finished after {} steps".format(step + 1))
@@ -674,19 +734,19 @@ def get_prism_files(model, env):
 
 
 def main():
-    # test_model()
-    # return
-
-    # print("start trainig...")
-    # train()
-    # print("end training...")
-    # return
-
-
-    env = RandomMazeEnv(render_mode="human", size = 13)
-    model = PPO.load("ppo_minigrid_logs/ppo_minigrid.zip")
-    get_prism_files(model, env)
+    test_model()
     return
+
+    print("start trainig...")
+    train()
+    print("end training...")
+    return
+
+
+    # env = RandomMazeEnv(render_mode="human", size = 13)
+    # model = PPO.load("ppo_minigrid_logs/ppo_minigrid.zip")
+    # get_prism_files(model, env)
+    # return
 
     test_manual()
     return
