@@ -171,6 +171,7 @@ class RandomMazeEnv(MiniGridEnv):
         maze = self.generate_maze_dfs(width,height)
 
         # Populate the grid with walls and empty cells
+        maze[int(height/2)-1][int(height/2)+1] = 1
         for y in range(height):
             for x in range(width):
                 if maze[y][x] == 1:
@@ -197,7 +198,8 @@ class RandomMazeEnv(MiniGridEnv):
         # self.place_obj(Goal(), top=(1, 1), size=(width-2, height-2))
         # self.place_obj(ColoredGoal("red"), top=(1, 1), size=(width-2, height-2))
         red_goal = ColoredGoal("red")
-        self.goal_pos = self.place_obj(red_goal, top=(1, 1), size=(width-2, height-2))
+        # self.goal_pos = self.place_obj(red_goal, top=(1, 1), size=(width-2, height-2)) # this line places the goal randomly
+        self.goal_pos = self.place_obj(red_goal, top=(1, 2), size=(1, 1)) # this line places the goal at an exact postion
         # self.place_obj(ColoredGoal("green"), top=(1, 1), size=(width-2, height-2))
         # self.place_obj(ColoredGoal("blue"), top=(1, 1), size=(width-2, height-2))
         self.place_obj(Ball("green"), top=(1, 1), size=(width-2, height-2))
@@ -282,6 +284,17 @@ class RandomMazeEnv(MiniGridEnv):
                 maze_large[width-2][i] = 0
                 maze_large[i][height-3] = 0
                 maze_large[width-3][i] = 0
+        ### comment away from here
+        # maze_large = [[0 for _ in range(width)] for _ in range(height)]
+        # for i in range(len(maze_large)):
+        #     maze_large[i][0] = 1
+        #     maze_large[0][i] = 1
+        ### until here
+        for i in range(len(maze_large)):
+            maze_large[i][-1] = 1
+            maze_large[-1][i] = 1
+
+
 
         return maze_large
 
@@ -414,6 +427,30 @@ def train():
     
 
 
+class BfsModel():
+    def __init__(self, env):
+        self.env = env
+    
+    def predict(self, obs, deterministic=True):
+        pos_x, pos_y = self.env.unwrapped.agent_pos
+        fwd_pos_x, fwd_pos_y = self.env.unwrapped.front_pos
+        # print(f"Inside: {self.env.unwrapped.agent_pos=}, {self.env.unwrapped.front_pos=}\n")
+        width = len(self.env.unwrapped.distance_to_goal_grid[0])
+        height = len(self.env.unwrapped.distance_to_goal_grid)
+        if fwd_pos_x < 0 or fwd_pos_x >= width or fwd_pos_y < 0 or fwd_pos_y >= height:
+            return 0, 0
+        # print(f"{fwd_pos_x=}, {fwd_pos_y=}")
+        curr_distance = self.env.unwrapped.distance_to_goal_grid[pos_y][pos_x]
+        fwd_distance = self.env.unwrapped.distance_to_goal_grid[fwd_pos_y][fwd_pos_x]
+        if fwd_distance >= curr_distance or fwd_distance == -2 :
+            return 0, 0
+        return 2, 2
+
+        moves = [0, 1, 2] # left, right, forward
+        curr_dir = self.env.unwrapped.agent_dir
+        print(pos_x, pos_y, curr_dir)
+        print(self.env.unwrapped.front_pos)
+
 
 def test_model():
     # Load the environment
@@ -422,25 +459,26 @@ def test_model():
     # env = DummyVecEnv([lambda: env])
 
     # Load the pre-trained model
-    model = PPO.load("ppo_minigrid_logs/ppo_minigrid.zip")
+    model = PPO.load("../MinigridSafe/ppo_minigrid_logs/ppo_minigrid.zip")
 
 
     # Reset the environment
     obs = env.reset()
-
+    bfsmodel = BfsModel(env)
     # Evaluate the model for a few steps
     for step in range(100):  # Adjust the step count as needed
         env.render()  # Render the environment
         pos_x, pos_y = env.unwrapped.agent_pos
         direction = env.unwrapped.agent_dir
         obs = env.unwrapped.gen_obs()
-        action, _states = model.predict(obs["image"], deterministic=False)  # Get action from model
+        # action, _states = model.predict(obs["image"], deterministic=True)  # Get action from model
+        action, _ = bfsmodel.predict(obs)
         print(f"{pos_x=}, {pos_y=}, {direction=}, {action=}")
         
         obs, reward, trunc, term, info = env.step(action)  # Apply the action to the environment
         done = trunc or term
         print(f"{reward=}")
-        time.sleep(3)
+        # time.sleep(3)
 
         if done:
             print("Episode finished after {} steps".format(step + 1))
@@ -450,26 +488,41 @@ def test_model():
     
 
 
-def aux_print_maze(maze):
-    res_str = ""
-    width, height = len(maze[0]), len(maze)
-    for i in range(width):
-        for j in range(height):
-            tmp = maze[i][j]
-            if tmp >= 10:
-                res_str += f" {tmp}"
-            elif tmp > 0:
-                res_str += f"  {tmp}"
-            elif tmp == 0:
-                res_str += "  G"
-            else:
-                res_str += "  X"
-        res_str += "\n"
-    return res_str
+# def aux_print_maze(maze):
+#     res_str = ""
+#     width, height = len(maze[0]), len(maze)
+#     for i in range(width):
+#         for j in range(height):
+#             tmp = maze[i][j]
+#             if tmp >= 10:
+#                 res_str += f" {tmp}"
+#             elif tmp > 0:
+#                 res_str += f"  {tmp}"
+#             elif tmp == 0:
+#                 res_str += "  G"
+#             else:
+#                 res_str += "  X"
+#         res_str += "\n"
+#     return res_str
 
 def aux_print_maze(maze):
     res_str = ""
     width, height = len(maze[0]), len(maze)
+
+    for i in range(width):
+        for j in range(height):
+            tmp = maze[i][j]
+            if tmp >= 10:
+                res_str += f"  "
+            elif tmp > 0:
+                res_str += f"  "
+            elif tmp == 0:
+                res_str += "XG"
+            else:
+                res_str += "WG"
+        res_str += "\n"
+    res_str += "\n\n"
+
     for i in range(width):
         for j in range(height):
             tmp = maze[i][j]
@@ -482,19 +535,8 @@ def aux_print_maze(maze):
             else:
                 res_str += "  X"
         res_str += "\n"
-    res_str += "\n\n"
-    for i in range(width):
-        for j in range(height):
-            tmp = maze[i][j]
-            if tmp >= 10:
-                res_str += f"   "
-            elif tmp > 0:
-                res_str += f"   "
-            elif tmp == 0:
-                res_str += "  G"
-            else:
-                res_str += "  X"
-        res_str += "\n"
+    
+    
     return res_str
 
 
@@ -524,9 +566,20 @@ def test_manual():
 def generate_prism_guard_string(guard_name, conditions):
     res_str = f"formula {guard_name} = (false)"
     for cond in conditions:
-        res_str += f" | (colAgent={cond[1]}&rowAgent={cond[0]}&viewAgent={cond[2]})"
+        res_str += f" | (colAgent={cond[0]}&rowAgent={cond[1]}&viewAgent={cond[2]})"
     res_str += ";\n"
     return res_str
+
+def generate_trace_input(env):
+    res_str = ""
+    grid = env.distance_to_goal_grid
+    for pos_x in range(np.shape(grid)[0]):
+        for pos_y in range(np.shape(grid)[1]):
+            for direction in range(0,4):
+                if grid[pos_y][pos_x] != -2:
+                    res_str += f"colAgent={pos_x} & rowAgent={pos_y} & viewAgent={direction}\n"    
+    return res_str
+
 
 def get_prism_files(model, env):
     gridstr = env.printGrid(init=True) # init=True is necessary to use minigrid2Prism
@@ -551,6 +604,8 @@ def get_prism_files(model, env):
     print(env.distance_to_goal_grid)
     print(np.shape(env.distance_to_goal_grid))
 
+    print(aux_print_maze(env.distance_to_goal_grid))
+
     # env = ImgObsWrapper(env)
     # model_env = DummyVecEnv([lambda: model_env])
 
@@ -566,10 +621,11 @@ def get_prism_files(model, env):
     for pos_x in range(np.shape(grid)[0]):
         for pos_y in range(np.shape(grid)[1]):
             for direction in range(0,4):
-                if grid[pos_x][pos_y] != -2:
+                if grid[pos_y][pos_x] != -2:
                     env.agent_pos = (pos_x, pos_y)
 
                     env.agent_dir = direction
+                    # print(f"Outside: {env.agent_pos=}, {env.agent_dir=}")
                     obs = env.gen_obs()
                     action, _states = model.predict(obs["image"], deterministic=True)
                     if action == Actions.left:
@@ -626,6 +682,10 @@ def get_prism_files(model, env):
     
     with open(tmp_prismfile_dtmc, 'w') as fp:
         fp.write("".join(dtmc_str_list))
+
+    res_str = generate_trace_input(env)
+    with open('trace_input_adapted.txt', 'w') as fp:
+        fp.write(res_str)
     return
 
 #######################################
@@ -684,7 +744,8 @@ def main():
 
 
     env = RandomMazeEnv(render_mode="human", size = 13)
-    model = PPO.load("ppo_minigrid_logs/ppo_minigrid.zip")
+    # model = PPO.load("ppo_minigrid_logs/ppo_minigrid.zip")
+    model = BfsModel(env)
     get_prism_files(model, env)
     return
 
