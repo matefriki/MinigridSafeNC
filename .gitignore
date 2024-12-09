@@ -2,7 +2,7 @@
 *__pycache__
 *egg-info
 trained_models
-
+ppo_minigrid_logs/
 # PyPI
 build/*
 dist/*
