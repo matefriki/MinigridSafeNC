@@ -3,6 +3,7 @@
 *egg-info
 trained_models
 ppo_minigrid_logs/
+tmp_*
 # PyPI
 build/*
 dist/*

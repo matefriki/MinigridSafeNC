@@ -130,7 +130,7 @@ class WorldObj:
 
 
 class Slippery(WorldObj):
-    def __init__(self, color: str = "blue"):
+    def __init__(self, color: str = "purple"):
         super().__init__("slippery", color)
 
     def can_overlap(self):
@@ -148,7 +148,7 @@ class Slippery(WorldObj):
             fill_coords(img, point_in_line(0.7, yhi, 0.9, ylo, r=0.03), (0, 0, 0))
 
 class SlipperySouth(WorldObj):
-    def __init__(self, color: str = "blue", probability_intended=3/9, probability_turn_intended=6/9):
+    def __init__(self, color: str = "purple", probability_intended=3/9, probability_turn_intended=6/9):
         super().__init__("slipperysouth", color)
         self.direction = 1
 
@@ -191,7 +191,7 @@ class SlipperySouth(WorldObj):
             fill_coords(img, point_in_line(0.7, yhi, 0.9, ylo, r=0.03), (0, 0, 0))
 
 class SlipperyNorthWest(WorldObj):
-    def __init__(self, color: str = "blue", probability_intended=6/9, probability_turn_intended=6/9):
+    def __init__(self, color: str = "purple", probability_intended=6/9, probability_turn_intended=6/9):
         super().__init__("slipperynorthwest", color)
 
         # Field probabilties are stored in the order:
@@ -233,7 +233,7 @@ class SlipperyNorthWest(WorldObj):
             fill_coords(img, rotate_fn(point_in_line(0.3, yhi, 0.5, ylo, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
 
 class SlipperyNorthEast(WorldObj):
-    def __init__(self, color: str = "blue", probability_intended=6/9, probability_turn_intended=6/9):
+    def __init__(self, color: str = "purple", probability_intended=6/9, probability_turn_intended=6/9):
         super().__init__("slipperynortheast", color)
 
         # Field probabilties are stored in the order:
@@ -279,7 +279,7 @@ class SlipperyNorthEast(WorldObj):
         fill_coords(img, point_in_rect(0.49, 0.55, 0.4, 0.75), (0, 0, 0))
 
 class SlipperySouthWest(WorldObj):
-    def __init__(self, color: str = "blue", probability_intended=6/9, probability_turn_intended=6/9):
+    def __init__(self, color: str = "purple", probability_intended=6/9, probability_turn_intended=6/9):
         super().__init__("slipperysouthwest", color)
 
         # Field probabilties are stored in the order:
@@ -321,7 +321,7 @@ class SlipperySouthWest(WorldObj):
             fill_coords(img, rotate_fn(point_in_line(0.3, yhi, 0.5, ylo, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
 
 class SlipperySouthEast(WorldObj):
-    def __init__(self, color: str = "blue", probability_intended=6/9, probability_turn_intended=6/9):
+    def __init__(self, color: str = "purple", probability_intended=6/9, probability_turn_intended=6/9):
         super().__init__("slipperysoutwest", color)
 
         # Field probabilties are stored in the order:
@@ -365,7 +365,7 @@ class SlipperySouthEast(WorldObj):
             fill_coords(img, rotate_fn(point_in_line(0.7, yhi, 0.9, ylo, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
 
 class SlipperyNorth(WorldObj):
-    def __init__(self, color: str = "blue", probability_intended=6/9, probability_turn_intended=6/9):
+    def __init__(self, color: str = "purple", probability_intended=6/9, probability_turn_intended=6/9):
         super().__init__("slipperynorth", color)
         self.offset = (0,-1)
         self.direction = 3
@@ -409,7 +409,7 @@ class SlipperyNorth(WorldObj):
             fill_coords(img, rotate_fn(point_in_line(0.7, yhi, 0.9, ylo, r=0.03), cx=0.5, cy=0.5, theta=math.pi), (0, 0, 0))
 
 class SlipperyWest(WorldObj):
-    def __init__(self, color: str = "blue", probability_intended=6/9, probability_turn_intended=6/9):
+    def __init__(self, color: str = "purple", probability_intended=6/9, probability_turn_intended=6/9):
         super().__init__("slipperywest", color)
         self.offset = (-1,0)
         self.direction = 2
@@ -454,7 +454,7 @@ class SlipperyWest(WorldObj):
             fill_coords(img, rotate_fn(point_in_line(0.7, yhi, 0.9, ylo, r=0.03), cx=0.5, cy=0.5, theta=0.5 * math.pi), (0, 0, 0))
 
 class SlipperyEast(WorldObj):
-    def __init__(self, color: str = "blue", probability_intended=6/9, probability_turn_intended=6/9):
+    def __init__(self, color: str = "purple", probability_intended=6/9, probability_turn_intended=6/9):
         super().__init__("slipperyeast", color)
         self.offset = (1,0)
         self.direction = 0

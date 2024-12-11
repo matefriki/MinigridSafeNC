@@ -544,19 +544,19 @@ def test_model():
 
     # Load the pre-trained model
     model = PPO.load("ppo_minigrid_logs/model_28260000_steps.zip")
-
+    # model = BfsModel(env)
 
     # Reset the environment
     obs = env.reset()
-    bfsmodel = BfsModel(env)
+    
     # Evaluate the model for a few steps
     for step in range(100):  # Adjust the step count as needed
         env.render()  # Render the environment
         pos_x, pos_y = env.unwrapped.agent_pos
         direction = env.unwrapped.agent_dir
         obs = env.unwrapped.gen_obs()
-        # action, _states = model.predict(obs["image"], deterministic=True)  # Get action from model
-        action, _ = bfsmodel.predict(obs)
+        action, _states = model.predict(obs["image"], deterministic=True)  # Get action from model
+        # action, _ = bfsmodel.predict(obs)
         print(f"{pos_x=}, {pos_y=}, {direction=}, {action=}")
         
         obs, reward, trunc, term, info = env.step(action)  # Apply the action to the environment
@@ -818,13 +818,13 @@ def get_prism_files(model, env):
 
 
 def main():
-    test_model()
-    return
+    # test_model()
+    # return
 
-    print("start trainig...")
-    train()
-    print("end training...")
-    return
+    # print("start trainig...")
+    # train()
+    # print("end training...")
+    # return
 
 
     # env = RandomMazeEnv(render_mode="human", size = 13)
@@ -834,8 +834,8 @@ def main():
 
 
     env = RandomMazeEnv(render_mode="human", size = 13)
-    # model = PPO.load("ppo_minigrid_logs/ppo_minigrid.zip")
-    model = BfsModel(env)
+    model = PPO.load("ppo_minigrid_logs/model_28260000_steps.zip")
+    # model = BfsModel(env)
     get_prism_files(model, env)
     return
 
