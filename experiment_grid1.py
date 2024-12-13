@@ -37,16 +37,16 @@ def grid3():
 
 
     # fixed_maze = None
-    fixed_balls = [(4,7), (5,7)]
+    fixed_balls = [(4,7), (1,2)]
     # fixed_balls = None
-    fixed_goal = (2,1)
+    fixed_goal = (5,7)
     # fixed_goal = None
 
 
     # fixed_slip = None
 
     env = MultiColorMazeEnv(render_mode="human", size = size,
-                             fixed_maze=fixed_maze, fixed_balls_position=fixed_balls, fixed_goal_position=fixed_goal, goal_color="green", fixed_slippery_tile_map=fixed_slip, probability_intended=0.3)
+                             fixed_maze=fixed_maze, fixed_balls_position=fixed_balls, fixed_goal_position=fixed_goal, goal_color="blue", fixed_slippery_tile_map=fixed_slip, probability_intended=0.3)
     
     # env = PurpleToEmptyWrapper(env)
     gridstr = env.unwrapped.printGrid(init=True) # init=True is necessary to use minigrid2Prism
@@ -57,7 +57,7 @@ def grid3():
     # env.render()
     # time.sleep(10)
 
-    model = BfsModel(env)
+    # model = BfsModel(env)
     model = PPO.load("ppo_minigrid_logs/model_28260000_steps.zip")
     # env = PurpleToEmptyWrapper(env)
     # test_env_model(env, model)
@@ -131,7 +131,7 @@ def grid1():
     # fixed_maze = None
     fixed_balls = [(4,7), (5,7)]
     # fixed_balls = None
-    fixed_goal = (2,1)
+    fixed_goal = (2,8)
     # fixed_goal = None
     n_slippery_tiles = 0
     fixed_slip = [[-1 for _ in range(size)] for _ in range(size)]
