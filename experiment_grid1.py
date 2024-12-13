@@ -5,6 +5,11 @@ from minigrid.manual_control import ManualControl
 from multicolor_maze import get_intention_quotients, test_env_model
 from stable_baselines3 import PPO
 
+def generate_unique_tuple(existing_tuples, range_start, range_end):
+    while True:
+        new_tuple = (np.random.randint(range_start, range_end), np.random.randint(range_start, range_end))
+        if new_tuple not in existing_tuples:
+            return new_tuple
 
 
 def grid3():
@@ -80,17 +85,26 @@ def grid2():
         for j in range(4,9):
             fixed_maze[i][j] = 1
 
+
+    ball1 = generate_unique_tuple([], 2,5)
+    ball2 = generate_unique_tuple([ball1], 2, 5)
+    ball1 = (9,11)
+    ball2 = (10,11)
+    fixed_balls = [ball1, ball2]
+    fixed_goal = generate_unique_tuple(fixed_balls, 2, 5)
+    fixed_goal = (11,11)
     # fixed_maze = None
-    fixed_balls = [(np.random.randint(1,9),np.random.randint(1,9)), (np.random.randint(1,9),np.random.randint(1,9))]
+    # fixed_balls = [(np.random.randint(2,5),np.random.randint(2,5)), (np.random.randint(2,5),np.random.randint(2,5))]
     # fixed_balls = None
-    fixed_goal = (np.random.randint(1,9),np.random.randint(1,9))
+    # fixed_goal = (np.random.randint(2,5),np.random.randint(2,5))
     # fixed_goal = None
     n_slippery_tiles = 0
     fixed_slip = [[1 for _ in range(size)] for _ in range(size)]
     # fixed_slip = None
-
+    print(f"{fixed_balls=}, {fixed_goal=}")
     env = MultiColorMazeEnv(render_mode="human", size = size,
-                             fixed_maze=fixed_maze, fixed_balls_position=fixed_balls, fixed_goal_position=fixed_goal, goal_color="green", n_slippery_tiles=n_slippery_tiles, fixed_slippery_tile_map=fixed_slip, probability_intended=0.3)
+                             fixed_maze=fixed_maze, fixed_balls_position=fixed_balls, fixed_goal_position=fixed_goal, goal_color="red",
+                            n_slippery_tiles=n_slippery_tiles, fixed_slippery_tile_map=fixed_slip, probability_intended=0.6)
     gridstr = env.printGrid(init=True) # init=True is necessary to use minigrid2Prism
     # print(gridstr)
 
@@ -105,6 +119,7 @@ def grid2():
 
 
 def grid1():
+    starttime = time.time()
     size = 13
     fixed_maze = [[0 for _ in range(size)] for _ in range(size)]
 
@@ -127,8 +142,10 @@ def grid1():
 
     env = MultiColorMazeEnv(render_mode="human", size = size,
                              fixed_maze=fixed_maze, fixed_balls_position=fixed_balls, fixed_goal_position=fixed_goal, goal_color="green", n_slippery_tiles=n_slippery_tiles, fixed_slippery_tile_map=fixed_slip, probability_intended=0.3)
-    
+
     gridstr = env.printGrid(init=True) # init=True is necessary to use minigrid2Prism
+    
+    
     # print(gridstr)
     # env.reset()
     # env.render()
@@ -136,18 +153,19 @@ def grid1():
 
     model = BfsModel(env)
     # test_env_model(env, model)
+    
     iq = get_intention_quotients(env, model)
     print(iq)
-    # env.render()
-    # time.sleep(3)
- 
+
+    # return
+
     # enable manual control for testing
     manual_control = ManualControl(env)    
     manual_control.start()
  
 
 def main():
-    grid1()
+    grid3()
 
 if __name__ == "__main__":
     main()

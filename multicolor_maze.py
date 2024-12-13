@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
-import random, copy, subprocess, time, docker, os, re
+import random, copy, subprocess, time, docker, os, re, json
 from collections import deque
 from gymnasium.core import Wrapper
 from minigrid.core.constants import COLORS, COLOR_TO_IDX, OBJECT_TO_IDX
@@ -459,7 +459,41 @@ def read_prob_average_from_mc_result(resfile):
             if match:
                 values.append(float(match.group(1)))
     return sum(values) / len(values)
-    
+
+
+def load_values(file_path):
+    values = {}
+    with open(file_path, 'r') as file:
+        asdict = json.load(file)
+
+    for i in range(len(asdict)):
+        colagent = asdict[i]['s']['colAgent']
+        rowagent = asdict[i]['s']['rowAgent']
+        viewagent = asdict[i]['s']['viewAgent']
+
+        key = (colagent, rowagent, viewagent)
+        values[key] = asdict[i]['v']
+    return values
+
+def compute_iq_from_files(filemin, filemid, filemax):    
+    values_min = load_values(filemin)
+    values_max = load_values(filemax)
+    values_mid = load_values(filemid)
+
+    shared_keys = set(values_mid.keys())
+    shared_keys &= set(values_max.keys()) # Intersect to find shared keys
+    shared_keys &= set(values_min.keys()) # Intersect to find shared keys
+
+    values_min_masked = [values_min[key] for key in shared_keys]
+    values_mid_masked = [values_mid[key] for key in shared_keys]
+    values_max_masked = [values_max[key] for key in shared_keys]
+
+    pmin = sum(values_min_masked)
+    pmax = sum(values_max_masked)
+    pmid = sum(values_mid_masked)
+
+    return (pmid - pmin)/(pmax - pmin)
+
 
 
 def mask_purple(obs):
@@ -475,6 +509,8 @@ def mask_purple(obs):
     return obs
 
 def get_intention_quotients(env, model):
+
+
     gridstr = env.printGrid(init=True) # init=True is necessary to use minigrid2Prism
     # print(gridstr)
     
@@ -491,6 +527,8 @@ def get_intention_quotients(env, model):
         [minigrid2prism, "-i", tmp_gridfile, "-o", tmp_prismfile_mdp],
         check=True,    # Raise an exception if the command fails
     )
+
+    # return 0
 
     # print(env.distance_to_goal_grid)
     # print(np.shape(env.distance_to_goal_grid))
@@ -594,7 +632,7 @@ def get_intention_quotients(env, model):
             newline_str = line_str
         dtmc_str_list.append(newline_str)
         mdp_str_list.append(line_str)
-    
+
     with open(tmp_prismfile_dtmc, 'w') as fp:
         fp.write("".join(dtmc_str_list))
     
@@ -603,36 +641,46 @@ def get_intention_quotients(env, model):
 
     res_str = generate_trace_input(env)
     tmp_traceinputfile = 'tmp_trace_input_adapted.txt'
+    
     with open(tmp_traceinputfile, 'w') as fp:
         fp.write(res_str)
 
-    tmp_mc_resultsfile = "tmp_mc_result.txt"
+    tmp_mc_resultsfile_dtmc = "tmp_mc_result_dtmc.txt"
+    tmp_mc_resultsfile_mdpmax = "tmp_mc_result_mdp.txt"
+    tmp_mc_resultsfile_mdpmin = "1tmp_mc_result_mdp.txt"
 
-    dtmc_prob_averages = {}
-    mdp_min_prob_averages = {}
-    mdp_max_prob_averages = {}
     intention_quotients = {}
 
     client = docker.from_env()
+
+    container = client.containers.run(
+        "lposch/tempest-devel-traces:latest",
+        command="sleep infinity",  # Keep the container alive
+        volumes={os.getcwd(): {'bind': '/mnt/vol1', 'mode': 'rw'}},
+        working_dir="/mnt/vol1",
+        detach=True
+    )
+
     for col in ["red", "green", "blue"]:
-        aux = client.containers.run("lposch/tempest-devel-traces:latest", f'storm --prism {tmp_prismfile_dtmc} --prop "P=? [F AgentOn{col.capitalize()}]" --trace-input {tmp_traceinputfile} --exportresult {tmp_mc_resultsfile} --buildstateval', volumes = {os.getcwd(): {'bind': '/mnt/vol1', 'mode': 'rw'}}, working_dir = "/mnt/vol1", stderr = True)
-        # outstr = aux.decode("utf-8")
-        # print(outstr)
-        dtmc_prob_averages[col] = read_prob_average_from_mc_result(tmp_mc_resultsfile)
+        # DTMC
+        command = f"storm --prism {tmp_prismfile_dtmc} --prop 'P=? [F AgentOn{col.capitalize()}]' --trace-input {tmp_traceinputfile} --exportresult {tmp_mc_resultsfile_dtmc} --buildstateval"
+        exec_result = container.exec_run(command, stderr=True)
+        # dtmc_prob_averages[col] = read_prob_average_from_mc_result(f"{tmp_mc_resultsfile_dtmc}")
 
-        aux = client.containers.run("lposch/tempest-devel-traces:latest", f'storm --prism {tmp_prismfile_mdp} --prop "Pmax=? [F AgentOn{col.capitalize()}]" --trace-input {tmp_traceinputfile} --exportresult {tmp_mc_resultsfile} --buildstateval', volumes = {os.getcwd(): {'bind': '/mnt/vol1', 'mode': 'rw'}}, working_dir = "/mnt/vol1", stderr = True)
-        mdp_max_prob_averages[col] = read_prob_average_from_mc_result(tmp_mc_resultsfile)
+        # MDP max and # MDP min
+        command = f"storm --prism {tmp_prismfile_mdp} --prop 'Pmax=? [F AgentOn{col.capitalize()}]; Pmin=? [F AgentOn{col.capitalize()}]' --trace-input {tmp_traceinputfile} --exportresult {tmp_mc_resultsfile_mdpmax} --buildstateval"
+        exec_result = container.exec_run(command, stderr=True)
+        # mdp_max_prob_averages[col] = read_prob_average_from_mc_result(f"{tmp_mc_resultsfile}_mdpmax.txt")
 
-        aux = client.containers.run("lposch/tempest-devel-traces:latest", f'storm --prism {tmp_prismfile_mdp} --prop "Pmin=? [F AgentOn{col.capitalize()}]" --trace-input {tmp_traceinputfile} --exportresult {tmp_mc_resultsfile} --buildstateval', volumes = {os.getcwd(): {'bind': '/mnt/vol1', 'mode': 'rw'}}, working_dir = "/mnt/vol1", stderr = True)
-        mdp_min_prob_averages[col] = read_prob_average_from_mc_result(tmp_mc_resultsfile)
-
-        intention_quotients[col] = (dtmc_prob_averages[col] - mdp_min_prob_averages[col])/(mdp_max_prob_averages[col] - mdp_min_prob_averages[col])
+        intention_quotients[col] = compute_iq_from_files(tmp_mc_resultsfile_mdpmin, tmp_mc_resultsfile_dtmc, tmp_mc_resultsfile_mdpmax)
 
 
-    # print(f"{dtmc_prob_averages=}")
-    # print(f"{mdp_max_prob_averages=}")
-    # print(f"{mdp_min_prob_averages=}")
-    # print(f"{intention_quotients=}")
+
+    # container.stop()
+    container.kill() # killing direclty without stop, because stop takes too long
+    container.remove()
+
+
     return intention_quotients
 
 
