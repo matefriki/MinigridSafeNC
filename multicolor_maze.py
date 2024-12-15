@@ -146,8 +146,8 @@ class MultiColorMazeEnv(MiniGridEnv):
             assert 0 <= y and y < height, "Fixed goal position y out of bounds"
 
         if self.fixed_balls_position != None:
-            ball1, ball2 = self.fixed_balls_position
-            for ball in [ball1, ball2]:
+            # ball1, ball2 = self.fixed_balls_position
+            for ball in self.fixed_balls_position:
                 x, y = ball
                 assert 0 <= x and x < width, "Fixed ball position x out of bounds"
                 assert 0 <= y and y < height, "Fixed ball position y out of bounds"
@@ -206,19 +206,15 @@ class MultiColorMazeEnv(MiniGridEnv):
 
 
         
-        if self.fixed_agent_position is None:
-            # Place the agent in a random accessible position
-            self.place_agent(top=(1, 1), size=(width-2, height-2))
-        else:
-            self.place_agent(top=self.fixed_agent_position, size = (1,1))
-        
         colored_goal = ColoredGoal(self.goal_color)
         if self.fixed_goal_position is None:
             # Place the goal in another random accessible position
             self.goal_pos = self.place_obj(colored_goal, top=(1, 1), size=(width-2, height-2))
         else:
             # Place the goal in the fixed position
+            # print("before goal")
             self.goal_pos = self.place_obj(colored_goal, top=self.fixed_goal_position, size=(1,1))
+            # print("after goal")
         
         self.distance_to_goal_grid = self.generate_distance_to_goal(maze, self.goal_pos)
         
@@ -229,8 +225,18 @@ class MultiColorMazeEnv(MiniGridEnv):
             for col in ball_colors:
                 self.place_obj(Ball(col), top=(1, 1), size=(width-2, height-2))            
         else:
-            for idx in range(len(ball_colors)):
-                self.place_obj(Ball(ball_colors[idx]), top=(self.fixed_balls_position[idx]), size=(1,1))
+            for idx in range(len(self.fixed_balls_position)):
+                # print("before ball")
+                self.place_obj(Ball(ball_colors[idx%(len(ball_colors))]), top=(self.fixed_balls_position[idx]), size=(1,1))
+                # print("after ball")
+
+        if self.fixed_agent_position is None:
+            # print("Placing agent in random position")
+            # Place the agent in a random accessible position
+            self.place_agent(top=(1, 1), size=(width-2, height-2))
+            # print(f"done_wiuth agetn, at pos {self.agent_pos=}")
+        else:
+            self.place_agent(top=self.fixed_agent_position, size = (1,1))
 
         # Populate the grid with slippery tiles
         for pos_x in range(len(slippery_tile_map)):
@@ -488,6 +494,8 @@ def compute_iq_from_files(filemin, filemid, filemax):
     values_mid_masked = [values_mid[key] for key in shared_keys]
     values_max_masked = [values_max[key] for key in shared_keys]
 
+    # print(f"{len(shared_keys)=}")
+
     pmin = sum(values_min_masked)
     pmax = sum(values_max_masked)
     pmid = sum(values_mid_masked)
@@ -548,6 +556,15 @@ def get_intention_quotients(env, model):
 
     # env.render()
     # time.sleep(1)
+    
+    fixed_slip = env.fixed_slippery_tile_map
+    for i in range(len(fixed_slip)):
+        for j in range(len(fixed_slip[0])):
+            fixed_slip[i][j] = -1
+    env.fixed_slippery_tile_map = fixed_slip
+    env.render_mode = "none"
+    env.reset()
+    env.render_mode = "human"
 
     grid = env.distance_to_goal_grid
     for pos_x in range(np.shape(grid)[0]):

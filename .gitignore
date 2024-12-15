@@ -8,6 +8,8 @@ tmp_*
 build/*
 dist/*
 .idea/
+.ipynb_checkpoints/
+1tmp*
 
 # Docs
 .DS_Store
